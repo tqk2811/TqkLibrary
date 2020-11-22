@@ -1,0 +1,289 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Timers;
+using System.Windows.Threading;
+
+namespace TqkLibrary.Queues.TaskQueues
+{
+  //public interface IQueue
+  //{
+  //  bool IsPrioritize { get; }
+  //  bool ReQueue { get; }
+
+  //  /// <summary>
+  //  /// Dont use async
+  //  /// </summary>
+  //  /// <returns></returns>
+  //  Task DoWork();
+  //  bool CheckEquals(IQueue queue);
+  //  void Cancel();
+  //}
+  //public delegate void QueueComplete(IQueue queue);
+  //public delegate void RunComplete();
+  //public class TaskQueue
+  //{
+  //  readonly List<IQueue> Queues = new List<IQueue>();
+  //  readonly List<IQueue> Runnings = new List<IQueue>();
+
+  //  [Browsable(false), DefaultValue((string)null)]
+  //  public Dispatcher Dispatcher { get; set; }
+  //  public event RunComplete OnRunComplete;
+  //  public event QueueComplete OnQueueComplete;
+  //  int _MaxRun = 1;
+  //  public int MaxRun
+  //  {
+  //    get { return _MaxRun; }
+  //    set
+  //    {
+  //      bool flag = value > _MaxRun;
+  //      _MaxRun = value;
+  //      if (flag && Queues.Count != 0) RunNewQueue();
+  //    }
+  //  }
+  //  public int RunningCount
+  //  {
+  //    get { return Runnings.Count; }
+  //  }
+  //  public int QueueCount
+  //  {
+  //    get { return Queues.Count; }
+  //  }
+
+  //  public bool RunRandom { get; set; } = false;
+
+  //  //need lock Queues first
+  //  void StartQueue(IQueue queue)
+  //  {
+  //    if(null != queue)
+  //    {
+  //      Queues.Remove(queue);
+  //      lock (Runnings) Runnings.Add(queue);
+  //      queue.DoWork().ContinueWith(ContinueTaskResult, queue);
+  //    }
+  //  }
+
+  //  void RunNewQueue()
+  //  {
+  //    lock (Queues)//Prioritize
+  //    {
+  //      foreach (IQueue q in Queues.Where(x => x.IsPrioritize)) StartQueue(q);
+  //    }
+
+  //    if (Runnings.Count >= MaxRun) return;//other
+  //    else if (Queues.Count == 0)
+  //    {
+  //      if (Runnings.Count == 0 && OnRunComplete != null)
+  //      {
+  //        if(Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnRunComplete);
+  //        else OnRunComplete.Invoke();//on completed
+  //      }
+  //      else return;
+  //    }
+  //    else
+  //    {
+  //      lock (Queues)
+  //      {
+  //        IQueue queue;
+  //        if (RunRandom) queue = Queues.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+  //        else queue = Queues.FirstOrDefault();
+  //        StartQueue(queue);
+  //      }
+  //      if (Queues.Count > 0 && Runnings.Count < MaxRun) RunNewQueue();
+  //    }
+  //  }
+
+  //  void ContinueTaskResult(Task Result, object queue_obj)
+  //  {
+  //    IQueue queue = queue_obj as IQueue;
+  //    QueueCompleted(queue);
+  //  }
+
+  //  void QueueCompleted(IQueue queue)
+  //  {
+  //    lock (Runnings) Runnings.Remove(queue);
+  //    if (queue.ReQueue) lock (Queues) Queues.Add(queue);
+  //    if(OnQueueComplete != null)
+  //    {
+  //      if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, queue);
+  //      else OnQueueComplete.Invoke(queue);
+  //    }
+  //    RunNewQueue();
+  //  }
+
+  //  public void Add(IQueue queue)
+  //  {
+  //    if (null == queue) throw new ArgumentNullException(nameof(queue));
+  //    lock (Queues) Queues.Add(queue);
+  //    RunNewQueue();
+  //  }
+
+  //  public void Cancel(IQueue queue)
+  //  {
+  //    if (null == queue) throw new ArgumentNullException(nameof(queue));
+  //    lock (Queues) Queues.RemoveAll(o => o.CheckEquals(queue));
+  //    lock (Runnings) Runnings.ForEach(o => { if (o.CheckEquals(queue)) o.Cancel(); });
+  //  }
+
+  //  public void Reset(IQueue queue)
+  //  {
+  //    if (null == queue) throw new ArgumentNullException(nameof(queue));
+  //    Cancel(queue);
+  //    Add(queue);
+  //  }
+
+  //  public void ShutDown()
+  //  {
+  //    MaxRun = 0;
+  //    lock (Queues) Queues.Clear();
+  //    lock (Runnings) Runnings.ForEach(o => o.Cancel());
+  //  }
+  //}
+
+  public interface IQueue
+  {
+    bool IsPrioritize { get; }
+    bool ReQueue { get; }
+
+    /// <summary>
+    /// Dont use async
+    /// </summary>
+    /// <returns></returns>
+    Task DoWork();
+    bool CheckEquals(IQueue queue);
+    void Cancel();
+  }
+
+  public delegate void QueueComplete<T>(T queue) where T : IQueue;
+  public delegate void RunComplete();
+  public class TaskQueue<T> where T : IQueue
+  {
+    readonly List<T> Queues = new List<T>();
+    readonly List<T> Runnings = new List<T>();
+
+    [Browsable(false), DefaultValue((string)null)]
+    public Dispatcher Dispatcher { get; set; }
+    public event RunComplete OnRunComplete;
+    public event QueueComplete<T> OnQueueComplete;
+    int _MaxRun = 1;
+    public int MaxRun
+    {
+      get { return _MaxRun; }
+      set
+      {
+        bool flag = value > _MaxRun;
+        _MaxRun = value;
+        if (flag && Queues.Count != 0) RunNewQueue();
+      }
+    }
+    public int RunningCount
+    {
+      get { return Runnings.Count; }
+    }
+    public int QueueCount
+    {
+      get { return Queues.Count; }
+    }
+
+    public bool RunRandom { get; set; } = false;
+
+    //need lock Queues first
+    void StartQueue(T queue)
+    {
+      if (null != queue)
+      {
+        Queues.Remove(queue);
+        lock (Runnings) Runnings.Add(queue);
+        queue.DoWork().ContinueWith(ContinueTaskResult, queue);
+      }
+    }
+
+    void RunNewQueue()
+    {
+      lock (Queues)//Prioritize
+      {
+        foreach (var q in Queues.Where(x => x.IsPrioritize)) StartQueue(q);
+      }
+
+      if (Runnings.Count >= MaxRun) return;//other
+      else if (Queues.Count == 0)
+      {
+        if (Runnings.Count == 0 && OnRunComplete != null)
+        {
+          if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnRunComplete);
+          else OnRunComplete.Invoke();//on completed
+        }
+        else return;
+      }
+      else
+      {
+        lock (Queues)
+        {
+          T queue;
+          if (RunRandom) queue = Queues.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+          else queue = Queues.FirstOrDefault();
+          StartQueue(queue);
+        }
+        if (Queues.Count > 0 && Runnings.Count < MaxRun) RunNewQueue();
+      }
+    }
+
+    void ContinueTaskResult(Task Result, object queue_obj) => QueueCompleted((T)queue_obj);
+
+    void QueueCompleted(T queue)
+    {
+      lock (Runnings) Runnings.Remove(queue);
+      if (queue.ReQueue) lock (Queues) Queues.Add(queue);
+      if (OnQueueComplete != null)
+      {
+        if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, queue);
+        else OnQueueComplete.Invoke(queue);
+      }
+      RunNewQueue();
+    }
+
+    public void Add(T queue)
+    {
+      if (null == queue) throw new ArgumentNullException(nameof(queue));
+      lock (Queues) Queues.Add(queue);
+      RunNewQueue();
+    }
+
+    public void Cancel(T queue)
+    {
+      if (null == queue) throw new ArgumentNullException(nameof(queue));
+      lock (Queues) Queues.RemoveAll(o => o.CheckEquals(queue));
+      lock (Runnings) Runnings.ForEach(o => { if (o.CheckEquals(queue)) o.Cancel(); });
+    }
+
+    public void Cancel(Func<T, bool> func)
+    {
+      if (null == func) throw new ArgumentNullException(nameof(func));
+      lock (Queues)
+      {
+        Queues.Where(func).ToList().ForEach(x => Queues.RemoveAll(o => o.CheckEquals(x)));
+      }
+      lock (Runnings)
+      {
+        Runnings.Where(func).ToList().ForEach(x => Runnings.RemoveAll(o => o.CheckEquals(x)));
+      }
+    }
+
+    public void Reset(T queue)
+    {
+      if (null == queue) throw new ArgumentNullException(nameof(queue));
+      Cancel(queue);
+      Add(queue);
+    }
+
+    public void ShutDown()
+    {
+      MaxRun = 0;
+      lock (Queues) Queues.Clear();
+      lock (Runnings) Runnings.ForEach(o => o.Cancel());
+    }
+  }
+}

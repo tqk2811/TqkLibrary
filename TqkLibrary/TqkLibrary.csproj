@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net462;net48</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="PInvoke.Win32" Version="0.7.78" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
   </ItemGroup>
 
 </Project>

@@ -19,9 +19,9 @@ namespace TqkLibrary
       return t;
     }
 
-    private const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     public static string RandomString(int length)
     {
+      const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
       return new string(Enumerable.Repeat(chars, length).Select(s => s[rd.Next(s.Length)]).ToArray());
     }
 
@@ -44,7 +44,7 @@ namespace TqkLibrary
     public static string convertToUnSign3(this string s)
     {
       string temp = s.Normalize(NormalizationForm.FormD);
-      return regex_IsCombiningDiacriticalMarks.Replace(temp, String.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D').Replace(" ", "-");
+      return regex_IsCombiningDiacriticalMarks.Replace(temp, string.Empty).Replace('\u0111', 'd').Replace('\u0110', 'D').Replace(" ", "-");
     }
   }
 }

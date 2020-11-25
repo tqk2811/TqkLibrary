@@ -1,20 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Windows;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace WpfUi.Converter
+namespace WpfUi.Converters
 {
-  public class BooleanFalseToHiddenConverter : IValueConverter
+  public class CompareConventer : IValueConverter
   {
-    public bool IsReversed { get; set; } = false;
-
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      bool val = (bool)value;//
-      if (this.IsReversed) val = !val;
-      if (val) return Visibility.Visible;
-      else return Visibility.Collapsed;
+      return parameter.Equals(value);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

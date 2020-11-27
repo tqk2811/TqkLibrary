@@ -2,17 +2,19 @@
 
   <PropertyGroup>
     <TargetFrameworks>net462;net48</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
-    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PInvoke.User32" Version="0.7.78" />
+    <PackageReference Include="System.Management" Version="5.0.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Web" />
+    <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
 

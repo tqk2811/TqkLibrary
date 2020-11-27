@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Threading;
 
-namespace TqkLibrary.Wait
+namespace TqkLibrary
 {
   public class EventWaiter
   {

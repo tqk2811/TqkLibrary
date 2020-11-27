@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+//using System.Windows.Forms;
 
 namespace TqkLibrary
 {
@@ -26,19 +27,19 @@ namespace TqkLibrary
     }
 
 
-    public static OpenFileDialog InitOpenFileDialog(
-      string Filter = "All files (*.*)|*.*", 
-      string InitialDirectory = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
-      bool Multiselect = true)
-    {
-      OpenFileDialog openFileDialog = new OpenFileDialog();
-      openFileDialog.InitialDirectory = InitialDirectory;//Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
-      openFileDialog.Filter = Filter;
-      openFileDialog.FilterIndex = 0;
-      openFileDialog.CheckFileExists = true;
-      openFileDialog.Multiselect = Multiselect;
-      return openFileDialog;
-    }
+    //public static OpenFileDialog InitOpenFileDialog(
+    //  string Filter = "All files (*.*)|*.*", 
+    //  string InitialDirectory = "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+    //  bool Multiselect = true)
+    //{
+    //  OpenFileDialog openFileDialog = new OpenFileDialog();
+    //  openFileDialog.InitialDirectory = InitialDirectory;//Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
+    //  openFileDialog.Filter = Filter;
+    //  openFileDialog.FilterIndex = 0;
+    //  openFileDialog.CheckFileExists = true;
+    //  openFileDialog.Multiselect = Multiselect;
+    //  return openFileDialog;
+    //}
 
     static readonly Regex regex_IsCombiningDiacriticalMarks = new Regex("\\p{IsCombiningDiacriticalMarks}+");
     public static string convertToUnSign3(this string s)

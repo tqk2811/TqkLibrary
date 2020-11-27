@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="WindowsBase" />
+    <ProjectReference Include="..\TqkLibrary.Captcha\TqkLibrary.Captcha.csproj" />
+    <ProjectReference Include="..\TqkLibrary.Media\TqkLibrary.Media.csproj" />
+    <ProjectReference Include="..\TqkLibrary.Net\TqkLibrary.Net.csproj" />
+    <ProjectReference Include="..\TqkLibrary.Queues\TqkLibrary.Queues.csproj" />
+    <ProjectReference Include="..\TqkLibrary.SeleniumSupport\TqkLibrary.SeleniumSupport.csproj" />
+    <ProjectReference Include="..\TqkLibrary.WinApi\TqkLibrary.WinApi.csproj" />
+    <ProjectReference Include="..\TqkLibrary.WpfUi\TqkLibrary.WpfUi.csproj" />
   </ItemGroup>
 
 </Project>

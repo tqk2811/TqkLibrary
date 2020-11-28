@@ -6,19 +6,30 @@ namespace TqkLibrary.WpfUi.Converters
 {
   public class EnumConventer : IValueConverter
   {
+    public bool IsAttributeFlag { get; set; } = true;
+
     Enum CurrentValue;
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
       this.CurrentValue = (Enum)value;
-      return CurrentValue.HasFlag(parameter as Enum);// ((mask & target) != 0);
+      if (IsAttributeFlag) return CurrentValue.HasFlag(parameter as Enum);// ((mask & target) != 0);
+      else return CurrentValue.Equals(parameter as Enum);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      var par = parameter as Enum;
-      if ((bool)value) CurrentValue = CurrentValue.Or(par);
-      else CurrentValue = CurrentValue.And(par.Not());
-      return CurrentValue;
+      if(IsAttributeFlag)
+      {
+        var par = parameter as Enum;
+        if ((bool)value) CurrentValue = CurrentValue.Or(par);
+        else CurrentValue = CurrentValue.And(par.Not());
+        return CurrentValue;
+      }
+      else
+      {
+        if ((bool)value) return parameter;
+        else return CurrentValue;
+      }
     }
   }
 

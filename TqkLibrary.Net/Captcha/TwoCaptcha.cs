@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace TqkLibrary.Captcha
+namespace TqkLibrary.Net.Captcha
 {
   public static class TwoCaptcha
   {

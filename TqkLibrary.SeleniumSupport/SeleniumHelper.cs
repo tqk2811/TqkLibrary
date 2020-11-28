@@ -14,11 +14,11 @@ namespace TqkLibrary.SeleniumSupport
       drive.ExecuteScript("arguments[0].click();", webElement);
     }
 
-    public static void JsWriteText(this IWebElement webElement, ChromeDriver drive, string text)
+    public static void JsSetInputText(this IWebElement webElement, ChromeDriver drive, string text)
     {
       drive.ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
     }
-    public static void JsWriteText(this ChromeDriver drive, IWebElement webElement, string text)
+    public static void JsSetInputText(this ChromeDriver drive, IWebElement webElement, string text)
     {
       drive.ExecuteScript($"arguments[0].value = \"{text}\";", webElement);
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 
 namespace TqkLibrary.WpfUi.ObservableCollection
 {
@@ -7,10 +8,12 @@ namespace TqkLibrary.WpfUi.ObservableCollection
   {
     public int Limit { get; set; } = 100;
     public bool IsInsertTop { get; set; } = false;
+    public string LogPath { get; set; }
 
     protected override void InsertItem(int index, T item)
     {
       if (this.Count == Limit) base.RemoveAt(IsInsertTop ? this.Count - 1 : 0);
+      if (!string.IsNullOrEmpty(LogPath)) using (StreamWriter sw = new StreamWriter(LogPath, true)) sw.WriteLine(item.ToString());
       base.InsertItem(IsInsertTop ? 0 : this.Count, item);
     }
 

@@ -115,6 +115,12 @@ namespace TqkLibrary.Queues.TaskQueues
       lock (Queues) Queues.Add(queue);
       RunNewQueue();
     }
+    public void AddRange(IEnumerable<T> queues)
+    {
+      if (null == queues) throw new ArgumentNullException(nameof(queues));
+      lock (Queues) foreach(var queue in queues) Queues.Add(queue);
+      RunNewQueue();
+    }
 
     public void Cancel(T queue)
     {

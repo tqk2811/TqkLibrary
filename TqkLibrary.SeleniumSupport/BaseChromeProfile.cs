@@ -86,7 +86,7 @@ namespace TqkLibrary.SeleniumSupport
     {
       if (IsOpenChrome)
       {
-        process?.Kill();
+        if(process?.HasExited == false) process?.Kill();
         process?.Dispose();
         process = null;
         chromeDriver?.Quit();
@@ -109,9 +109,5 @@ namespace TqkLibrary.SeleniumSupport
       }
     }
 
-    protected virtual void Stop()
-    {
-      tokenSource?.Cancel();
-    }
   }
 }

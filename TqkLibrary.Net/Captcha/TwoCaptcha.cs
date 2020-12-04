@@ -36,7 +36,7 @@ namespace TqkLibrary.Net.Captcha
       else return TwoCaptchaState.Error;
     }
 
-    public void Wait(CancellationToken cancellationToken,int delay = 5000,int step = 100)
+    public static void Wait(CancellationToken cancellationToken,int delay = 5000,int step = 100)
     {
       int timeloop = delay / step;
       while (timeloop-- != 0)

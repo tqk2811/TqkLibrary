@@ -20,7 +20,7 @@ namespace TqkLibrary.Net.Captcha
   }
 
 
-  public class TwoCaptchaResponse
+  public sealed class TwoCaptchaResponse
   {
     public int status { get; set; }
     public string request { get; set; }
@@ -48,14 +48,19 @@ namespace TqkLibrary.Net.Captcha
   }
 
 
-  public static class TwoCaptcha
+  public sealed class TwoCaptcha
   {
-    static readonly HttpClient httpClient = new HttpClient();
-
+    static readonly HttpClient httpClient = new HttpClient(); 
+    readonly string ApiKey;
+    public TwoCaptcha(string ApiKey)
+    {
+      if (string.IsNullOrEmpty(ApiKey)) throw new ArgumentNullException(nameof(ApiKey));
+      this.ApiKey = ApiKey;
+    }
 
     //https://2captcha.com/2captcha-api#solving_recaptchav2_old
     //có thể dùng TwoCaptcha.ReCaptchaV2_old(....).Result  - Khuyến cáo không dùng .Result ở main thread
-    public static async Task<string> ReCaptchaV2_old(Bitmap bitmap, Bitmap imginstructions,string ApiKey, int? recaptcharows = null,int? recaptchacols = null)
+    public async Task<string> ReCaptchaV2_old(Bitmap bitmap, Bitmap imginstructions,int? recaptcharows = null,int? recaptchacols = null)
     {
       byte[] buffer_bitmap = null;
       using (MemoryStream memoryStream = new MemoryStream())
@@ -104,7 +109,7 @@ namespace TqkLibrary.Net.Captcha
       }
     }
 
-    public static async Task<TwoCaptchaResponse> GetResponseJson(string id,string ApiKey)
+    public async Task<TwoCaptchaResponse> GetResponseJson(string id)
     {
       if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
@@ -124,7 +129,7 @@ namespace TqkLibrary.Net.Captcha
       }
     }
 
-    public static async Task<string> GetResponse(string id, string ApiKey)
+    public async Task<string> GetResponse(string id)
     {
       if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
@@ -144,7 +149,7 @@ namespace TqkLibrary.Net.Captcha
     }
 
 
-    public static async Task<string> Nomal(Bitmap bitmap,string ApiKey)
+    public async Task<string> Nomal(Bitmap bitmap)
     {
       byte[] buffer_bitmap = null;
       using (MemoryStream memoryStream = new MemoryStream())
@@ -175,7 +180,7 @@ namespace TqkLibrary.Net.Captcha
     }
 
 
-    public static async Task<string> SolveRecaptchaV2(string ApiKey, string googleKey, string pageUrl)
+    public async Task<string> SolveRecaptchaV2(string googleKey, string pageUrl)
     {
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["key"] = ApiKey;

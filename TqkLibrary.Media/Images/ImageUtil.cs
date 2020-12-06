@@ -120,7 +120,11 @@ namespace TqkLibrary.Media.Images
       return new Point(center_source.X - center_child.X, center_source.Y - center_child.Y);
     }
 
-
+    public static Bitmap ToBitMap(this byte[] buffer)
+    {
+      MemoryStream memoryStream = new MemoryStream(buffer);
+      return (Bitmap)Bitmap.FromStream(memoryStream);
+    }
 
 
     #region Graphics Extension 

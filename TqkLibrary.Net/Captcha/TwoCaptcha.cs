@@ -179,14 +179,16 @@ namespace TqkLibrary.Net.Captcha
       }
     }
 
-
-    public async Task<string> SolveRecaptchaV2(string googleKey, string pageUrl)
+    //https://2captcha.com/2captcha-api#recaptchav2new_proxy
+    public async Task<string> RecaptchaV2(string googleKey, string pageUrl,string proxy = null, string proxytype = null)
     {
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["key"] = ApiKey;
       parameters["googlekey"] = googleKey;
       parameters["method"] = "userrecaptcha";
       parameters["pageurl"] = pageUrl;
+      if(!string.IsNullOrEmpty(proxy)) parameters["proxy"] = proxy;
+      if (!string.IsNullOrEmpty(proxytype)) parameters["proxytype"] = proxytype;
       Uri uri = new Uri("https://2captcha.com/in.php?" + parameters.ToString());
 
       using(HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))

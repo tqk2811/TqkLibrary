@@ -22,7 +22,7 @@ namespace TqkLibrary.SeleniumSupport
       zipFile.CommitUpdate();
       zipFile.Close();
     }
-    public static void GenerateExtension(string filepath, string host,int port,string username, string password) => GenerateExtension(filepath, host, port, username, password);
+    public static void GenerateExtension(string filepath, string host,int port,string username, string password) => GenerateExtension(filepath, host, port.ToString(), username, password);
 
   }
 

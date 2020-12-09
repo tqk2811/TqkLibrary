@@ -86,7 +86,7 @@ namespace TqkLibrary.Net.Captcha
 
     public bool IsComplete()
     {
-      return Status.Equals("ready");
+      return Status == null || Status.Equals("ready");
     }
   }
 
@@ -97,6 +97,8 @@ namespace TqkLibrary.Net.Captcha
 
     [JsonProperty("url")]
     public string Url { get; set; }
+
+    public string gRecaptchaResponse { get; set; }
   }
 
 
@@ -128,7 +130,7 @@ namespace TqkLibrary.Net.Captcha
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, EndPoint + "/createTask"))
       {
         httpRequestMessage.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(createTaskJson), Encoding.UTF8, "application/json");
+        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(createTaskJson,NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json");
         using(HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage,HttpCompletionOption.ResponseContentRead))
         {
           return JsonConvert.DeserializeObject<AntiCaptchaTaskResponse>(await httpResponseMessage.Content.ReadAsStringAsync());
@@ -145,7 +147,7 @@ namespace TqkLibrary.Net.Captcha
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, EndPoint + "/getTaskResult"))
       {
         httpRequestMessage.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(taskResultJson), Encoding.UTF8, "application/json");
+        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(taskResultJson, NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json");
         using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return JsonConvert.DeserializeObject<AntiCaptchaTaskResultResponse>(await httpResponseMessage.Content.ReadAsStringAsync());

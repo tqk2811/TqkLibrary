@@ -50,6 +50,7 @@ namespace TqkLibrary.Net.Captcha
 
   public sealed class TwoCaptcha
   {
+    const string EndPoint = "https://2captcha.com";
     static readonly HttpClient httpClient = new HttpClient(); 
     readonly string ApiKey;
     public TwoCaptcha(string ApiKey)
@@ -87,7 +88,7 @@ namespace TqkLibrary.Net.Captcha
       //if(!string.IsNullOrEmpty(textinstructions)) parameters["textinstructions"] = textinstructions;
       if (recaptcharows != null) parameters["recaptcharows"] = recaptcharows.Value.ToString();
       if (recaptchacols != null) parameters["recaptchacols"] = recaptchacols.Value.ToString();
-      Uri uri = new Uri("https://2captcha.com/in.php?" + parameters.ToString());
+      Uri uri = new Uri(EndPoint + "/in.php?" + parameters.ToString());
 
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri))
       {
@@ -118,7 +119,7 @@ namespace TqkLibrary.Net.Captcha
       parameters["id"] = id;
       parameters["action"] = "get";
       parameters["json"] = "1";
-      Uri uri = new Uri("https://2captcha.com/res.php?" + parameters.ToString());
+      Uri uri = new Uri(EndPoint + "/res.php?" + parameters.ToString());
 
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
       {
@@ -137,7 +138,7 @@ namespace TqkLibrary.Net.Captcha
       parameters["key"] = ApiKey;
       parameters["id"] = id;
       parameters["action"] = "get";
-      Uri uri = new Uri("https://2captcha.com/res.php?" + parameters.ToString());
+      Uri uri = new Uri(EndPoint + "/res.php?" + parameters.ToString());
 
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
       {
@@ -147,7 +148,6 @@ namespace TqkLibrary.Net.Captcha
         }
       }
     }
-
 
     public async Task<string> Nomal(Bitmap bitmap)
     {
@@ -162,7 +162,7 @@ namespace TqkLibrary.Net.Captcha
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["key"] = ApiKey;
       parameters["method"] = "post";
-      Uri uri = new Uri("https://2captcha.com/in.php?" + parameters.ToString());
+      Uri uri = new Uri(EndPoint + "/in.php?" + parameters.ToString());
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri))
       {
         MultipartFormDataContent requestContent = new MultipartFormDataContent();
@@ -189,7 +189,7 @@ namespace TqkLibrary.Net.Captcha
       parameters["pageurl"] = pageUrl;
       if(!string.IsNullOrEmpty(proxy)) parameters["proxy"] = proxy;
       if (!string.IsNullOrEmpty(proxytype)) parameters["proxytype"] = proxytype;
-      Uri uri = new Uri("https://2captcha.com/in.php?" + parameters.ToString());
+      Uri uri = new Uri(EndPoint + "/in.php?" + parameters.ToString());
 
       using(HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
       {

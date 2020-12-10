@@ -109,5 +109,11 @@ namespace TqkLibrary.SeleniumSupport
       }
     }
 
+    public virtual void SaveHtml(string path)
+    {
+      using StreamWriter streamWriter = new StreamWriter(path, false);
+      streamWriter.Write(chromeDriver.PageSource);
+      streamWriter.Flush();
+    }
   }
 }

@@ -8,12 +8,39 @@ using Newtonsoft.Json;
 namespace TqkLibrary.Net.Captcha
 {
   /// <summary>
-  /// https://anti-captcha.com/apidoc/recaptcha
+  /// https://anti-captcha.com/apidoc/image
+  /// </summary>
+  public enum AntiCaptchaType
+  {
+    FunCaptchaTask,
+    FunCaptchaTaskProxyless,
+    ImageToTextTask,
+    /// <summary>
+    /// Recaptcha no proxy
+    /// </summary>
+    NoCaptchaTaskProxyless,
+    /// <summary>
+    /// Recaptcha with proxy
+    /// </summary>
+    NoCaptchaTask,
+    /// <summary>
+    /// recaptcha V3 No proxy
+    /// </summary>
+    RecaptchaV3TaskProxyless,
+    GeeTestTaskProxyless,
+    GeeTestTask,
+    HCaptchaTask,
+    HCaptchaTaskProxyless
+  }
+
+
+  /// <summary>
+  /// https://anti-captcha.com/apidoc/image
   /// </summary>
   public sealed class AntiCaptchaTask
   {
     [JsonProperty("type")]
-    public string Type { get; set; }
+    public AntiCaptchaType Type { get; set; }
 
     [JsonProperty("websiteURL")]
     public string WebsiteUrl { get; set; }
@@ -41,6 +68,27 @@ namespace TqkLibrary.Net.Captcha
 
     [JsonProperty("cookies")]
     public string Cookies { get; set; }
+
+    [JsonProperty("body")]
+    public string Body { get; set; }
+
+    [JsonProperty("funcaptchaApiJSSubdomain")]
+    public string FunCaptchaApiJSSubDomain { get; set; }
+
+    [JsonProperty("data")]
+    public string Data { get; set; }
+
+    [JsonProperty("websitePublicKey")]
+    public string WebsitePublicKey { get; set; }
+
+    [JsonProperty("gt")]
+    public string GT { get; set; }
+
+    [JsonProperty("challenge")]
+    public string Challenge { get; set; }
+
+    [JsonProperty("geetestApiServerSubdomain")]
+    public string GeeTestApiServerSubdomain { get; set; }
   }
 
   public sealed class AntiCaptchaTaskResponse

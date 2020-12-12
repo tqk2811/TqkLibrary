@@ -19,7 +19,6 @@ namespace TqkLibrary.Net.Captcha
     Success
   }
 
-
   public sealed class TwoCaptchaResponse
   {
     public int status { get; set; }
@@ -35,16 +34,6 @@ namespace TqkLibrary.Net.Captcha
       if (request.Contains("CAPCHA_NOT_READY")) return TwoCaptchaState.NotReady;
       else return TwoCaptchaState.Error;
     }
-
-    public static void Wait(CancellationToken cancellationToken,int delay = 5000,int step = 100)
-    {
-      int timeloop = delay / step;
-      while (timeloop-- != 0)
-      {
-        Task.Delay(step).Wait();
-        cancellationToken.ThrowIfCancellationRequested();
-      }
-    }
   }
 
 
@@ -59,10 +48,91 @@ namespace TqkLibrary.Net.Captcha
       this.ApiKey = ApiKey;
     }
 
+    public async Task<string> GetResponse(string id)
+    {
+      if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+
+      var parameters = HttpUtility.ParseQueryString(string.Empty);
+      parameters["key"] = ApiKey;
+      parameters["id"] = id;
+      parameters["action"] = "get";
+      Uri uri = new Uri(EndPoint + "/res.php?" + parameters.ToString());
+
+      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
+      {
+        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        {
+          return await httpResponseMessage.Content.ReadAsStringAsync();
+        }
+      }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <exception cref="JsonException"></exception>
+    public async Task<TwoCaptchaResponse> GetResponseJson(string id)
+    {
+      if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+
+      var parameters = HttpUtility.ParseQueryString(string.Empty);
+      parameters["key"] = ApiKey;
+      parameters["id"] = id;
+      parameters["action"] = "get";
+      parameters["json"] = "1";
+      Uri uri = new Uri(EndPoint + "/res.php?" + parameters.ToString());
+
+      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
+      {
+        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        {
+          return JsonConvert.DeserializeObject<TwoCaptchaResponse>(await httpResponseMessage.Content.ReadAsStringAsync());
+        }
+      }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="delay"></param>
+    /// <param name="step"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <exception cref="JsonException"></exception>
+    /// <exception cref="OperationCanceledException"></exception>
+    public async Task<TwoCaptchaResponse> WaitResponseJsonCompleted(string id, CancellationToken cancellationToken, int delay = 5000, int step = 100)
+    {
+      while(true)
+      {
+        CaptchaWait.Wait(cancellationToken, delay, step);
+        TwoCaptchaResponse twoCaptchaResponse = await GetResponseJson(id);
+        switch(twoCaptchaResponse.CheckState())
+        {
+          case TwoCaptchaState.NotReady:
+            continue;
+          case TwoCaptchaState.Error:
+          case TwoCaptchaState.Success:
+            return twoCaptchaResponse;
+        }
+      }
+    }
+
+
     //https://2captcha.com/2captcha-api#solving_recaptchav2_old
-    //có thể dùng TwoCaptcha.ReCaptchaV2_old(....).Result  - Khuyến cáo không dùng .Result ở main thread
     public async Task<string> ReCaptchaV2_old(Bitmap bitmap, Bitmap imginstructions,int? recaptcharows = null,int? recaptchacols = null)
     {
+      if (null == bitmap) throw new ArgumentNullException(nameof(bitmap));
+      if (null == imginstructions) throw new ArgumentNullException(nameof(imginstructions));
+
       byte[] buffer_bitmap = null;
       using (MemoryStream memoryStream = new MemoryStream())
       {
@@ -110,45 +180,7 @@ namespace TqkLibrary.Net.Captcha
       }
     }
 
-    public async Task<TwoCaptchaResponse> GetResponseJson(string id)
-    {
-      if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-
-      var parameters = HttpUtility.ParseQueryString(string.Empty);
-      parameters["key"] = ApiKey;
-      parameters["id"] = id;
-      parameters["action"] = "get";
-      parameters["json"] = "1";
-      Uri uri = new Uri(EndPoint + "/res.php?" + parameters.ToString());
-
-      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
-      {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
-        {
-          return JsonConvert.DeserializeObject<TwoCaptchaResponse>(await httpResponseMessage.Content.ReadAsStringAsync());
-        }
-      }
-    }
-
-    public async Task<string> GetResponse(string id)
-    {
-      if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
-
-      var parameters = HttpUtility.ParseQueryString(string.Empty);
-      parameters["key"] = ApiKey;
-      parameters["id"] = id;
-      parameters["action"] = "get";
-      Uri uri = new Uri(EndPoint + "/res.php?" + parameters.ToString());
-
-      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
-      {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
-        {
-          return await httpResponseMessage.Content.ReadAsStringAsync();
-        }
-      }
-    }
-
+    
     public async Task<string> Nomal(Bitmap bitmap)
     {
       byte[] buffer_bitmap = null;
@@ -180,14 +212,15 @@ namespace TqkLibrary.Net.Captcha
     }
 
     //https://2captcha.com/2captcha-api#recaptchav2new_proxy
-    public async Task<string> RecaptchaV2(string googleKey, string pageUrl,string proxy = null, string proxytype = null)
+    public async Task<string> RecaptchaV2(string googleKey, string pageUrl,string cookies = null, string proxy = null, string proxytype = null)
     {
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["key"] = ApiKey;
       parameters["googlekey"] = googleKey;
       parameters["method"] = "userrecaptcha";
       parameters["pageurl"] = pageUrl;
-      if(!string.IsNullOrEmpty(proxy)) parameters["proxy"] = proxy;
+      if (!string.IsNullOrEmpty(cookies)) parameters["cookies"] = cookies;
+      if (!string.IsNullOrEmpty(proxy)) parameters["proxy"] = proxy;
       if (!string.IsNullOrEmpty(proxytype)) parameters["proxytype"] = proxytype;
       Uri uri = new Uri(EndPoint + "/in.php?" + parameters.ToString());
 
@@ -199,88 +232,5 @@ namespace TqkLibrary.Net.Captcha
         }
       }
     }
-
-
-    //public static bool SolveRecaptchaV2_(string ApiKey, string googleKey, string pageUrl, out string result)
-    //{
-    //  string requestUrl = string.Concat(new string[]
-    //  {
-    //            "http://2captcha.com/in.php?key=",
-    //            ApiKey,
-    //            "&method=userrecaptcha&googlekey=",
-    //            googleKey,
-    //            "&pageurl=",
-    //            pageUrl
-    //  });
-    //  bool result2;
-    //  try
-    //  {
-    //    WebRequest req = WebRequest.Create(requestUrl);
-    //    using (WebResponse resp = req.GetResponse())
-    //    {
-    //      using (StreamReader read = new StreamReader(resp.GetResponseStream()))
-    //      {
-    //        string response = read.ReadToEnd();
-    //        bool flag = response.Length < 3;
-    //        if (flag)
-    //        {
-    //          result = response;
-    //          result2 = false;
-    //          return result2;
-    //        }
-    //        bool flag2 = response.Substring(0, 3) == "OK|";
-    //        if (flag2)
-    //        {
-    //          string captchaID = response.Remove(0, 3);
-    //          for (int i = 0; i < 24; i++)
-    //          {
-    //            WebRequest getAnswer = WebRequest.Create("http://2captcha.com/res.php?key=" + ApiKey + "&action=get&id=" + captchaID);
-    //            using (WebResponse answerResp = getAnswer.GetResponse())
-    //            {
-    //              using (StreamReader answerStream = new StreamReader(answerResp.GetResponseStream()))
-    //              {
-    //                string answerResponse = answerStream.ReadToEnd();
-    //                bool flag3 = answerResponse.Length < 3;
-    //                if (flag3)
-    //                {
-    //                  result = answerResponse;
-    //                  result2 = false;
-    //                  return result2;
-    //                }
-    //                bool flag4 = answerResponse.Substring(0, 3) == "OK|";
-    //                if (flag4)
-    //                {
-    //                  result = answerResponse.Remove(0, 3);
-    //                  result2 = true;
-    //                  return result2;
-    //                }
-    //                bool flag5 = answerResponse != "CAPCHA_NOT_READY";
-    //                if (flag5)
-    //                {
-    //                  result = answerResponse;
-    //                  result2 = false;
-    //                  return result2;
-    //                }
-    //              }
-    //            }
-    //            Thread.Sleep(5000);
-    //          }
-    //          result = "Timeout";
-    //          result2 = false;
-    //          return result2;
-    //        }
-    //        result = response;
-    //        result2 = false;
-    //        return result2;
-    //      }
-    //    }
-    //  }
-    //  catch
-    //  {
-    //  }
-    //  result = "Unknown error";
-    //  result2 = false;
-    //  return result2;
-    //}
   }
 }

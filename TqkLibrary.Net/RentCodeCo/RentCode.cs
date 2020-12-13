@@ -42,7 +42,7 @@ namespace TqkLibrary.Net.RentCodeCo
         using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           string result = await httpResponseMessage.Content.ReadAsStringAsync();
-          Console.WriteLine("RentCode Request:" + result);
+          //Console.WriteLine("RentCode Request:" + result);
           return JsonConvert.DeserializeObject<RentCodeResult>(result);
         }
       }
@@ -79,7 +79,7 @@ namespace TqkLibrary.Net.RentCodeCo
         using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           string result = await httpResponseMessage.Content.ReadAsStringAsync();
-          Console.WriteLine("RentCode Check:" + result);
+          //Console.WriteLine("RentCode Check:" + result);
           return JsonConvert.DeserializeObject<RentCodeCheckOrderResults>(result);
         }
       }

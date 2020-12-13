@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TqkLibrary.Adb\TqkLibrary.Adb.csproj" />
     <ProjectReference Include="..\TqkLibrary.Media\TqkLibrary.Media.csproj" />
     <ProjectReference Include="..\TqkLibrary.Net\TqkLibrary.Net.csproj" />
     <ProjectReference Include="..\TqkLibrary.Queues\TqkLibrary.Queues.csproj" />

@@ -11,9 +11,11 @@ using System.Threading.Tasks;
 namespace TqkLibrary.Adb
 {
   public delegate void AdbLog(string log);
+
   public class BaseAdb
   {
-    static string _AdbPath = "adb.exe";
+    private static string _AdbPath = "adb.exe";
+
     public static string AdbPath
     {
       get { return _AdbPath; }
@@ -24,19 +26,19 @@ namespace TqkLibrary.Adb
       }
     }
 
-    const string tap = "shell input tap {0} {1}";
-    const string swipe = "shell input swipe {0} {1} {2} {3} {4}";
+    private const string tap = "shell input tap {0} {1}";
+    private const string swipe = "shell input swipe {0} {1} {2} {3} {4}";
 
-
-    readonly string adbPath;
+    private readonly string adbPath;
     public readonly string DeviceId;
+
     public event AdbLog LogEvent;
+
     public BaseAdb(string deviceName = null, string adbPath = null)
     {
       this.DeviceId = deviceName;
       this.adbPath = adbPath;
     }
-
 
     public string AdbCommand(string command)
     {
@@ -46,7 +48,7 @@ namespace TqkLibrary.Adb
       return ExecuteCommand(commands, adbLocation);
     }
 
-    static string ExecuteCommand(string command, string adbPath = null)
+    private static string ExecuteCommand(string command, string adbPath = null)
     {
       using (Process process = new Process())
       {
@@ -59,37 +61,59 @@ namespace TqkLibrary.Adb
         process.StartInfo.RedirectStandardInput = true;
         process.Start();
         process.WaitForExit();
-        return process.StandardOutput.ReadToEnd();
+        string result = process.StandardOutput.ReadToEnd();
+        string err = process.StandardError.ReadToEnd();
+        if (!string.IsNullOrEmpty(err)) throw new AdbException(err, result);
+        return result;
       }
     }
-    
+
+    private static string ExecuteCommandCmd(string command, string adbPath = null)
+    {
+      using (Process process = new Process())
+      {
+        process.StartInfo.FileName = "cmd.exe";
+        process.StartInfo.CreateNoWindow = true;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.RedirectStandardOutput = true;
+        process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.RedirectStandardInput = true;
+
+        process.Start();
+
+        process.StandardInput.WriteLine($"\"{(string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath)}\" {command}");
+        process.StandardInput.Flush();
+        process.StandardInput.Close();
+
+        process.WaitForExit();
+        string result = process.StandardOutput.ReadToEnd();
+        string err = process.StandardError.ReadToEnd();
+        if (!string.IsNullOrEmpty(err)) throw new AdbException(err, result);
+        return result;
+      }
+    }
 
     public void WaitForDevice() => AdbCommand("wait-for-device");
 
-    public void UpdateApk(string appName)
-    {
-      if (string.IsNullOrEmpty(appName)) throw new ArgumentNullException(nameof(appName));
-      AdbCommand("install -r " + appName);
-    }
+    public void UpdateApk(string appName) => AdbCommand($"install -r {appName}");
 
     /// <summary>
     /// Example: com.google.android.gms/.accountsettings.mg.ui.main.MainActivity
-    /// OpenApk("com.google.android.gms","accountsettings.mg.ui.main.MainActivity");
+    /// OpenApk("com.google.android.gms",".accountsettings.mg.ui.main.MainActivity");
     /// </summary>
     /// <param name="appName"></param>
     /// <param name="ActivityName"></param>
-    public void OpenApk(string appName,string ActivityName)
-    {
-      if (string.IsNullOrEmpty(appName)) throw new ArgumentNullException(nameof(appName));
-      if (string.IsNullOrEmpty(ActivityName)) throw new ArgumentNullException(nameof(ActivityName));
-      AdbCommand($"shell am start -n {appName}/.{ActivityName}");
-    }
+    public void OpenApk(string appName, string ActivityName) => AdbCommand($"shell am start -n {appName}/{ActivityName}");
 
-    public void SetProxy(string proxy)
-    {
-      if (string.IsNullOrEmpty(proxy)) throw new ArgumentNullException(nameof(proxy));
-      AdbCommand($"shell settings put global http_proxy {proxy}");
-    }
+    public void DisableApk(string appName) => AdbCommand($"shell pm disable {appName}");
+
+    public void EnableApk(string appName) => AdbCommand($"shell pm enable {appName}");
+
+    public void ForceStopApk(string appName) => AdbCommand($"shell am force-stop {appName}");
+
+    public void ClearApk(string appName) => AdbCommand($"shell pm clear {appName}");
+
+    public void SetProxy(string proxy) => AdbCommand($"shell settings put global http_proxy {proxy}");
 
     public void ClearProxy() => AdbCommand("shell settings put global http_proxy :0");
 
@@ -98,12 +122,12 @@ namespace TqkLibrary.Adb
       bool IsDelete = false;
       if (string.IsNullOrEmpty(FilePath))
       {
-        FilePath = (string.IsNullOrEmpty(DeviceId)? Guid.NewGuid().ToString() : DeviceId) + ".png";
+        FilePath = (string.IsNullOrEmpty(DeviceId) ? Guid.NewGuid().ToString() : DeviceId) + ".png";
         IsDelete = true;
       }
       AdbCommand($"shell screencap -p /sdcard/screen.png");
       AdbCommand($"pull /sdcard/screen.png \"{FilePath}\"");
-      AdbCommand($"shell rm /sdcard/screen.png");      
+      AdbCommand($"shell rm /sdcard/screen.png");
       using FileStream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
       Bitmap result = (Bitmap)Bitmap.FromStream(fs);
       if (IsDelete) try { File.Delete(FilePath); } catch (Exception) { }
@@ -112,16 +136,22 @@ namespace TqkLibrary.Adb
 
     public Point GetScreenResolution()
     {
-      string result = AdbCommand("shell dumpsys display | Find \"mCurrentDisplayRect\"");
+      Regex regex = new Regex("(?<=mCurrentDisplayRect=Rect\\().*?(?=\\))", RegexOptions.Multiline);
+      string result = ExecuteCommandCmd("shell dumpsys display | Find \"mCurrentDisplayRect\"", adbPath);//
+      Match match = regex.Match(result);
+      if (match.Success)
+      {
+        result = match.Value;
 
-      result = result.Substring(result.IndexOf("- "));
-      result = result.Substring(result.IndexOf(' '), result.IndexOf(')') - result.IndexOf(' '));
-      string[] temp = result.Split(',');
+        result = result.Substring(result.IndexOf("- ") + 2);
+        string[] temp = result.Split(',');
 
-      int x = Convert.ToInt32(temp[0].Trim());
-      int y = Convert.ToInt32(temp[1].Trim());
+        int x = Convert.ToInt32(temp[0].Trim());
+        int y = Convert.ToInt32(temp[1].Trim());
 
-      return new Point(x, y);
+        return new Point(x, y);
+      }
+      throw new AdbException(result, null);
     }
 
     public void Tap(int x, int y, int count = 1)
@@ -132,8 +162,8 @@ namespace TqkLibrary.Adb
     public void TapByPercent(double x, double y, int count = 1)
     {
       var resolution = GetScreenResolution();
-      int X = (int)(x * (resolution.X * 1.0 / 100));
-      int Y = (int)(y * (resolution.Y * 1.0 / 100));
+      int X = (int)(x * resolution.X);
+      int Y = (int)(y * resolution.Y);
       Tap(X, Y, count);
     }
 
@@ -143,10 +173,10 @@ namespace TqkLibrary.Adb
     {
       var resolution = GetScreenResolution();
 
-      int X1 = (int)(x1 * (resolution.X * 1.0 / 100));
-      int Y1 = (int)(y1 * (resolution.Y * 1.0 / 100));
-      int X2 = (int)(x2 * (resolution.X * 1.0 / 100));
-      int Y2 = (int)(y2 * (resolution.Y * 1.0 / 100));
+      int X1 = (int)(x1 * resolution.X);
+      int Y1 = (int)(y1 * resolution.Y);
+      int X2 = (int)(x2 * resolution.X);
+      int Y2 = (int)(y2 * resolution.Y);
 
       Swipe(X1, Y1, X2, Y2, duration);
     }
@@ -155,12 +185,8 @@ namespace TqkLibrary.Adb
 
     public void Key(ADBKeyEvent key) => AdbCommand(string.Format("shell input keyevent {0}", key));
 
-    public void InputText(string text)
-    {
-      string cmdCommand = string.Format("shell input text \"{0}\"",
-        text.Replace(" ", "%s").Replace("&", "\\&").Replace("<", "\\<").Replace(">", "\\>").Replace("?", "\\?").Replace(":", "\\:").Replace("{", "\\{").Replace("}", "\\}").Replace("[", "\\[").Replace("]", "\\]").Replace("|", "\\|"));
-      AdbCommand(cmdCommand);
-    }
+    public void InputText(string text) => AdbCommand(string.Format("shell input text \"{0}\"",
+        text.Replace(" ", "%s").Replace("&", "\\&").Replace("<", "\\<").Replace(">", "\\>").Replace("?", "\\?").Replace(":", "\\:").Replace("{", "\\{").Replace("}", "\\}").Replace("[", "\\[").Replace("]", "\\]").Replace("|", "\\|")));
 
     public void PlanModeON()
     {
@@ -173,8 +199,6 @@ namespace TqkLibrary.Adb
       AdbCommand("settings put global airplane_mode_on 0");
       AdbCommand("am broadcast -a android.intent.action.AIRPLANE_MODE");
     }
-
-
 
     public static List<string> GetDevices()
     {

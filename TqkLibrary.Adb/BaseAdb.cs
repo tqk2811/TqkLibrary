@@ -38,6 +38,7 @@ namespace TqkLibrary.Adb
     {
       this.DeviceId = deviceName;
       this.adbPath = adbPath;
+      if (File.Exists(adbPath)) _AdbPath = adbPath;
     }
 
     public string AdbCommand(string command)
@@ -203,7 +204,7 @@ namespace TqkLibrary.Adb
     public static List<string> GetDevices()
     {
       List<string> ListDevices = new List<string>();
-      string input = ExecuteCommand("adb devices");
+      string input = ExecuteCommandCmd("devices");
       string pattern = @"(?<=List of devices attached)([^\n]*\n+)+";
       MatchCollection matchCollection = Regex.Matches(input, pattern, RegexOptions.Singleline);
       if (matchCollection.Count > 0)

@@ -96,7 +96,19 @@ namespace TqkLibrary.Adb
 
     public void WaitForDevice() => AdbCommand("wait-for-device");
 
-    public void UpdateApk(string appName) => AdbCommand($"install -r {appName}");
+    public void KillServer() => AdbCommand("adb kill-server");
+
+    public void StartServer() => AdbCommand("adb start-server");
+
+    public void PushFile(string pcPath, string androidPath) => AdbCommand($"push \"{pcPath}\" \"{androidPath}\"");
+
+    public void PullFile(string androidPath, string pcPath) => AdbCommand($"pull \"{androidPath}\" \"{pcPath}\"");
+
+    public void DeleteFile(string androidPath) => AdbCommand($"shell rm \"{androidPath}\"");
+
+    public void InstallApk(string androidPath) => AdbCommand($"install \"{androidPath}\"");
+
+    public void UpdateApk(string androidPath) => AdbCommand($"install -r \"{androidPath}\"");
 
     /// <summary>
     /// Example: com.google.android.gms/.accountsettings.mg.ui.main.MainActivity
@@ -126,9 +138,10 @@ namespace TqkLibrary.Adb
         FilePath = (string.IsNullOrEmpty(DeviceId) ? Guid.NewGuid().ToString() : DeviceId) + ".png";
         IsDelete = true;
       }
-      AdbCommand($"shell screencap -p /sdcard/screen.png");
-      AdbCommand($"pull /sdcard/screen.png \"{FilePath}\"");
-      AdbCommand($"shell rm /sdcard/screen.png");
+      const string androidPath = "/sdcard/screen.png";
+      AdbCommand($"shell screencap -p \"{androidPath}\"");
+      PullFile(androidPath, FilePath);
+      DeleteFile(androidPath);
       using FileStream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
       Bitmap result = (Bitmap)Bitmap.FromStream(fs);
       if (IsDelete) try { File.Delete(FilePath); } catch (Exception) { }

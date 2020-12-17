@@ -2,7 +2,7 @@
 
 namespace TqkLibrary.Net.PhoneNumberApi.OtpSimCom
 {
-  public class BaseResultData<T>
+  public class BaseResult<T>
   {
     [JsonProperty("status_code")]
     public StatusCode StatusCode { get; set; }

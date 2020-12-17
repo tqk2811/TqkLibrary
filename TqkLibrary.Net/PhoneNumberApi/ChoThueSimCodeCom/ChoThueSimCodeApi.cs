@@ -9,6 +9,9 @@ using System.Web;
 
 namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
 {
+  /// <summary>
+  /// https://chothuesimcode.com/account/api
+  /// </summary>
   public sealed class ChoThueSimCodeApi : BaseApi
   {
     private const string EndPoint = "https://chothuesimcode.com/api?";
@@ -17,23 +20,23 @@ namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
     {
     }
 
-    public async Task<BaseResult<AccountInfo>> GetAccountInfo()
-      => await RequestGet<BaseResult<AccountInfo>>(string.Format(EndPoint + "act=account&apik={0}", ApiKey));
+    public async Task<BaseResult<ResponseCode, AccountInfo>> GetAccountInfo()
+      => await RequestGet<BaseResult<ResponseCode, AccountInfo>>(string.Format(EndPoint + "act=account&apik={0}", ApiKey));
 
-    public async Task<BaseResult<AppInfo>> GetAppRunning()
-      => await RequestGet<BaseResult<AppInfo>>(string.Format(EndPoint + "act=app&apik={0}", ApiKey));
+    public async Task<BaseResult<ResponseCode, AppInfo>> GetAppRunning()
+      => await RequestGet<BaseResult<ResponseCode, AppInfo>>(string.Format(EndPoint + "act=app&apik={0}", ApiKey));
 
-    public async Task<BaseResult<PhoneNumberResult>> GetPhoneNumber(int appId, Carrier carrier = Carrier.None)
+    public async Task<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>> GetPhoneNumber(int appId, Carrier carrier = Carrier.None)
     {
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["act"] = "number";
       parameters["apik"] = ApiKey;
       parameters["appId"] = appId.ToString();
       if (carrier != Carrier.None) parameters["carrier"] = carrier.ToString();
-      return await RequestGet<BaseResult<PhoneNumberResult>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>>(EndPoint + parameters.ToString());
     }
 
-    public async Task<BaseResult<PhoneNumberResult>> GetPhoneNumber(int appId, string number)
+    public async Task<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>> GetPhoneNumber(int appId, string number)
     {
       if (string.IsNullOrEmpty(number)) throw new ArgumentNullException(nameof(number));
       var parameters = HttpUtility.ParseQueryString(string.Empty);
@@ -41,27 +44,27 @@ namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
       parameters["apik"] = ApiKey;
       parameters["appId"] = appId.ToString();
       parameters["number"] = number;
-      return await RequestGet<BaseResult<PhoneNumberResult>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>>(EndPoint + parameters.ToString());
     }
 
-    public async Task<BaseResult<MessageResult>> GetMessage(PhoneNumberResult phoneNumberResult)
+    public async Task<BaseResult<ResponseCodeMessage, MessageResult>> GetMessage(PhoneNumberResult phoneNumberResult)
     {
       if (null == phoneNumberResult) throw new ArgumentNullException(nameof(phoneNumberResult));
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["act"] = "code";
       parameters["apik"] = ApiKey;
       parameters["id"] = phoneNumberResult.Id.ToString();
-      return await RequestGet<BaseResult<MessageResult>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeMessage, MessageResult>>(EndPoint + parameters.ToString());
     }
 
-    public async Task<BaseResult<RefundInfo>> CancelGetMessage(PhoneNumberResult phoneNumberResult)
+    public async Task<BaseResult<ResponseCodeCancelMessage, RefundInfo>> CancelGetMessage(PhoneNumberResult phoneNumberResult)
     {
       if (null == phoneNumberResult) throw new ArgumentNullException(nameof(phoneNumberResult));
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["act"] = "expired";
       parameters["apik"] = ApiKey;
       parameters["id"] = phoneNumberResult.Id.ToString();
-      return await RequestGet<BaseResult<RefundInfo>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeCancelMessage, RefundInfo>>(EndPoint + parameters.ToString());
     }
   }
 }

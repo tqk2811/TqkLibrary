@@ -1,9 +1,9 @@
 ﻿namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
 {
-  public class BaseResult<T>
+  public class BaseResult<T1, T2>
   {
-    public ResponseCode ResponseCode { get; set; }
+    public T1 ResponseCode { get; set; }
     public string Msg { get; set; }
-    public T Result { get; set; }
+    public T2 Result { get; set; }
   }
 }

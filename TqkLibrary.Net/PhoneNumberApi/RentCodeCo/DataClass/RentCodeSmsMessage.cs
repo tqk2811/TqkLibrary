@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace TqkLibrary.Net.RentCodeCo
+namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
 {
   public sealed class RentCodeSmsMessage
   {

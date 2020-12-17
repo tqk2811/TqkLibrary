@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace TqkLibrary.Net.RentCodeCo
+namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
 {
   public sealed class RentCodeResult
   {

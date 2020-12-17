@@ -8,9 +8,10 @@ using Newtonsoft.Json;
 
 namespace TqkLibrary.Net
 {
-  static class NetExtensions
+  internal static class NetExtensions
   {
-    //internal static HttpClient httpClient = new HttpClient();
+    internal static HttpClient httpClient = new HttpClient();
+
     internal static JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings()
     {
       NullValueHandling = NullValueHandling.Ignore

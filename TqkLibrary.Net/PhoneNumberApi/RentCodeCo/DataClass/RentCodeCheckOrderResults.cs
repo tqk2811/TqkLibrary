@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace TqkLibrary.Net.RentCodeCo
+namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
 {
   public sealed class RentCodeCheckOrderResults
   {
@@ -19,7 +19,7 @@ namespace TqkLibrary.Net.RentCodeCo
 
     public override string ToString()
     {
-      return $"Success: {Success}, PhoneNumber: {PhoneNumber}, Message: {Message}";
+      return $"Success: {Success}, PhoneNumberApi: {PhoneNumber}, Message: {Message}";
     }
   }
 }

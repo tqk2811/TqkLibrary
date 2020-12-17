@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace TqkLibrary.Net.GoogleDrive
+namespace TqkLibrary.Net.CloudStorage.GoogleDrive
 {
   public static class DriveApiNonLogin
   {
@@ -13,14 +13,12 @@ namespace TqkLibrary.Net.GoogleDrive
     {
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"https://docs.google.com/uc?id={fileId}"))
       {
-        using(HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead))
+        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead))
         {
           return await httpResponseMessage.Content.ReadAsStreamAsync();
         }
       }
     }
-
-
 
     //https://clients6.google.com/drive/v2beta/files?openDrive=false&reason=102&syncType=0&errorRecovery=false&q=trashed%20%3D%20false%20and%20
     //'0Bx154iMNwuyWMVp0TTJzYjFOYzg'%20in%20parents&
@@ -46,14 +44,13 @@ namespace TqkLibrary.Net.GoogleDrive
       }
     }
 
-
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="fileId"></param>
     /// <param name="format">xlsx, ods, csv, tsv, zip (html zip)</param>
     /// <returns></returns>
-    public static async Task<Stream> ExportExcel(string fileId,string format = "xlsx")
+    public static async Task<Stream> ExportExcel(string fileId, string format = "xlsx")
     {
       string url = $"https://docs.google.com/spreadsheets/d/{fileId}/export?format={format}&id={fileId}";
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url))
@@ -63,6 +60,7 @@ namespace TqkLibrary.Net.GoogleDrive
         return await httpResponseMessage.Content.ReadAsStreamAsync();
       }
     }
+
     //pdf is post https://docs.google.com/spreadsheets/d/17tQ4em4gVHcceSUL2a0oMlWG1aajTNFp/pdf?id=17tQ4em4gVHcceSUL2a0oMlWG1aajTNFp
     //a=true&pc=%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C0%2C%5B%5B%221989784426%22%5D%5D%2C10000000%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C44088.422909560184%2Cnull%2Cnull%2C%5B0%2Cnull%2C1%2C0%2C0%2C0%2C0%2C0%2C1%2C1%2C1%2C1%2Cnull%2Cnull%2C1%2C1%5D%2C%5B%22letter%22%2C0%2C5%2C1%2C%5B0.75%2C0.75%2C0.7%2C0.7%5D%5D%2Cnull%2C0%5D&gf=%5B%5D
   }

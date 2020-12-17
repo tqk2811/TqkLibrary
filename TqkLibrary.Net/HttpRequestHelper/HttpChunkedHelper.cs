@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace TqkLibrary.Net.HttpRequest
+namespace TqkLibrary.Net.HttpRequestHelper
 {
   public static class HttpChunkedHelper
   {
@@ -29,7 +29,7 @@ namespace TqkLibrary.Net.HttpRequest
           while (!tr.EndOfStream)
           {
             var chunkSizeStr = tr.ReadLine().Trim();
-            if(int.TryParse(chunkSizeStr, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture ,out chunkSize))
+            if (int.TryParse(chunkSizeStr, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture, out chunkSize))
             {
               tr.ReadBlock(buffer, 0, chunkSize);
               tw.Write(buffer, 0, chunkSize);

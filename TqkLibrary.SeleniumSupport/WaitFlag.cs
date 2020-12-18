@@ -1,10 +1,11 @@
 ﻿namespace TqkLibrary.SeleniumSupport
 {
-  public enum WaitFlag
+  public enum ElementsIs
   {
-    ElementsExists,
-    ElementsVisible,
-    ElementsClickable,
-    ElementsSelected,
+    NotExists,
+    Exists,
+    Visible,
+    Clickable,
+    Selected,
   }
 }

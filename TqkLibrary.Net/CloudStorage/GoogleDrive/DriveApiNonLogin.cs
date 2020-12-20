@@ -1,23 +1,35 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TqkLibrary.Net.CloudStorage.GoogleDrive
 {
   public static class DriveApiNonLogin
   {
-    public static readonly HttpClient httpClient = new HttpClient();
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="fileId"></param>
+    /// <param name="save"></param>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <returns></returns>
+    public static async Task Download(string fileId, Stream save) => await Download(fileId, save, CancellationToken.None).ConfigureAwait(false);
 
-    public static async Task<Stream> Download(string fileId)
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="fileId"></param>
+    /// <param name="save"></param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <returns></returns>
+    public static async Task Download(string fileId, Stream save, CancellationToken cancellationToken)
     {
-      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"https://docs.google.com/uc?id={fileId}"))
-      {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead))
-        {
-          return await httpResponseMessage.Content.ReadAsStreamAsync();
-        }
-      }
+      using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"https://docs.google.com/uc?id={fileId}");
+      using HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+      await (await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStreamAsync().ConfigureAwait(false)).CopyToAsync(save, 81920, cancellationToken).ConfigureAwait(false);
     }
 
     //https://clients6.google.com/drive/v2beta/files?openDrive=false&reason=102&syncType=0&errorRecovery=false&q=trashed%20%3D%20false%20and%20
@@ -26,6 +38,12 @@ namespace TqkLibrary.Net.CloudStorage.GoogleDrive
     //&appDataFilter=NO_APP_DATA&spaces=drive&maxResults=50&supportsTeamDrives=true&includeTeamDriveItems=true&corpora=default
     //&orderBy=folder%2Ctitle_natural%20asc&retryCount=0&key=AIzaSyC1qbk75NzWBvSaDh6KnsjjA9pIrP4lYIE
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="folderId"></param>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <returns></returns>
     public static async Task<string> ListPublicFolder(string folderId)
     {
       string urlRequest = "https://clients6.google.com/drive/v2beta/files?openDrive=false&reason=102&syncType=0&errorRecovery=false" +
@@ -34,14 +52,10 @@ namespace TqkLibrary.Net.CloudStorage.GoogleDrive
         $"&q=trashed%20%3D%20false%20and%20'{folderId}'%20in%20parents" +
         "&fields=*" + "&orderBy=folder%2Ctitle_natural%20asc";
 
-      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, urlRequest))
-      {
-        httpRequestMessage.Headers.Referrer = new Uri("https://drive.google.com");
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
-        {
-          return await httpResponseMessage.Content.ReadAsStringAsync();
-        }
-      }
+      using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, urlRequest);
+      httpRequestMessage.Headers.Referrer = new Uri("https://drive.google.com");
+      using HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+      return await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStringAsync().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -49,16 +63,35 @@ namespace TqkLibrary.Net.CloudStorage.GoogleDrive
     /// </summary>
     /// <param name="fileId"></param>
     /// <param name="format">xlsx, ods, csv, tsv, zip (html zip)</param>
+    /// <exception cref="HttpRequestException"></exception>
     /// <returns></returns>
-    public static async Task<Stream> ExportExcel(string fileId, string format = "xlsx")
+    public static async Task ExportExcel(string fileId, Stream copy, CancellationToken cancellationToken, ExportExcelType format = ExportExcelType.xlsx)
     {
       string url = $"https://docs.google.com/spreadsheets/d/{fileId}/export?format={format}&id={fileId}";
-      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url))
-      {
-        httpRequestMessage.Headers.Referrer = new Uri("https://docs.google.com");
-        HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead);
-        return await httpResponseMessage.Content.ReadAsStreamAsync();
-      }
+      using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+      httpRequestMessage.Headers.Referrer = new Uri("https://docs.google.com");
+      using HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+      await (await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStreamAsync().ConfigureAwait(false)).CopyToAsync(copy, 81920, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="fileId"></param>
+    /// <param name="copy"></param>
+    /// <param name="format"></param>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <returns></returns>
+    public static async Task ExportExcel(string fileId, Stream copy, ExportExcelType format = ExportExcelType.xlsx)
+      => await ExportExcel(fileId, copy, CancellationToken.None, format).ConfigureAwait(false);
+
+    public enum ExportExcelType
+    {
+      xlsx,
+      ods,
+      csv,
+      tsv,
+      zip
     }
 
     //pdf is post https://docs.google.com/spreadsheets/d/17tQ4em4gVHcceSUL2a0oMlWG1aajTNFp/pdf?id=17tQ4em4gVHcceSUL2a0oMlWG1aajTNFp

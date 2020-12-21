@@ -38,7 +38,7 @@ namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
       if (MaximumSms != null) parameters["MaximumSms"] = MaximumSms.Value.ToString();
       if (AllowVoiceSms != null) parameters["AllowVoiceSms"] = AllowVoiceSms.Value.ToString();
 
-      return await RequestGet<RentCodeResult>(EndPoint + "order/request?" + parameters.ToString());
+      return await RequestGet<RentCodeResult>(EndPoint + "order/request?" + parameters.ToString()).ConfigureAwait(false);
     }
 
     public async Task<RentCodeResult> RequestHolding(
@@ -52,10 +52,10 @@ namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
       parameters["Unit"] = Unit.ToString();
       if (networkProvider != NetworkProvider.None) parameters["NetworkProvider"] = ((int)networkProvider).ToString();
 
-      return await RequestGet<RentCodeResult>(EndPoint + $"order/request-holding?apiKey={ApiKey}&Duration={Duration}&Unit=1&NetworkProvider={(int)networkProvider}");
+      return await RequestGet<RentCodeResult>(EndPoint + $"order/request-holding?apiKey={ApiKey}&Duration={Duration}&Unit=1&NetworkProvider={(int)networkProvider}").ConfigureAwait(false);
     }
 
     public async Task<RentCodeCheckOrderResults> Check(RentCodeResult rentCodeResult)
-      => await RequestGet<RentCodeCheckOrderResults>($"order/{rentCodeResult.Id}/check?apiKey={ApiKey}");
+      => await RequestGet<RentCodeCheckOrderResults>($"order/{rentCodeResult.Id}/check?apiKey={ApiKey}").ConfigureAwait(false);
   }
 }

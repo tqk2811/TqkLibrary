@@ -21,10 +21,10 @@ namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
     }
 
     public async Task<BaseResult<ResponseCode, AccountInfo>> GetAccountInfo()
-      => await RequestGet<BaseResult<ResponseCode, AccountInfo>>(string.Format(EndPoint + "act=account&apik={0}", ApiKey));
+      => await RequestGet<BaseResult<ResponseCode, AccountInfo>>(string.Format(EndPoint + "act=account&apik={0}", ApiKey)).ConfigureAwait(false);
 
     public async Task<BaseResult<ResponseCode, AppInfo>> GetAppRunning()
-      => await RequestGet<BaseResult<ResponseCode, AppInfo>>(string.Format(EndPoint + "act=app&apik={0}", ApiKey));
+      => await RequestGet<BaseResult<ResponseCode, AppInfo>>(string.Format(EndPoint + "act=app&apik={0}", ApiKey)).ConfigureAwait(false);
 
     public async Task<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>> GetPhoneNumber(int appId, Carrier carrier = Carrier.None)
     {
@@ -33,7 +33,7 @@ namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
       parameters["apik"] = ApiKey;
       parameters["appId"] = appId.ToString();
       if (carrier != Carrier.None) parameters["carrier"] = carrier.ToString();
-      return await RequestGet<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>>(EndPoint + parameters.ToString()).ConfigureAwait(false);
     }
 
     public async Task<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>> GetPhoneNumber(int appId, string number)
@@ -44,7 +44,7 @@ namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
       parameters["apik"] = ApiKey;
       parameters["appId"] = appId.ToString();
       parameters["number"] = number;
-      return await RequestGet<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeGetPhoneNumber, PhoneNumberResult>>(EndPoint + parameters.ToString()).ConfigureAwait(false);
     }
 
     public async Task<BaseResult<ResponseCodeMessage, MessageResult>> GetMessage(PhoneNumberResult phoneNumberResult)
@@ -54,7 +54,7 @@ namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
       parameters["act"] = "code";
       parameters["apik"] = ApiKey;
       parameters["id"] = phoneNumberResult.Id.ToString();
-      return await RequestGet<BaseResult<ResponseCodeMessage, MessageResult>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeMessage, MessageResult>>(EndPoint + parameters.ToString()).ConfigureAwait(false);
     }
 
     public async Task<BaseResult<ResponseCodeCancelMessage, RefundInfo>> CancelGetMessage(PhoneNumberResult phoneNumberResult)
@@ -64,7 +64,7 @@ namespace TqkLibrary.Net.PhoneNumberApi.ChoThueSimCodeCom
       parameters["act"] = "expired";
       parameters["apik"] = ApiKey;
       parameters["id"] = phoneNumberResult.Id.ToString();
-      return await RequestGet<BaseResult<ResponseCodeCancelMessage, RefundInfo>>(EndPoint + parameters.ToString());
+      return await RequestGet<BaseResult<ResponseCodeCancelMessage, RefundInfo>>(EndPoint + parameters.ToString()).ConfigureAwait(false);
     }
   }
 }

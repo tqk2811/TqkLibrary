@@ -17,12 +17,12 @@ namespace TqkLibrary.Net.ProxysApi.TinsoftProxyCom
     }
 
     public async Task<ProxyResult> ChangeProxy(int location = 0)
-      => await RequestGet<ProxyResult>(string.Format(EndPoint + "/changeProxy.php?key={0}&location={1}", ApiKey, location));
+      => await RequestGet<ProxyResult>(string.Format(EndPoint + "/changeProxy.php?key={0}&location={1}", ApiKey, location)).ConfigureAwait(false);
 
     public async Task<KeyInfo> GetKeyInfo()
-      => await RequestGet<KeyInfo>(string.Format(EndPoint + "/getKeyInfo.php?key={0}", ApiKey));
+      => await RequestGet<KeyInfo>(string.Format(EndPoint + "/getKeyInfo.php?key={0}", ApiKey)).ConfigureAwait(false);
 
     public async Task<KeyInfo> DeleteKey()
-      => await RequestGet<KeyInfo>(string.Format(EndPoint + "/deleteKey.php?key={0}", ApiKey));
+      => await RequestGet<KeyInfo>(string.Format(EndPoint + "/deleteKey.php?key={0}", ApiKey)).ConfigureAwait(false);
   }
 }

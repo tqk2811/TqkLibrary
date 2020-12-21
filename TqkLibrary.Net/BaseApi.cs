@@ -19,8 +19,8 @@ namespace TqkLibrary.Net
     {
       using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, Url);
       httpRequestMessage.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-      using HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead);
-      return JsonConvert.DeserializeObject<T>(await httpResponseMessage.Content.ReadAsStringAsync());
+      using HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+      return JsonConvert.DeserializeObject<T>(await httpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false));
     }
   }
 }

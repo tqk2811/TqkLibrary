@@ -96,9 +96,19 @@ namespace TqkLibrary.Adb
 
     public void WaitForDevice() => AdbCommand("wait-for-device");
 
-    public void KillServer() => AdbCommand("adb kill-server");
+    public static void KillServer() => ExecuteCommand("adb kill-server");
 
-    public void StartServer() => AdbCommand("adb start-server");
+    public static void StartServer() => ExecuteCommand("adb start-server");
+
+    public void Shutdown() => AdbCommand("shell reboot -p");
+
+    public void Reboot() => AdbCommand("shell reboot");
+
+    public void RebootRecovery() => AdbCommand("shell reboot-recovery");
+
+    public void RebootBootLoader() => AdbCommand("shell reboot-bootloader");
+
+    public void FastBoot() => AdbCommand("shell fastboot");
 
     public void PushFile(string pcPath, string androidPath) => AdbCommand($"push \"{pcPath}\" \"{androidPath}\"");
 
@@ -121,6 +131,8 @@ namespace TqkLibrary.Adb
     public void DisableApk(string appName) => AdbCommand($"shell pm disable {appName}");
 
     public void EnableApk(string appName) => AdbCommand($"shell pm enable {appName}");
+
+    public void UnInstallApk(string packageName) => AdbCommand($"uninstall {packageName}");
 
     public void ForceStopApk(string appName) => AdbCommand($"shell am force-stop {appName}");
 

@@ -8,16 +8,16 @@ namespace TqkLibrary.Net
 {
   public static class CookiesManaged
   {
-    public static Dictionary<string,string> Parse(this IEnumerable<string> Cookies, Dictionary<string, string> Containers = null)
+    public static Dictionary<string, string> Parse(this IEnumerable<string> Cookies, Dictionary<string, string> Containers = null)
     {
       if (Containers == null) Containers = new Dictionary<string, string>();
-      foreach(string cookie in Cookies)
+      foreach (string cookie in Cookies)
       {
         string[] carr = cookie.Split(';');
-        if(carr.Length >= 1)
+        if (carr.Length >= 1)
         {
           string[] c = carr[0].Split('=');
-          if(c.Length == 2)
+          if (c.Length == 2)
           {
             if (Containers.ContainsKey(c[0])) Containers.Remove(c[0]);
             Containers.Add(c[0], c[1]);
@@ -27,15 +27,6 @@ namespace TqkLibrary.Net
       return Containers;
     }
 
-    public static string GetCookiesString(this Dictionary<string, string> Containers)
-    {
-      string result = string.Empty;
-      foreach(var kp in Containers)
-      {
-        result += kp.Key + "=" + kp.Value + "; ";
-      }
-      if (!string.IsNullOrEmpty(result)) result = result.Substring(0, result.Length - 2);
-      return result;
-    }
+    public static string GetCookiesString(this Dictionary<string, string> Containers) => string.Join(";", Containers.Select(x => x.Key + "=" + x.Value));
   }
 }

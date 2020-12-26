@@ -116,27 +116,27 @@ namespace TqkLibrary.Adb
 
     public void DeleteFile(string androidPath) => AdbCommand($"shell rm \"{androidPath}\"");
 
-    public void InstallApk(string androidPath) => AdbCommand($"install \"{androidPath}\"");
+    public void InstallApk(string pcPath) => AdbCommand($"install \"{pcPath}\"");
 
-    public void UpdateApk(string androidPath) => AdbCommand($"install -r \"{androidPath}\"");
+    public void UpdateApk(string pcPath) => AdbCommand($"install -r \"{pcPath}\"");
 
     /// <summary>
     /// Example: com.google.android.gms/.accountsettings.mg.ui.main.MainActivity
     /// OpenApk("com.google.android.gms",".accountsettings.mg.ui.main.MainActivity");
     /// </summary>
-    /// <param name="appName"></param>
-    /// <param name="ActivityName"></param>
-    public void OpenApk(string appName, string ActivityName) => AdbCommand($"shell am start -n {appName}/{ActivityName}");
+    /// <param name="packageName"></param>
+    /// <param name="activityName"></param>
+    public void OpenApk(string packageName, string activityName) => AdbCommand($"shell am start -n {packageName}/{activityName}");
 
-    public void DisableApk(string appName) => AdbCommand($"shell pm disable {appName}");
+    public void DisableApk(string packageName) => AdbCommand($"shell pm disable {packageName}");
 
-    public void EnableApk(string appName) => AdbCommand($"shell pm enable {appName}");
+    public void EnableApk(string packageName) => AdbCommand($"shell pm enable {packageName}");
 
     public void UnInstallApk(string packageName) => AdbCommand($"uninstall {packageName}");
 
-    public void ForceStopApk(string appName) => AdbCommand($"shell am force-stop {appName}");
+    public void ForceStopApk(string packageName) => AdbCommand($"shell am force-stop {packageName}");
 
-    public void ClearApk(string appName) => AdbCommand($"shell pm clear {appName}");
+    public void ClearApk(string packageName) => AdbCommand($"shell pm clear {packageName}");
 
     public void SetProxy(string proxy) => AdbCommand($"shell settings put global http_proxy {proxy}");
 

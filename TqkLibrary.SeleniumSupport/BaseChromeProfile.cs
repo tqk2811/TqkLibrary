@@ -37,6 +37,46 @@ namespace TqkLibrary.SeleniumSupport
       service.HideCommandPromptWindow = HideCommandPromptWindow;
     }
 
+    /// <summary>
+    /// <strong>AddArguments:</strong>
+    /// <para>--disable-notifications<br/>
+    /// --disable-web-security<br/>
+    /// --disable-blink-features<br/>
+    /// --disable-blink-features=AutomationControlled<br/>
+    /// --disable-infobars<br/>
+    /// --ignore-certificate-errors<br/>
+    /// --ignore-certificate-errors<br/>
+    /// --allow-running-insecure-content</para>
+    ///
+    /// <strong>AddExcludedArgument:</strong>
+    /// <para>enable-automation</para>
+    ///
+    /// <strong>AddAdditionalCapability:</strong>
+    /// <para>useAutomationExtension false</para>
+    ///
+    /// <strong>AddUserProfilePreference:</strong>
+    /// <para>credentials_enable_service false<br/>
+    /// profile.password_manager_enabled false</para>
+    /// </summary>
+    /// <returns></returns>
+    protected ChromeOptions DefaultChromeOptions()
+    {
+      ChromeOptions options = new ChromeOptions();
+      options.AddArguments("--disable-notifications");
+      options.AddArguments("--disable-web-security");
+      options.AddArguments("--disable-blink-features");
+      options.AddArguments("--disable-blink-features=AutomationControlled");
+      options.AddArguments("--disable-infobars");
+      options.AddArguments("--ignore-certificate-errors");
+      options.AddArguments("--allow-running-insecure-content");
+      options.AddAdditionalCapability("useAutomationExtension", false);
+      options.AddExcludedArgument("enable-automation");
+      //disable ask password
+      options.AddUserProfilePreference("credentials_enable_service", false);
+      options.AddUserProfilePreference("profile.password_manager_enabled", false);
+      return options;
+    }
+
     public virtual bool OpenChrome(ChromeOptions chromeOptions)
     {
       if (!IsOpenChrome)

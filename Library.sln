@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.Adb", "TqkLibrar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.Test", "TqkLibrary.Test\TqkLibrary.Test.csproj", "{7216DF48-7B8B-4E3A-A928-D656E202E340}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCoreLibrary", "AspNetCoreLibrary\AspNetCoreLibrary.csproj", "{C8F16DA4-B4AE-4580-BE81-4DFB7AAEB97C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.AspNetCoreLibrary", "TqkLibrary.AspNetCoreLibrary\TqkLibrary.AspNetCoreLibrary.csproj", "{C8F16DA4-B4AE-4580-BE81-4DFB7AAEB97C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

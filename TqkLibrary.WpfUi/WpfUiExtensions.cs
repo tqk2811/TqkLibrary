@@ -10,9 +10,12 @@ namespace TqkLibrary.WpfUi
 {
   public static class WpfUiExtensions
   {
+    public static string ExeFolderPath { get; } = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
     [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool DeleteObject([In] IntPtr hObject);
+
     public static System.Windows.Media.ImageSource ToImageSource(this System.Drawing.Bitmap src)
     {
       if (null == src) throw new ArgumentNullException(nameof(src));

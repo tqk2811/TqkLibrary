@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,9 +31,12 @@ namespace TqkLibrary.SeleniumSupport
       get { return chromeDriver != null || process != null; }
     }
 
-    protected BaseChromeProfile(string ChromeDrivePath, bool HideCommandPromptWindow = true)
+    protected BaseChromeProfile(string ChromeDrivePath = null, bool HideCommandPromptWindow = true)
     {
-      if (string.IsNullOrEmpty(ChromeDrivePath)) throw new ArgumentNullException(nameof(ChromeDrivePath));
+      if (string.IsNullOrEmpty(ChromeDrivePath))
+      {
+        ChromeDrivePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\ChromeDriver";
+      }
       service = ChromeDriverService.CreateDefaultService(ChromeDrivePath);
       service.HideCommandPromptWindow = HideCommandPromptWindow;
     }

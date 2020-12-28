@@ -31,7 +31,11 @@ namespace TqkLibrary.SeleniumSupport
       get { return chromeDriver != null || process != null; }
     }
 
-    protected BaseChromeProfile(string ChromeDrivePath = null, bool HideCommandPromptWindow = true)
+    protected BaseChromeProfile() : this(null)
+    {
+    }
+
+    protected BaseChromeProfile(string ChromeDrivePath, bool HideCommandPromptWindow = true)
     {
       if (string.IsNullOrEmpty(ChromeDrivePath))
       {
@@ -63,16 +67,16 @@ namespace TqkLibrary.SeleniumSupport
     /// profile.password_manager_enabled false</para>
     /// </summary>
     /// <returns></returns>
-    protected ChromeOptions DefaultChromeOptions()
+    protected virtual ChromeOptions DefaultChromeOptions()
     {
       ChromeOptions options = new ChromeOptions();
-      options.AddArguments("--disable-notifications");
-      options.AddArguments("--disable-web-security");
-      options.AddArguments("--disable-blink-features");
-      options.AddArguments("--disable-blink-features=AutomationControlled");
-      options.AddArguments("--disable-infobars");
-      options.AddArguments("--ignore-certificate-errors");
-      options.AddArguments("--allow-running-insecure-content");
+      options.AddArgument("--disable-notifications");
+      options.AddArgument("--disable-web-security");
+      options.AddArgument("--disable-blink-features");
+      options.AddArgument("--disable-blink-features=AutomationControlled");
+      options.AddArgument("--disable-infobars");
+      options.AddArgument("--ignore-certificate-errors");
+      options.AddArgument("--allow-running-insecure-content");
       options.AddAdditionalCapability("useAutomationExtension", false);
       options.AddExcludedArgument("enable-automation");
       //disable ask password
@@ -164,169 +168,226 @@ namespace TqkLibrary.SeleniumSupport
       }
     }
 
-    protected virtual ReadOnlyCollection<IWebElement> WaitUntilAll(IWebElement parent, By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    protected void SwitchToFrame(By by) => chromeDriver.SwitchTo().Frame(WaitUntil(by, ElementsExists, true).First());
+
+    protected ReadOnlyCollection<IWebElement> FindElements(By by) => chromeDriver.FindElements(by);
+
+    #region Func
+
+    protected bool ElementsExists(ReadOnlyCollection<IWebElement> webElements)
     {
-      if (IsOpenChrome)
-      {
-        using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-        while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-        {
-          Delay(delay, delay);
-          var eles = parent.FindElements(by);
-          if (eles.Count > 0)
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.Exists: return eles;
-
-              case ElementsIs.Visible:
-                if (eles.All(x => x.Displayed)) return eles;
-                break;
-
-              case ElementsIs.Clickable:
-                if (eles.All(x => x.Displayed && x.Enabled)) return eles;
-                break;
-
-              case ElementsIs.Selected:
-                if (eles.All(x => x.Selected)) return eles;
-                break;
-            }
-          }
-          else
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.NotExists:
-                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-            }
-          }
-        }
-      }
-      return null;
+      if (webElements?.Count > 0) return true;
+      return false;
     }
 
-    protected virtual ReadOnlyCollection<IWebElement> WaitUntilAny(IWebElement parent, By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    //protected bool ElementsNotExists(ReadOnlyCollection<IWebElement> webElements) => !ElementsExists(webElements);
+
+    protected bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements)
     {
-      if (IsOpenChrome)
-      {
-        CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-        while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-        {
-          Delay(delay, delay);
-          var eles = parent.FindElements(by);
-          if (eles.Count > 0)
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.Exists: return eles;
-
-              case ElementsIs.Visible:
-                if (eles.Any(x => x.Displayed)) return eles;
-                break;
-
-              case ElementsIs.Clickable:
-                if (eles.Any(x => x.Displayed && x.Enabled)) return eles;
-                break;
-
-              case ElementsIs.Selected:
-                if (eles.Any(x => x.Selected)) return eles;
-                break;
-            }
-          }
-          else
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.NotExists:
-                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-            }
-          }
-        }
-      }
-      return null;
+      if (webElements?.All(x => x.Displayed) == true) return true;
+      return false;
     }
 
-    protected virtual ReadOnlyCollection<IWebElement> WaitUntilAll(By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    protected bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements)
     {
-      if (IsOpenChrome)
-      {
-        using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-        while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-        {
-          Delay(delay, delay);
-          var eles = chromeDriver.FindElements(by);
-          if (eles.Count > 0)
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.Exists: return eles;
-
-              case ElementsIs.Visible:
-                if (eles.All(x => x.Displayed)) return eles;
-                break;
-
-              case ElementsIs.Clickable:
-                if (eles.All(x => x.Displayed && x.Enabled)) return eles;
-                break;
-
-              case ElementsIs.Selected:
-                if (eles.All(x => x.Selected)) return eles;
-                break;
-            }
-          }
-          else
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.NotExists:
-                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-            }
-          }
-        }
-      }
-      return null;
+      if (webElements?.Any(x => x.Displayed) == true) return true;
+      return false;
     }
 
-    protected virtual ReadOnlyCollection<IWebElement> WaitUntilAny(By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    protected bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements)
     {
-      if (IsOpenChrome)
-      {
-        CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
-        while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
-        {
-          Delay(delay, delay);
-          var eles = chromeDriver.FindElements(by);
-          if (eles.Count > 0)
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.Exists: return eles;
-
-              case ElementsIs.Visible:
-                if (eles.Any(x => x.Displayed)) return eles;
-                break;
-
-              case ElementsIs.Clickable:
-                if (eles.Any(x => x.Displayed && x.Enabled)) return eles;
-                break;
-
-              case ElementsIs.Selected:
-                if (eles.Any(x => x.Selected)) return eles;
-                break;
-            }
-          }
-          else
-          {
-            switch (waitFlag)
-            {
-              case ElementsIs.NotExists:
-                return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
-            }
-          }
-        }
-      }
-      return null;
+      if (webElements?.All(x => x.Displayed && x.Enabled) == true) return true;
+      return false;
     }
+
+    protected bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements)
+    {
+      if (webElements?.Any(x => x.Displayed && x.Enabled) == true) return true;
+      return false;
+    }
+
+    protected bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements)
+    {
+      if (webElements?.All(x => x.Selected) == true) return true;
+      return false;
+    }
+
+    protected bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements)
+    {
+      if (webElements?.Any(x => x.Selected) == true) return true;
+      return false;
+    }
+
+    #endregion Func
+
+    protected virtual ReadOnlyCollection<IWebElement> WaitUntil(By by, Func<ReadOnlyCollection<IWebElement>, bool> func, bool isThrow = true, int delay = 500, int timeout = 10000)
+    => chromeDriver.WaitUntil(by, func, isThrow, delay, timeout, tokenSource);
+
+    //protected virtual ReadOnlyCollection<IWebElement> WaitUntilAll(IWebElement parent, By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    //{
+    //  if (IsOpenChrome)
+    //  {
+    //    using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+    //    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
+    //    {
+    //      Delay(delay, delay);
+    //      var eles = parent.FindElements(by);
+    //      if (eles.Count > 0)
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.Exists: return eles;
+
+    //          case ElementsIs.Visible:
+    //            if (eles.All(x => x.Displayed)) return eles;
+    //            break;
+
+    //          case ElementsIs.Clickable:
+    //            if (eles.All(x => x.Displayed && x.Enabled)) return eles;
+    //            break;
+
+    //          case ElementsIs.Selected:
+    //            if (eles.All(x => x.Selected)) return eles;
+    //            break;
+    //        }
+    //      }
+    //      else
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.NotExists:
+    //            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+    //        }
+    //      }
+    //    }
+    //  }
+    //  return null;
+    //}
+
+    //protected virtual ReadOnlyCollection<IWebElement> WaitUntilAny(IWebElement parent, By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    //{
+    //  if (IsOpenChrome)
+    //  {
+    //    CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+    //    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
+    //    {
+    //      Delay(delay, delay);
+    //      var eles = parent.FindElements(by);
+    //      if (eles.Count > 0)
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.Exists: return eles;
+
+    //          case ElementsIs.Visible:
+    //            if (eles.Any(x => x.Displayed)) return eles;
+    //            break;
+
+    //          case ElementsIs.Clickable:
+    //            if (eles.Any(x => x.Displayed && x.Enabled)) return eles;
+    //            break;
+
+    //          case ElementsIs.Selected:
+    //            if (eles.Any(x => x.Selected)) return eles;
+    //            break;
+    //        }
+    //      }
+    //      else
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.NotExists:
+    //            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+    //        }
+    //      }
+    //    }
+    //  }
+    //  return null;
+    //}
+
+    //protected virtual ReadOnlyCollection<IWebElement> WaitUntilAll(By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    //{
+    //  if (IsOpenChrome)
+    //  {
+    //    using CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+    //    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
+    //    {
+    //      Delay(delay, delay);
+    //      var eles = chromeDriver.FindElements(by);
+    //      if (eles.Count > 0)
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.Exists: return eles;
+
+    //          case ElementsIs.Visible:
+    //            if (eles.All(x => x.Displayed)) return eles;
+    //            break;
+
+    //          case ElementsIs.Clickable:
+    //            if (eles.All(x => x.Displayed && x.Enabled)) return eles;
+    //            break;
+
+    //          case ElementsIs.Selected:
+    //            if (eles.All(x => x.Selected)) return eles;
+    //            break;
+    //        }
+    //      }
+    //      else
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.NotExists:
+    //            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+    //        }
+    //      }
+    //    }
+    //  }
+    //  return null;
+    //}
+
+    //protected virtual ReadOnlyCollection<IWebElement> WaitUntilAny(By by, ElementsIs waitFlag = ElementsIs.Exists, int delay = 500, int timeout = 10000, CancellationTokenSource tokenSource = null)
+    //{
+    //  if (IsOpenChrome)
+    //  {
+    //    CancellationTokenSource timeoutToken = new CancellationTokenSource(timeout);
+    //    while (!timeoutToken.IsCancellationRequested && tokenSource?.IsCancellationRequested != true)
+    //    {
+    //      Delay(delay, delay);
+    //      var eles = chromeDriver.FindElements(by);
+    //      if (eles.Count > 0)
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.Exists: return eles;
+
+    //          case ElementsIs.Visible:
+    //            if (eles.Any(x => x.Displayed)) return eles;
+    //            break;
+
+    //          case ElementsIs.Clickable:
+    //            if (eles.Any(x => x.Displayed && x.Enabled)) return eles;
+    //            break;
+
+    //          case ElementsIs.Selected:
+    //            if (eles.Any(x => x.Selected)) return eles;
+    //            break;
+    //        }
+    //      }
+    //      else
+    //      {
+    //        switch (waitFlag)
+    //        {
+    //          case ElementsIs.NotExists:
+    //            return new ReadOnlyCollection<IWebElement>(new List<IWebElement>());
+    //        }
+    //      }
+    //    }
+    //  }
+    //  return null;
+    //}
+
+    #region JSDropFile
 
     private const string JsDropFile = @"var target = arguments[0],
 offsetX = arguments[1],
@@ -359,5 +420,7 @@ return input;";
       IWebElement input = (IWebElement)chromeDriver.ExecuteScript(JsDropFile, webElement, offsetX, offsetY);
       input.SendKeys(file);
     }
+
+    #endregion JSDropFile
   }
 }

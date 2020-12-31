@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.Test", "TqkLibra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.AspNetCoreLibrary", "TqkLibrary.AspNetCoreLibrary\TqkLibrary.AspNetCoreLibrary.csproj", "{C8F16DA4-B4AE-4580-BE81-4DFB7AAEB97C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.SqlDataHelper", "TqkLibrary.SqlDataHelper\TqkLibrary.SqlDataHelper.csproj", "{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{C8F16DA4-B4AE-4580-BE81-4DFB7AAEB97C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8F16DA4-B4AE-4580-BE81-4DFB7AAEB97C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8F16DA4-B4AE-4580-BE81-4DFB7AAEB97C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

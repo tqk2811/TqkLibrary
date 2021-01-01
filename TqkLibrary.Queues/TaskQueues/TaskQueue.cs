@@ -19,22 +19,30 @@ namespace TqkLibrary.Queues.TaskQueues
     /// </summary>
     /// <returns></returns>
     Task DoWork();
+
     bool CheckEquals(IQueue queue);
+
     void Cancel();
   }
 
   public delegate void QueueComplete<T>(T queue) where T : IQueue;
+
   public delegate void RunComplete();
+
   public class TaskQueue<T> where T : IQueue
   {
-    readonly List<T> Queues = new List<T>();
-    readonly List<T> Runnings = new List<T>();
+    private readonly List<T> Queues = new List<T>();
+    private readonly List<T> Runnings = new List<T>();
 
     [Browsable(false), DefaultValue((string)null)]
     public Dispatcher Dispatcher { get; set; }
+
     public event RunComplete OnRunComplete;
+
     public event QueueComplete<T> OnQueueComplete;
-    int _MaxRun = 1;
+
+    private int _MaxRun = 0;
+
     public int MaxRun
     {
       get { return _MaxRun; }
@@ -45,10 +53,12 @@ namespace TqkLibrary.Queues.TaskQueues
         if (flag && Queues.Count != 0) RunNewQueue();
       }
     }
+
     public int RunningCount
     {
       get { return Runnings.Count; }
     }
+
     public int QueueCount
     {
       get { return Queues.Count; }
@@ -57,7 +67,7 @@ namespace TqkLibrary.Queues.TaskQueues
     public bool RunRandom { get; set; } = false;
 
     //need lock Queues first
-    void StartQueue(T queue)
+    private void StartQueue(T queue)
     {
       if (null != queue)
       {
@@ -67,14 +77,14 @@ namespace TqkLibrary.Queues.TaskQueues
       }
     }
 
-    void RunNewQueue()
+    private void RunNewQueue()
     {
       lock (Queues)//Prioritize
       {
         foreach (var q in Queues.Where(x => x.IsPrioritize)) StartQueue(q);
       }
 
-      if(Queues.Count == 0 && Runnings.Count == 0 && OnRunComplete != null)
+      if (Queues.Count == 0 && Runnings.Count == 0 && OnRunComplete != null)
       {
         if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnRunComplete);
         else OnRunComplete.Invoke();//on completed
@@ -95,9 +105,9 @@ namespace TqkLibrary.Queues.TaskQueues
       }
     }
 
-    void ContinueTaskResult(Task Result, object queue_obj) => QueueCompleted((T)queue_obj);
+    private void ContinueTaskResult(Task Result, object queue_obj) => QueueCompleted((T)queue_obj);
 
-    void QueueCompleted(T queue)
+    private void QueueCompleted(T queue)
     {
       lock (Runnings) Runnings.Remove(queue);
       if (queue.ReQueue) lock (Queues) Queues.Add(queue);
@@ -115,10 +125,11 @@ namespace TqkLibrary.Queues.TaskQueues
       lock (Queues) Queues.Add(queue);
       RunNewQueue();
     }
+
     public void AddRange(IEnumerable<T> queues)
     {
       if (null == queues) throw new ArgumentNullException(nameof(queues));
-      lock (Queues) foreach(var queue in queues) Queues.Add(queue);
+      lock (Queues) foreach (var queue in queues) Queues.Add(queue);
       RunNewQueue();
     }
 

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Sounds
 {
   public static class ReadMp3Duration
   {
-    public static TimeSpan Read(Stream stream,int length)
+    public static TimeSpan Read(Stream stream, int length)
     {
       var id3v2Tag = Id3v2Tag.ReadTag(stream);
       long dataStartPosition = stream.Position;

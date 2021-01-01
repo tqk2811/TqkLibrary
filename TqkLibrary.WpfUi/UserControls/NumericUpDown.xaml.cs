@@ -8,6 +8,7 @@ using System.Windows.Media;
 namespace TqkLibrary.WpfUi.UserControls
 {
   public delegate void PressEnter();
+
   public sealed partial class NumericUpDown : UserControl, IDisposable//, INotifyPropertyChanged
   {
     public static readonly DependencyProperty NumValueProperty = DependencyProperty.Register(
@@ -40,8 +41,9 @@ namespace TqkLibrary.WpfUi.UserControls
       typeof(NumericUpDown),
       new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-    readonly System.Timers.Timer timer;
-    readonly System.Timers.Timer timer2;
+    private readonly System.Timers.Timer timer;
+    private readonly System.Timers.Timer timer2;
+
     public NumericUpDown()
     {
       //this.DataContext = this;
@@ -51,7 +53,6 @@ namespace TqkLibrary.WpfUi.UserControls
         AutoReset = false
       };
       timer.Elapsed += Timer_Elapsed;
-
 
       timer2 = new System.Timers.Timer(100)
       {
@@ -116,7 +117,7 @@ namespace TqkLibrary.WpfUi.UserControls
       set { SetValue(AllowNullProperty, value); }
     }
 
-    void StepNum()
+    private void StepNum()
     {
       if (flag_up) NumValue += Step;
       else NumValue -= Step;
@@ -124,11 +125,11 @@ namespace TqkLibrary.WpfUi.UserControls
 
     private bool flag_up { get; set; } = false;
 
-
     private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
       timer2.Start();
     }
+
     private void Timer2_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
       Dispatcher.Invoke(() =>
@@ -137,7 +138,6 @@ namespace TqkLibrary.WpfUi.UserControls
         timer2.Start();
       });
     }
-
 
     private void TxtNum_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -203,7 +203,7 @@ namespace TqkLibrary.WpfUi.UserControls
         StepNum();
         timer.Start();
       }
-      else if(e.Key == Key.Enter)
+      else if (e.Key == Key.Enter)
       {
         PressEnter?.Invoke();
       }

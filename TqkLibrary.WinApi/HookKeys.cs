@@ -8,14 +8,16 @@ using System.Runtime.InteropServices;
 namespace TqkLibrary.WinApi
 {
   public delegate void HookCallBack(int keycode);
+
   public class HookKeys
   {
-    public List<int> KeyCode { get; } = new List<int>();    
+    public List<int> KeyCode { get; } = new List<int>();
+
     public event HookCallBack Callback;
 
-    User32.WindowsHookDelegate windowsHook;
-    User32.SafeHookHandle WindowsHookExHandle;
-    IntPtr handle;
+    private User32.WindowsHookDelegate windowsHook;
+    private User32.SafeHookHandle WindowsHookExHandle;
+    private IntPtr handle;
 
     public HookKeys()
     {

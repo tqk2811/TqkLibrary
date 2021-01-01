@@ -3,7 +3,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -23,6 +22,7 @@ namespace TqkLibrary.Net.Captcha
   {
     public int status { get; set; }
     public string request { get; set; }
+
     public override string ToString()
     {
       return $"request: {status}, request: {request}";
@@ -36,12 +36,12 @@ namespace TqkLibrary.Net.Captcha
     }
   }
 
-
   public sealed class TwoCaptcha
   {
-    const string EndPoint = "https://2captcha.com";
-    static readonly HttpClient httpClient = new HttpClient(); 
-    readonly string ApiKey;
+    private const string EndPoint = "https://2captcha.com";
+    private static readonly HttpClient httpClient = new HttpClient();
+    private readonly string ApiKey;
+
     public TwoCaptcha(string ApiKey)
     {
       if (string.IsNullOrEmpty(ApiKey)) throw new ArgumentNullException(nameof(ApiKey));
@@ -68,7 +68,7 @@ namespace TqkLibrary.Net.Captcha
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
@@ -97,7 +97,7 @@ namespace TqkLibrary.Net.Captcha
     }
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="id"></param>
     /// <param name="cancellationToken"></param>
@@ -111,11 +111,11 @@ namespace TqkLibrary.Net.Captcha
     /// <exception cref="OperationCanceledException"></exception>
     public async Task<TwoCaptchaResponse> WaitResponseJsonCompleted(string id, CancellationToken cancellationToken, int delay = 5000, int step = 100)
     {
-      while(true)
+      while (true)
       {
         CaptchaWait.Wait(cancellationToken, delay, step);
         TwoCaptchaResponse twoCaptchaResponse = await GetResponseJson(id);
-        switch(twoCaptchaResponse.CheckState())
+        switch (twoCaptchaResponse.CheckState())
         {
           case TwoCaptchaState.NotReady:
             continue;
@@ -126,9 +126,8 @@ namespace TqkLibrary.Net.Captcha
       }
     }
 
-
     //https://2captcha.com/2captcha-api#solving_recaptchav2_old
-    public async Task<string> ReCaptchaV2_old(Bitmap bitmap, Bitmap imginstructions,int? recaptcharows = null,int? recaptchacols = null)
+    public async Task<string> ReCaptchaV2_old(Bitmap bitmap, Bitmap imginstructions, int? recaptcharows = null, int? recaptchacols = null)
     {
       if (null == bitmap) throw new ArgumentNullException(nameof(bitmap));
       if (null == imginstructions) throw new ArgumentNullException(nameof(imginstructions));
@@ -180,7 +179,6 @@ namespace TqkLibrary.Net.Captcha
       }
     }
 
-    
     public async Task<string> Nomal(Bitmap bitmap)
     {
       byte[] buffer_bitmap = null;
@@ -212,7 +210,7 @@ namespace TqkLibrary.Net.Captcha
     }
 
     //https://2captcha.com/2captcha-api#recaptchav2new_proxy
-    public async Task<string> RecaptchaV2(string googleKey, string pageUrl,string cookies = null, string proxy = null, string proxytype = null)
+    public async Task<string> RecaptchaV2(string googleKey, string pageUrl, string cookies = null, string proxy = null, string proxytype = null)
     {
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["key"] = ApiKey;
@@ -224,9 +222,9 @@ namespace TqkLibrary.Net.Captcha
       if (!string.IsNullOrEmpty(proxytype)) parameters["proxytype"] = proxytype;
       Uri uri = new Uri(EndPoint + "/in.php?" + parameters.ToString());
 
-      using(HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
+      using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri))
       {
-        using(HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage,HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return await httpResponseMessage.Content.ReadAsStringAsync();
         }

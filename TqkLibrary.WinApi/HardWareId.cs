@@ -1,6 +1,7 @@
 ﻿using System.Management;
 using System.Security.Cryptography;
 using System.Text;
+
 namespace TqkLibrary.WinApi
 {
   public static class HardWareId
@@ -11,6 +12,7 @@ namespace TqkLibrary.WinApi
       dsk.Get();
       return dsk["VolumeSerialNumber"].ToString();
     }
+
     public static string GetProcessorID()
     {
       var mbs = new ManagementObjectSearcher("Select ProcessorId From Win32_processor");
@@ -21,6 +23,7 @@ namespace TqkLibrary.WinApi
       }
       return string.Empty;
     }
+
     public static string GetMainboardSerial()
     {
       var mbs = new ManagementObjectSearcher("Select SerialNumber From Win32_BaseBoard");
@@ -32,11 +35,10 @@ namespace TqkLibrary.WinApi
       return string.Empty;
     }
 
-
     public static string CalcHashVolumeSerialNumber(string salt)
     {
       string volumeserial = GetVolumeSerialNumber();
-      using(SHA256 sHA256 = SHA256.Create())
+      using (SHA256 sHA256 = SHA256.Create())
       {
         byte[] bytes = sHA256.ComputeHash(Encoding.ASCII.GetBytes($"{volumeserial}|{salt}"));
         StringBuilder builder = new StringBuilder();

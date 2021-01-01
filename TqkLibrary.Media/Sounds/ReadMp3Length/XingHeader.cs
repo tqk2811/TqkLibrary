@@ -8,7 +8,7 @@ namespace TqkLibrary.Media.Sounds
   internal class XingHeader
   {
     [Flags]
-    enum XingHeaderOptions
+    private enum XingHeaderOptions
     {
       Frames = 1,
       Bytes = 2,
@@ -189,6 +189,5 @@ namespace TqkLibrary.Media.Sounds
     {
       get { return frame; }
     }
-
   }
 }

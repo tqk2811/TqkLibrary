@@ -51,26 +51,26 @@
 //    SHOWMINIMIZED = 2,
 
 //    /// <summary>
-//    /// Displays the window as a minimized window. 
+//    /// Displays the window as a minimized window.
 //    /// This value is similar to SW_SHOWMINIMIZED, except the window is not activated.
 //    /// </summary>
 //    SHOWMINNOACTIVE = 7,
 
 //    /// <summary>
-//    /// Displays the window in its current size and position. 
+//    /// Displays the window in its current size and position.
 //    /// This value is similar to SW_SHOW, except that the window is not activated.
 //    /// </summary>
 //    SHOWNA = 8,
 
 //    /// <summary>
-//    /// Displays a window in its most recent size and position. 
+//    /// Displays a window in its most recent size and position.
 //    /// This value is similar to SW_SHOWNORMAL, except that the window is not activated.
 //    /// </summary>
 //    SHOWNOACTIVATE = 4,
 
 //    /// <summary>
-//    /// Activates and displays a window. 
-//    /// If the window is minimized or maximized, the system restores it to its original size and position. 
+//    /// Activates and displays a window.
+//    /// If the window is minimized or maximized, the system restores it to its original size and position.
 //    /// An application should specify this flag when displaying the window for the first time.
 //    /// </summary>
 //    SHOWNORMAL = 1

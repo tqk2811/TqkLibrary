@@ -12,7 +12,9 @@ namespace TqkLibrary.Net.Facebook
 
   public class FacebookToken
   {
-    public FacebookToken() { }
+    public FacebookToken()
+    {
+    }
 
     internal FacebookToken(FacebookToken_ token)
     {
@@ -20,6 +22,7 @@ namespace TqkLibrary.Net.Facebook
       this.token_type = token.token_type;
       this.ExpiresAt = DateTime.Now.AddSeconds(token.expires_in);
     }
+
     public string access_token { get; set; }
     public string token_type { get; set; }
     public DateTime ExpiresAt { get; set; }

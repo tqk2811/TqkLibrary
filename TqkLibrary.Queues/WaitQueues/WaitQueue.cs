@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace TqkLibrary.Queues.WaitQueues
 {
   public delegate void SetStatusFreeDelegate<T>(T sender);
+
   public interface IWait
   {
     event SetStatusFreeDelegate<IWait> Free;
   }
 
   //max 64 wait
-  public class WaitQueue<T> where T: IWait
+  public class WaitQueue<T> where T : IWait
   {
-    readonly List<Tuple<T, AutoResetEvent>> waits = new List<Tuple<T, AutoResetEvent>>();
+    private readonly List<Tuple<T, AutoResetEvent>> waits = new List<Tuple<T, AutoResetEvent>>();
 
     /// <summary>
     /// warning: dont add when something is waiting
@@ -28,7 +26,7 @@ namespace TqkLibrary.Queues.WaitQueues
       if (null == wait) throw new ArgumentNullException(nameof(wait));
       if (waits.Count >= 64) throw new Exception("Limit at 64 wait");
       wait.Free += Wait_Free;
-      waits.Add(new Tuple<T, AutoResetEvent>(wait,new AutoResetEvent(false)));
+      waits.Add(new Tuple<T, AutoResetEvent>(wait, new AutoResetEvent(false)));
     }
 
     private void Wait_Free(IWait sender)

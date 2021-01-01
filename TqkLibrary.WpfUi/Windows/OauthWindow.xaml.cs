@@ -9,8 +9,9 @@ namespace TqkLibrary.WpfUi.Windows
   /// </summary>
   public partial class OauthWindow : Window
   {
-    readonly Uri uri;
-    readonly Uri redirect_uri;
+    private readonly Uri uri;
+    private readonly Uri redirect_uri;
+
     public OauthWindow(Uri uri, Uri redirect_uri)
     {
       this.uri = uri ?? throw new ArgumentNullException(nameof(uri));
@@ -25,7 +26,7 @@ namespace TqkLibrary.WpfUi.Windows
 
     private void WB_Navigating(object sender, NavigatingCancelEventArgs e)
     {
-      if(e.Uri.AbsoluteUri.StartsWith(redirect_uri.AbsoluteUri))
+      if (e.Uri.AbsoluteUri.StartsWith(redirect_uri.AbsoluteUri))
       {
         UriResult = e.Uri;
         this.Close();

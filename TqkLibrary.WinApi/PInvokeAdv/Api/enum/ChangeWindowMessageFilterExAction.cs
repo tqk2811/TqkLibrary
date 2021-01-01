@@ -14,16 +14,16 @@
     Reset = 0,
 
     /// <summary>
-    /// allows the message through the filter. 
-    /// this enables the message to be received by hwnd, 
-    /// regardless of the source of the message, 
+    /// allows the message through the filter.
+    /// this enables the message to be received by hwnd,
+    /// regardless of the source of the message,
     /// even it comes from a lower privileged process.
     /// </summary>
     Allow = 1,
 
     /// <summary>
     /// blocks the message to be delivered to hwnd if it comes from
-    /// a lower privileged process, unless the message is allowed process-wide 
+    /// a lower privileged process, unless the message is allowed process-wide
     /// by using the changewindowmessagefilter function or globally.
     /// </summary>
     Disallow = 2

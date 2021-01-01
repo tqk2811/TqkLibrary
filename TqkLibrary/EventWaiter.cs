@@ -23,12 +23,14 @@ namespace TqkLibrary
     {
       WaitForEvent(TimeSpan.MaxValue);
     }
+
     public void WaitForEvent(TimeSpan timeout)
     {
       _event.AddEventHandler(_eventContainer, action);
       Flag = true;
       _autoResetEvent.WaitOne(timeout);
     }
+
     public void Cancel()
     {
       if (Flag)
@@ -39,7 +41,7 @@ namespace TqkLibrary
       }
     }
 
-    void Fire()
+    private void Fire()
     {
       _autoResetEvent.Set();
     }

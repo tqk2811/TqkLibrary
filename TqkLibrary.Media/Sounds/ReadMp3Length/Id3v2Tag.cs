@@ -43,7 +43,7 @@ namespace TqkLibrary.Media.Sounds
     /// </summary>
     /// <param name="n">The frame body size.</param>
     /// <returns></returns>
-    static byte[] FrameSizeToBytes(int n)
+    private static byte[] FrameSizeToBytes(int n)
     {
       byte[] result = BitConverter.GetBytes(n);
       Array.Reverse(result);
@@ -56,7 +56,7 @@ namespace TqkLibrary.Media.Sounds
     /// <param name="key"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    static byte[] CreateId3v2Frame(string key, string value)
+    private static byte[] CreateId3v2Frame(string key, string value)
     {
       if (string.IsNullOrEmpty(key))
       {
@@ -97,7 +97,7 @@ namespace TqkLibrary.Media.Sounds
       }
 
       return ByteArrayExtensions.Concat(
-          // needs review - have converted to UTF8 as Win 8 has no Encoding.ASCII, 
+          // needs review - have converted to UTF8 as Win 8 has no Encoding.ASCII,
           // need to check what the rules are for ID3v2 tag identifiers
           Encoding.UTF8.GetBytes(key),
           FrameSizeToBytes(body.Length),
@@ -110,7 +110,7 @@ namespace TqkLibrary.Media.Sounds
     /// </summary>
     /// <param name="size"></param>
     /// <returns></returns>
-    static byte[] GetId3TagHeaderSize(int size)
+    private static byte[] GetId3TagHeaderSize(int size)
     {
       byte[] result = new byte[4];
       for (int idx = result.Length - 1; idx >= 0; idx--)
@@ -127,7 +127,7 @@ namespace TqkLibrary.Media.Sounds
     /// </summary>
     /// <param name="frames">The Id3v2 frames that will be included in the file. This is used to calculate the ID3v2 tag size.</param>
     /// <returns></returns>
-    static byte[] CreateId3v2TagHeader(IEnumerable<byte[]> frames)
+    private static byte[] CreateId3v2TagHeader(IEnumerable<byte[]> frames)
     {
       int size = 0;
       foreach (byte[] frame in frames)
@@ -148,7 +148,7 @@ namespace TqkLibrary.Media.Sounds
     /// </summary>
     /// <param name="tags"></param>
     /// <returns></returns>
-    static Stream CreateId3v2TagStream(IEnumerable<KeyValuePair<string, string>> tags)
+    private static Stream CreateId3v2TagStream(IEnumerable<KeyValuePair<string, string>> tags)
     {
       List<byte[]> frames = new List<byte[]>();
       foreach (KeyValuePair<string, string> tag in tags)
@@ -168,7 +168,8 @@ namespace TqkLibrary.Media.Sounds
       ms.Position = 0;
       return ms;
     }
-    #endregion
+
+    #endregion Id3v2 Creation from key-value pairs
 
     private Id3v2Tag(Stream input)
     {
@@ -180,7 +181,6 @@ namespace TqkLibrary.Media.Sounds
           (headerBytes[1] == (byte)'D') &&
           (headerBytes[2] == '3'))
       {
-
         // http://www.id3.org/develop.html
         // OK found an ID3 tag
         // bytes 3 & 4 are ID3v2 version
@@ -216,7 +216,6 @@ namespace TqkLibrary.Media.Sounds
       tagEndPosition = input.Position;
       input.Position = tagStartPosition;
       rawData = reader.ReadBytes((int)(tagEndPosition - tagStartPosition));
-
     }
 
     /// <summary>

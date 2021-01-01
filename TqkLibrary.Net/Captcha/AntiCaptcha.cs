@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+
 namespace TqkLibrary.Net.Captcha
 {
   /// <summary>
@@ -15,24 +14,27 @@ namespace TqkLibrary.Net.Captcha
     FunCaptchaTask,
     FunCaptchaTaskProxyless,
     ImageToTextTask,
+
     /// <summary>
     /// Recaptcha no proxy
     /// </summary>
     NoCaptchaTaskProxyless,
+
     /// <summary>
     /// Recaptcha with proxy
     /// </summary>
     NoCaptchaTask,
+
     /// <summary>
     /// recaptcha V3 No proxy
     /// </summary>
     RecaptchaV3TaskProxyless,
+
     GeeTestTaskProxyless,
     GeeTestTask,
     HCaptchaTask,
     HCaptchaTaskProxyless
   }
-
 
   /// <summary>
   /// https://anti-captcha.com/apidoc/image
@@ -149,17 +151,14 @@ namespace TqkLibrary.Net.Captcha
     public string gRecaptchaResponse { get; set; }
   }
 
-
-
-
   public sealed class AntiCaptcha
   {
-    static readonly HttpClient httpClient = new HttpClient();
-    const string EndPoint = "https://api.anti-captcha.com";
-    readonly string ApiKey;
+    private static readonly HttpClient httpClient = new HttpClient();
+    private const string EndPoint = "https://api.anti-captcha.com";
+    private readonly string ApiKey;
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <exception cref="System.ArgumentNullException"></exception>
     /// <param name="ApiKey">ApiKey</param>
@@ -169,7 +168,7 @@ namespace TqkLibrary.Net.Captcha
       this.ApiKey = ApiKey;
     }
 
-    public async Task<AntiCaptchaTaskResponse> CreateTask(AntiCaptchaTask antiCaptchaTask,string languagePool = "en")
+    public async Task<AntiCaptchaTaskResponse> CreateTask(AntiCaptchaTask antiCaptchaTask, string languagePool = "en")
     {
       CreateTaskJson createTaskJson = new CreateTaskJson();
       createTaskJson.ClientKey = ApiKey;
@@ -178,8 +177,8 @@ namespace TqkLibrary.Net.Captcha
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, EndPoint + "/createTask"))
       {
         httpRequestMessage.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(createTaskJson,NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json");
-        using(HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage,HttpCompletionOption.ResponseContentRead))
+        httpRequestMessage.Content = new StringContent(JsonConvert.SerializeObject(createTaskJson, NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json");
+        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return JsonConvert.DeserializeObject<AntiCaptchaTaskResponse>(await httpResponseMessage.Content.ReadAsStringAsync());
         }
@@ -203,8 +202,7 @@ namespace TqkLibrary.Net.Captcha
       }
     }
 
-
-    class CreateTaskJson
+    private class CreateTaskJson
     {
       [JsonProperty("clientKey")]
       public string ClientKey { get; set; }
@@ -219,7 +217,7 @@ namespace TqkLibrary.Net.Captcha
       public string LanguagePool { get; set; } = "en";
     }
 
-    class TaskResultJson
+    private class TaskResultJson
     {
       [JsonProperty("clientKey")]
       public string ClientKey { get; set; }

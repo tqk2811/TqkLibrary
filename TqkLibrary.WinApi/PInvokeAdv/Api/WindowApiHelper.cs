@@ -1,17 +1,13 @@
 ﻿using PInvoke;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TqkLibrary.WinApi.PInvokeAdv.Api
 {
   public static class WindowApiHelper
   {
-    public static IntPtr StructureToPtr<T>(T _struct)where T : struct
+    public static IntPtr StructureToPtr<T>(T _struct) where T : struct
     {
       int msgSize = Marshal.SizeOf(_struct);
       IntPtr ptr = Marshal.AllocCoTaskMem(msgSize);
@@ -24,7 +20,6 @@ namespace TqkLibrary.WinApi.PInvokeAdv.Api
       return (T)Marshal.PtrToStructure(intptr, typeof(T));
     }
 
-    
     public static Rectangle GetRectangle(this RECT r) => new Rectangle(r.left, r.top, r.right, r.bottom);
   }
 }

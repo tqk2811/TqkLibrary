@@ -7,6 +7,7 @@ namespace TqkLibrary.Queues.TaskQueues
   public class TaskQueue2
   {
     private SemaphoreSlim semaphore;
+
     public TaskQueue2(int numQueue = 1)
     {
       semaphore = new SemaphoreSlim(numQueue);
@@ -24,6 +25,7 @@ namespace TqkLibrary.Queues.TaskQueues
         semaphore.Release();
       }
     }
+
     public async Task Enqueue(Func<Task> taskGenerator)
     {
       await semaphore.WaitAsync();

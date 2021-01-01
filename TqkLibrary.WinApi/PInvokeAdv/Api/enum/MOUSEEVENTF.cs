@@ -3,9 +3,9 @@
 //  public enum MOUSEEVENTF : uint
 //  {
 //    /// <summary>
-//    /// The dx and dy parameters contain normalized absolute coordinates. 
-//    /// If not set, those parameters contain relative data: the change in position since the last reported position. 
-//    /// This flag can be set, or not set, regardless of what kind of mouse or mouse-like device, if any, is connected to the system. 
+//    /// The dx and dy parameters contain normalized absolute coordinates.
+//    /// If not set, those parameters contain relative data: the change in position since the last reported position.
+//    /// This flag can be set, or not set, regardless of what kind of mouse or mouse-like device, if any, is connected to the system.
 //    /// For further information about relative mouse motion, see the following Remarks section.
 //    /// </summary>
 //    ABSOLUTE = 0x8000,
@@ -46,9 +46,9 @@
 //    RIGHTUP = 0x0010,
 
 //    /// <summary>
-//    /// The wheel has been moved, if the mouse has a wheel. 
+//    /// The wheel has been moved, if the mouse has a wheel.
 //    /// The amount of movement is specified in dwData
-//    /// 
+//    ///
 //    /// The wheel button is rotated.
 //    /// </summary>
 //    WHEEL = 0x0800,

@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Timers;
 using System.Windows.Forms;
 using TqkLibrary.WinApi.PInvokeAdv.Api;
 
@@ -64,8 +61,8 @@ namespace TqkLibrary.WinApi
   {
     private readonly System.Windows.Forms.Timer _timer;
     private SpyAgentLocator _locator;
-    readonly int keycodeSelect;
-    readonly int keycodeExit;
+    private readonly int keycodeSelect;
+    private readonly int keycodeExit;
     public readonly HookKeys hookKeys = new HookKeys();
 
     public SpyAgent(int keycodeSelect = 'S', int keycodeExit = 27)
@@ -107,8 +104,8 @@ namespace TqkLibrary.WinApi
     public void BeginSpying()
     {
       _locator?.Close();
-      _locator?.Dispose();     
-      _locator = new SpyAgentLocator();      
+      _locator?.Dispose();
+      _locator = new SpyAgentLocator();
 
       MakePassThrough(_locator.Handle);
       _timer.Enabled = true;
@@ -119,7 +116,7 @@ namespace TqkLibrary.WinApi
     {
       if (SpiedWindowSelected == null) return;
       if (keycode == keycodeExit) EndSpying();
-      else if(keycode == keycodeSelect) SpiedWindowSelected(this, GetHoveredWindow());
+      else if (keycode == keycodeSelect) SpiedWindowSelected(this, GetHoveredWindow());
     }
 
     public void EndSpying()
@@ -131,10 +128,8 @@ namespace TqkLibrary.WinApi
       _locator = null;
     }
 
-
-
     private class SpyAgentLocator : Form
-    {      
+    {
       public SpyAgentLocator()
       {
         FormBorderStyle = FormBorderStyle.None;
@@ -147,6 +142,7 @@ namespace TqkLibrary.WinApi
     }
 
     #region Under the Hood
+
     public static SpiedWindow GetHoveredWindow()
     {
       IntPtr handle = User32.WindowFromPoint(Cursor.Position);
@@ -158,6 +154,7 @@ namespace TqkLibrary.WinApi
       int exstyle = User32.GetWindowLong(handle, User32.WindowLongIndexFlags.GWL_EXSTYLE);
       User32.SetWindowLong(handle, User32.WindowLongIndexFlags.GWL_EXSTYLE, User32.SetWindowLongFlags.WS_EX_TRANSPARENT | (User32.SetWindowLongFlags)exstyle);
     }
-    #endregion
+
+    #endregion Under the Hood
   }
 }

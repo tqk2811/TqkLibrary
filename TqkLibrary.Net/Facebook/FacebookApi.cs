@@ -10,9 +10,9 @@ namespace TqkLibrary.Net.Facebook
 {
   public class FacebookApi
   {
-    const string ApiEndPoint = "https://graph.facebook.com";
-    readonly string Api; 
-    readonly HttpClient httpClient = new HttpClient();
+    private const string ApiEndPoint = "https://graph.facebook.com";
+    private readonly string Api;
+    private readonly HttpClient httpClient = new HttpClient();
 
     public FacebookApi(string version = "v8.0")
     {
@@ -20,12 +20,12 @@ namespace TqkLibrary.Net.Facebook
     }
 
     //oauth
-    public async Task<FacebookToken> GetAccessToken(string code,string AppId,string AppSecret, string redirect_uri)
+    public async Task<FacebookToken> GetAccessToken(string code, string AppId, string AppSecret, string redirect_uri)
     {
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get,
         Api + $"/oauth/access_token?client_id={AppId}&redirect_uri={redirect_uri}&client_secret={AppSecret}&code={code}"))
       {
-        using(HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage,HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return new FacebookToken(JsonConvert.DeserializeObject<FacebookToken_>(await httpResponseMessage.Content.ReadAsStringAsync()));
         }
@@ -54,8 +54,7 @@ namespace TqkLibrary.Net.Facebook
       }
     }
 
-
-    public async Task<string> PagePostContent(string access_token, string content,string link = null, bool published = true,DateTime? ScheduleTime = null)
+    public async Task<string> PagePostContent(string access_token, string content, string link = null, bool published = true, DateTime? ScheduleTime = null)
     {
       var dict = new Dictionary<string, string>();
       dict.Add("message", content);
@@ -77,7 +76,6 @@ namespace TqkLibrary.Net.Facebook
       }
     }
 
-
     public async Task<string> UploadingPhoto(string access_token, string photo_url, bool published)
     {
       var dict = new Dictionary<string, string>();
@@ -95,7 +93,7 @@ namespace TqkLibrary.Net.Facebook
       }
     }
 
-    public async Task<string> UploadingPhoto(string access_token, byte[] image,bool published)
+    public async Task<string> UploadingPhoto(string access_token, byte[] image, bool published)
     {
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, Api + $"/me/photos"))
       {
@@ -113,21 +111,21 @@ namespace TqkLibrary.Net.Facebook
       }
     }
 
-    public async Task<string> PublishingMultiPhoto(string access_token, string message,IEnumerable<string> imgsId, bool published = true,DateTime? time = null)
+    public async Task<string> PublishingMultiPhoto(string access_token, string message, IEnumerable<string> imgsId, bool published = true, DateTime? time = null)
     {
       var dict = new Dictionary<string, string>();
       dict.Add("message", message);
       dict.Add("access_token", access_token);
       dict.Add("published", published ? "1" : "0");
-      if(!published && time != null)
+      if (!published && time != null)
       {
         dict.Add("scheduled_publish_time", new DateTimeOffset(time.Value).ToUnixTimeSeconds().ToString());
         dict.Add("unpublished_content_type", "SCHEDULED");
       }
-      
+
       int i = 0;
       foreach (var id in imgsId) dict.Add("attached_media[" + i++ + "]", "{\"media_fbid\":\"" + id + "\"}");
-      
+
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, Api + $"/me/feed"))
       {
         httpRequestMessage.Content = new FormUrlEncodedContent(dict);
@@ -138,7 +136,7 @@ namespace TqkLibrary.Net.Facebook
       }
     }
 
-    public async Task<byte[]> PictureByte(string access_token,int width = 9999,int height = 9999, string userId = null)
+    public async Task<byte[]> PictureByte(string access_token, int width = 9999, int height = 9999, string userId = null)
     {
       string url = Api + $"/{(string.IsNullOrEmpty(userId) ? "me" : userId)}/picture?access_token={access_token}&width={width}&{height}=9999";//&type=large square, small, normal, large
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url))
@@ -159,7 +157,7 @@ namespace TqkLibrary.Net.Facebook
       return (Bitmap)Bitmap.FromStream(ms);
     }
 
-    public async Task<string> UserInfo(string access_token,string fields = "birthday,name", string userId = null)
+    public async Task<string> UserInfo(string access_token, string fields = "birthday,name", string userId = null)
     {
       string url = Api + $"/{(string.IsNullOrEmpty(userId) ? "me" : userId)}?access_token={access_token}&fields={fields}";
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url))

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Sounds
 {
@@ -16,19 +12,23 @@ namespace TqkLibrary.Media.Sounds
     /// Stereo
     /// </summary>
     Stereo,
+
     /// <summary>
     /// Joint Stereo
     /// </summary>
     JointStereo,
+
     /// <summary>
     /// Dual Channel
     /// </summary>
     DualChannel,
+
     /// <summary>
     /// Mono
     /// </summary>
     Mono
   }
+
   /// <summary>
   /// MPEG Layer flags
   /// </summary>
@@ -38,38 +38,46 @@ namespace TqkLibrary.Media.Sounds
     /// Reserved
     /// </summary>
     Reserved,
+
     /// <summary>
     /// Layer 3
     /// </summary>
     Layer3,
+
     /// <summary>
     /// Layer 2
     /// </summary>
     Layer2,
+
     /// <summary>
     /// Layer 1
     /// </summary>
     Layer1
   }
+
   internal enum MpegVersion
   {
     /// <summary>
     /// Version 2.5
     /// </summary>
     Version25,
+
     /// <summary>
     /// Reserved
     /// </summary>
     Reserved,
+
     /// <summary>
     /// Version 2
     /// </summary>
     Version2,
+
     /// <summary>
     /// Version 1
     /// </summary>
     Version1
   }
+
   internal class Mp3Frame
   {
     private static readonly int[,,] bitRates = new int[,,] {
@@ -82,10 +90,11 @@ namespace TqkLibrary.Media.Sounds
             {
                 // MPEG Version 2 & 2.5
                 { 0, 32, 48, 56, 64, 80, 96, 112, 128, 144, 160, 176, 192, 224, 256 }, // Layer 1
-                { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 }, // Layer 2 
+                { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 }, // Layer 2
                 { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 }, // Layer 3 (same as layer 2)
             }
         };
+
     private static readonly int[,] samplesPerFrame = new int[,] {
             {   // MPEG Version 1
                 384,    // Layer1
@@ -171,13 +180,11 @@ namespace TqkLibrary.Media.Sounds
       return frame;
     }
 
-
     /// <summary>
     /// Constructs an MP3 frame
     /// </summary>
     private Mp3Frame()
     {
-
     }
 
     /// <summary>
@@ -244,7 +251,6 @@ namespace TqkLibrary.Media.Sounds
         {
           return false;
         }
-
 
         frame.Copyright = (headerBytes[3] & 0x08) == 0x08;
         bool original = (headerBytes[3] & 0x04) == 0x04;
@@ -331,7 +337,6 @@ namespace TqkLibrary.Media.Sounds
     /// Whether a CRC is present
     /// </summary>
     public bool CrcPresent { get; private set; }
-
 
     /// <summary>
     /// Not part of the MP3 frame itself - indicates where in the stream we found this header

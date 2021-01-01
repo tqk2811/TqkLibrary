@@ -6,11 +6,9 @@ using System.IO;
 
 namespace TqkLibrary.Media.Images
 {
-  
   public static class ImageUtil
   {
-    static readonly int TransparentARGB = Color.Transparent.ToArgb();
-
+    private static readonly int TransparentARGB = Color.Transparent.ToArgb();
 
     public static Bitmap Resize(this Bitmap source, int newWidth, int newHeight)
     {
@@ -64,8 +62,6 @@ namespace TqkLibrary.Media.Images
       return newImage;
     }
 
-
-
     public static void DrawChild(this Bitmap target, Bitmap child, Point pos)
     {
       //var newImage = new Bitmap(target.Width, target.Height, PixelFormat.Format24bppRgb);
@@ -82,7 +78,7 @@ namespace TqkLibrary.Media.Images
         graphics.DrawChild(child, pos);
       }
     }
-    
+
     public static void DrawText(this Bitmap target, Point point, string text, Font font, Color color, int opacity = 128)
     {
       using (Graphics graphics = Graphics.FromImage(target))
@@ -91,12 +87,11 @@ namespace TqkLibrary.Media.Images
       }
     }
 
-
     public static Bitmap RedrawCropToCenterWidth(this Bitmap source, Rectangle rectangle)
     {
       Bitmap result = new Bitmap(source.Width, source.Height);
       result.MakeTransparent();
-      using(Bitmap crop = source.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+      using (Bitmap crop = source.Clone(rectangle, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
       {
         using (Graphics graphics = Graphics.FromImage(result))
         {
@@ -113,7 +108,7 @@ namespace TqkLibrary.Media.Images
       return new Point(rectangle.X + (rectangle.Width / 2), rectangle.Y + (rectangle.Height / 2));
     }
 
-    public static Point ImageCenterImage(Size source,Size child)
+    public static Point ImageCenterImage(Size source, Size child)
     {
       var center_source = new Point(source.Width / 2, source.Height / 2);
       var center_child = new Point(child.Width / 2, child.Height / 2);
@@ -126,18 +121,19 @@ namespace TqkLibrary.Media.Images
       return (Bitmap)Bitmap.FromStream(memoryStream);
     }
 
+    #region Graphics Extension
 
-    #region Graphics Extension 
-    public static void DrawText(this Graphics graphics, Point point,string text, Font font, Color color,int opacity = 128)
+    public static void DrawText(this Graphics graphics, Point point, string text, Font font, Color color, int opacity = 128)
     {
       graphics.DrawString(text, font, new SolidBrush(Color.FromArgb(opacity, color)), point);
     }
+
     public static void DrawChild(this Graphics graphics, Bitmap child, Point pos)
     {
       graphics.DrawImage(child, pos.X, pos.Y, child.Width, child.Height);
     }
-    #endregion
 
+    #endregion Graphics Extension
 
     public static byte[] GetBytes(this Bitmap bitmap)
     {

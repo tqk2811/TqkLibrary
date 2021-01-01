@@ -6,7 +6,7 @@ namespace TqkLibrary.WinApi
   public static class RegisterSchemeUri
   {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="scheme"></param>
     /// <param name="exePath"></param>
@@ -16,7 +16,7 @@ namespace TqkLibrary.WinApi
     /// <exception cref="System.ObjectDisposedException"></exception>
     /// <exception cref="System.UnauthorizedAccessException"></exception>
     /// <exception cref="System.IO.IOException"></exception>
-    public static bool Register(string scheme,string exePath)
+    public static bool Register(string scheme, string exePath)
     {
       if (Registry.ClassesRoot.GetSubKeyNames().Any(x => x.Equals(scheme))) return false;
       else

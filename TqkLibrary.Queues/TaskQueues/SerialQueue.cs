@@ -5,8 +5,8 @@ namespace TqkLibrary.Queues.TaskQueues
 {
   public class SerialQueue
   {
-    readonly object _locker = new object();
-    readonly WeakReference<Task> _lastTask = new WeakReference<Task>(null);
+    private readonly object _locker = new object();
+    private readonly WeakReference<Task> _lastTask = new WeakReference<Task>(null);
 
     public Task Enqueue(Action action)
     {

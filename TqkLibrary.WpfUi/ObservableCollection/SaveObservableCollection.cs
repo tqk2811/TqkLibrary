@@ -11,15 +11,15 @@ using System.Timers;
 
 namespace TqkLibrary.WpfUi
 {
-  public class SaveObservableCollection<T1,T2> : ObservableCollection<T1> 
-    where T2 : class 
+  public class SaveObservableCollection<T1, T2> : ObservableCollection<T1>
+    where T2 : class
     where T1 : class, IViewModel<T2>
   {
     public string SavePath { get; set; }
     public bool IsAutoSave { get; set; } = true;
 
-    readonly Timer timer;
-    bool IsLoaded = false;
+    private readonly Timer timer;
+    private bool IsLoaded = false;
 
     public SaveObservableCollection(int interval = 500)
     {
@@ -32,16 +32,17 @@ namespace TqkLibrary.WpfUi
     {
       using (StreamWriter sw = new StreamWriter(SavePath, false)) sw.Write(JsonConvert.SerializeObject(this.Select(x => x.Data).ToList()));
     }
+
     public void Save()
     {
-      if(IsLoaded)
+      if (IsLoaded)
       {
         timer.Stop();
         timer.Start();
       }
     }
 
-    public void Load(Func<T2,T1> func)//Func - Action - Predicate - ....
+    public void Load(Func<T2, T1> func)//Func - Action - Predicate - ....
     {
       if (func == null) throw new ArgumentNullException(nameof(func));
 
@@ -63,14 +64,15 @@ namespace TqkLibrary.WpfUi
       t2s.ForEach(x => this.Add(func.Invoke(x)));
       IsLoaded = true;
     }
+
     public void Load(string SavePath, Func<T2, T1> func)
     {
       this.SavePath = SavePath;
       Load(func);
     }
 
-
     #region ObservableCollection
+
     protected override void InsertItem(int index, T1 item)
     {
       item.Change += Item_Change;
@@ -91,7 +93,7 @@ namespace TqkLibrary.WpfUi
 
     protected override void SetItem(int index, T1 item)
     {
-      this[index].Change -= Item_Change; 
+      this[index].Change -= Item_Change;
       item.Change += Item_Change;
       base.SetItem(index, item);
     }
@@ -101,7 +103,8 @@ namespace TqkLibrary.WpfUi
       if (IsAutoSave) Save();
       base.OnCollectionChanged(e);
     }
-    #endregion
+
+    #endregion ObservableCollection
 
     private void Item_Change(object obj, T2 data)
     {
@@ -115,9 +118,11 @@ namespace TqkLibrary.WpfUi
   }
 
   public delegate void ChangeCallBack<T>(object obj, T data);
+
   public interface IViewModel<T> where T : class
   {
     T Data { get; }
+
     event ChangeCallBack<T> Change;
   }
 }

@@ -49,28 +49,40 @@ namespace TqkLibrary.WinApi
     {
       [PreserveSig]
       int SetScriptSite(IActiveScriptSite pass);
+
       [PreserveSig]
       int GetScriptSite(Guid riid, out IntPtr site);
+
       [PreserveSig]
       int SetScriptState(ScriptState state);
+
       [PreserveSig]
       int GetScriptState(out ScriptState scriptState);
+
       [PreserveSig]
       int Close();
+
       [PreserveSig]
       int AddNamedItem(string name, ScriptItem flags);
+
       [PreserveSig]
       int AddTypeLib(Guid typeLib, uint major, uint minor, uint flags);
+
       [PreserveSig]
       int GetScriptDispatch(string itemName, out IntPtr dispatch);
+
       [PreserveSig]
       int GetCurrentScriptThreadID(out uint thread);
+
       [PreserveSig]
       int GetScriptThreadID(uint win32ThreadId, out uint thread);
+
       [PreserveSig]
       int GetScriptThreadState(uint thread, out ScriptThreadState state);
+
       [PreserveSig]
       int InterruptScriptThread(uint thread, out System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo, uint flags);
+
       [PreserveSig]
       int Clone(out IActiveScript script);
     }
@@ -80,6 +92,7 @@ namespace TqkLibrary.WinApi
     {
       [PreserveSig]
       int GetProperty(int dwProperty, IntPtr pvarIndex, out object pvarValue);
+
       [PreserveSig]
       int SetProperty(int dwProperty, IntPtr pvarIndex, ref object pvarValue);
     }
@@ -89,18 +102,25 @@ namespace TqkLibrary.WinApi
     {
       [PreserveSig]
       int GetLCID(out int lcid);
+
       [PreserveSig]
       int GetItemInfo(string name, ScriptInfo returnMask, out IntPtr item, IntPtr typeInfo);
+
       [PreserveSig]
       int GetDocVersionString(out string version);
+
       [PreserveSig]
       int OnScriptTerminate(object result, System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo);
+
       [PreserveSig]
       int OnStateChange(ScriptState scriptState);
+
       [PreserveSig]
       int OnScriptError(IActiveScriptError scriptError);
+
       [PreserveSig]
       int OnEnterScript();
+
       [PreserveSig]
       int OnLeaveScript();
     }
@@ -110,8 +130,10 @@ namespace TqkLibrary.WinApi
     {
       [PreserveSig]
       int GetExceptionInfo(out System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo);
+
       [PreserveSig]
       int GetSourcePosition(out uint sourceContext, out int lineNumber, out int characterPosition);
+
       [PreserveSig]
       int GetSourceLineText(out string sourceLine);
     }
@@ -121,8 +143,10 @@ namespace TqkLibrary.WinApi
     {
       [PreserveSig]
       int InitNew();
+
       [PreserveSig]
       int AddScriptlet(string defaultName, string code, string itemName, string subItemName, string eventName, string delimiter, IntPtr sourceContextCookie, uint startingLineNumber, ScriptText flags, out string name, out System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo);
+
       [PreserveSig]
       int ParseScriptText(string code, string itemName, IntPtr context, string delimiter, int sourceContextCookie, uint startingLineNumber, ScriptText flags, out object result, out System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo);
     }
@@ -132,8 +156,10 @@ namespace TqkLibrary.WinApi
     {
       [PreserveSig]
       int InitNew();
+
       [PreserveSig]
       int AddScriptlet(string defaultName, string code, string itemName, string subItemName, string eventName, string delimiter, IntPtr sourceContextCookie, uint startingLineNumber, ScriptText flags, out string name, out System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo);
+
       [PreserveSig]
       int ParseScriptText(string code, string itemName, IntPtr context, string delimiter, long sourceContextCookie, uint startingLineNumber, ScriptText flags, out object result, out System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo);
     }
@@ -142,9 +168,11 @@ namespace TqkLibrary.WinApi
     private enum ScriptText
     {
       None = 0,
+
       //DelayExecution = 1,
       //IsVisible = 2,
       IsExpression = 32,
+
       IsPersistent = 64,
       //HostManageSource = 128
     }
@@ -162,6 +190,7 @@ namespace TqkLibrary.WinApi
     {
       //None = 0,
       IsVisible = 2,
+
       IsSource = 4,
       //GlobalMembers = 8,
       //IsPersistent = 64,
@@ -244,10 +273,10 @@ namespace TqkLibrary.WinApi
       }
     }
 
-    /// <summary> 
-    /// Initializes a new instance of the <see cref="ScriptEngine"/> class. 
-    /// </summary> 
-    /// <param name="language">The scripting language. Standard Windows Script engines names are 'jscript' or 'vbscript'.</param> 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScriptEngine"/> class.
+    /// </summary>
+    /// <param name="language">The scripting language. Standard Windows Script engines names are 'jscript' or 'vbscript'.</param>
     public ScriptEngine(string language)
     {
       if (language == null)
@@ -270,7 +299,7 @@ namespace TqkLibrary.WinApi
       Site = new ScriptSite();
       _engine.SetScriptSite(Site);
 
-      // support 32-bit & 64-bit process 
+      // support 32-bit & 64-bit process
       if (IntPtr.Size == 4)
       {
         _parse32 = (IActiveScriptParse32)_engine;
@@ -381,11 +410,11 @@ namespace TqkLibrary.WinApi
       return property.SetProperty(index, IntPtr.Zero, ref value) == 0;
     }
 
-    /// <summary> 
-    /// Adds the name of a root-level item to the scripting engine's name space. 
-    /// </summary> 
-    /// <param name="name">The name. May not be null.</param> 
-    /// <param name="value">The value. It must be a ComVisible object.</param> 
+    /// <summary>
+    /// Adds the name of a root-level item to the scripting engine's name space.
+    /// </summary>
+    /// <param name="name">The name. May not be null.</param>
+    /// <param name="value">The value. It must be a ComVisible object.</param>
     public void SetNamedItem(string name, object value)
     {
       if (name == null)
@@ -445,7 +474,7 @@ namespace TqkLibrary.WinApi
         }
         catch
         {
-          // happens sometimes... 
+          // happens sometimes...
         }
         uint sourceContext;
         int lineNumber;
@@ -486,24 +515,24 @@ namespace TqkLibrary.WinApi
       }
     }
 
-    /// <summary> 
-    /// Evaluates an expression using the specified language. 
-    /// </summary> 
-    /// <param name="language">The language.</param> 
-    /// <param name="expression">The expression. May not be null.</param> 
-    /// <returns>The result of the evaluation.</returns> 
+    /// <summary>
+    /// Evaluates an expression using the specified language.
+    /// </summary>
+    /// <param name="language">The language.</param>
+    /// <param name="expression">The expression. May not be null.</param>
+    /// <returns>The result of the evaluation.</returns>
     public static object Eval(string language, string expression)
     {
       return Eval(language, expression, null);
     }
 
-    /// <summary> 
-    /// Evaluates an expression using the specified language, with an optional array of named items. 
-    /// </summary> 
-    /// <param name="language">The language.</param> 
-    /// <param name="expression">The expression. May not be null.</param> 
-    /// <param name="namedItems">The named items array.</param> 
-    /// <returns>The result of the evaluation.</returns> 
+    /// <summary>
+    /// Evaluates an expression using the specified language, with an optional array of named items.
+    /// </summary>
+    /// <param name="language">The language.</param>
+    /// <param name="expression">The expression. May not be null.</param>
+    /// <param name="namedItems">The named items array.</param>
+    /// <returns>The result of the evaluation.</returns>
     public static object Eval(string language, string expression, params KeyValuePair<string, object>[] namedItems)
     {
       if (language == null)
@@ -525,11 +554,11 @@ namespace TqkLibrary.WinApi
       }
     }
 
-    /// <summary> 
-    /// Evaluates an expression. 
-    /// </summary> 
-    /// <param name="expression">The expression. May not be null.</param> 
-    /// <returns>The result of the evaluation.</returns> 
+    /// <summary>
+    /// Evaluates an expression.
+    /// </summary>
+    /// <param name="expression">The expression. May not be null.</param>
+    /// <returns>The result of the evaluation.</returns>
     public object Eval(string expression)
     {
       if (expression == null)
@@ -538,11 +567,11 @@ namespace TqkLibrary.WinApi
       return Parse(expression, true);
     }
 
-    /// <summary> 
-    /// Parses the specified text and returns an object that can be used for evaluation. 
-    /// </summary> 
-    /// <param name="text">The text to parse.</param> 
-    /// <returns>An instance of the ParsedScript class.</returns> 
+    /// <summary>
+    /// Parses the specified text and returns an object that can be used for evaluation.
+    /// </summary>
+    /// <param name="text">The text to parse.</param>
+    /// <returns>An instance of the ParsedScript class.</returns>
     public ParsedScript Parse(string text)
     {
       if (text == null)
@@ -566,14 +595,14 @@ namespace TqkLibrary.WinApi
 
       try
       {
-        // immediate expression computation seems to work only for 64-bit 
-        // so hack something for 32-bit... 
+        // immediate expression computation seems to work only for 64-bit
+        // so hack something for 32-bit...
         System.Runtime.InteropServices.ComTypes.EXCEPINFO exceptionInfo;
         if (_parse32 != null)
         {
           if (expression)
           {
-            // should work for jscript & vbscript at least... 
+            // should work for jscript & vbscript at least...
             text = varName + "=" + text;
           }
           _parse32.ParseScriptText(text, null, IntPtr.Zero, null, 0, 0, flags, out result, out exceptionInfo);
@@ -594,7 +623,7 @@ namespace TqkLibrary.WinApi
       IntPtr dispatch;
       if (expression)
       {
-        // continue  our 32-bit hack... 
+        // continue  our 32-bit hack...
         if (_parse32 != null)
         {
           _engine.GetScriptDispatch(null, out dispatch);

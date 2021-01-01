@@ -8,7 +8,8 @@ namespace TqkLibrary.WpfUi.Converters
   {
     public bool IsAttributeFlag { get; set; } = true;
 
-    Enum CurrentValue;
+    private Enum CurrentValue;
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
       this.CurrentValue = (Enum)value;
@@ -18,7 +19,7 @@ namespace TqkLibrary.WpfUi.Converters
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      if(IsAttributeFlag)
+      if (IsAttributeFlag)
       {
         var par = parameter as Enum;
         if ((bool)value) CurrentValue = CurrentValue.Or(par);
@@ -52,6 +53,7 @@ namespace TqkLibrary.WpfUi.Converters
       else
         return (Enum)Enum.ToObject(a.GetType(), Convert.ToUInt64(a) & Convert.ToUInt64(b));
     }
+
     public static Enum Not(this Enum a)
     {
       // consider adding argument validation here

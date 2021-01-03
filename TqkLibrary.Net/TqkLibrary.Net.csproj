@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Captcha\CapMonsterCloud\DataClass\" />
+    <Folder Include="ImagesHostApi\ImgurCom\DataClass\" />
   </ItemGroup>
 
 </Project>

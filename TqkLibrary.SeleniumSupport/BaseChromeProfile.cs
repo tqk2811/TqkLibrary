@@ -17,6 +17,7 @@ namespace TqkLibrary.SeleniumSupport
     protected static readonly Random rd = new Random();
     protected readonly ChromeDriverService service;
 
+    public CancellationToken Token { get { return tokenSource.Token; } }
     protected ChromeDriver chromeDriver { get; private set; }
     protected CancellationTokenSource tokenSource { get; private set; }
     protected Process process { get; private set; }
@@ -169,6 +170,8 @@ namespace TqkLibrary.SeleniumSupport
     protected void SwitchToFrame(By by) => chromeDriver.SwitchTo().Frame(WaitUntil(by, ElementsExists, true).First());
 
     protected ReadOnlyCollection<IWebElement> FindElements(By by) => chromeDriver.FindElements(by);
+
+    protected FrameSwitch FrameSwitch(IWebElement webElement) => new FrameSwitch(chromeDriver, webElement);
 
     #region WaitUntil
 

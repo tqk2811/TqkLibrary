@@ -17,4 +17,8 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Captcha\CapMonsterCloud\DataClass\" />
+  </ItemGroup>
+
 </Project>

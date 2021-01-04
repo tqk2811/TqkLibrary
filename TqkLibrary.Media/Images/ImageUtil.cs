@@ -62,6 +62,8 @@ namespace TqkLibrary.Media.Images
       return newImage;
     }
 
+    public static Bitmap CropImage(this Bitmap source, Size size, Point location) => source.CropImage(new Rectangle() { Size = size, Location = location });
+
     public static void DrawChild(this Bitmap target, Bitmap child, Point pos)
     {
       //var newImage = new Bitmap(target.Width, target.Height, PixelFormat.Format24bppRgb);

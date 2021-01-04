@@ -23,7 +23,7 @@ namespace TqkLibrary.Queues.TaskQueues
     void Cancel();
   }
 
-  public delegate void QueueComplete<T>(T queue) where T : IQueue;
+  public delegate void QueueComplete<T>(Task task, T queue) where T : IQueue;
 
   public delegate void RunComplete();
 
@@ -103,16 +103,16 @@ namespace TqkLibrary.Queues.TaskQueues
       }
     }
 
-    private void ContinueTaskResult(Task Result, object queue_obj) => QueueCompleted((T)queue_obj);
+    private void ContinueTaskResult(Task result, object queue_obj) => QueueCompleted(result, (T)queue_obj);
 
-    private void QueueCompleted(T queue)
+    private void QueueCompleted(Task result, T queue)
     {
       lock (Runnings) Runnings.Remove(queue);
       if (queue.ReQueue) lock (Queues) Queues.Add(queue);
       if (OnQueueComplete != null)
       {
         if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, queue);
-        else OnQueueComplete.Invoke(queue);
+        else OnQueueComplete.Invoke(result, queue);
       }
       RunNewQueue();
     }

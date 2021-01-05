@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
@@ -86,6 +87,7 @@ namespace TqkLibrary.Queues.TaskQueues
       {
         if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnRunComplete);
         else OnRunComplete.Invoke();//on completed
+        autoResetEvent.Set();
         return;
       }
 
@@ -164,5 +166,25 @@ namespace TqkLibrary.Queues.TaskQueues
       lock (Queues) Queues.Clear();
       lock (Runnings) Runnings.ForEach(o => o.Cancel());
     }
+
+    private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);
+
+    public void WaitForShutDown()
+    {
+      WaitForShutDown(TimeSpan.MaxValue);
+    }
+
+    public void WaitForShutDown(TimeSpan Timeout)
+    {
+      if (RunningCount > 0)
+      {
+        autoResetEvent.Reset();
+        autoResetEvent.WaitOne(Timeout);
+      }
+    }
+
+    public Task WaitForShutDownAsync() => Task.Factory.StartNew(WaitForShutDown);
+
+    public Task WaitForShutDownAsync(TimeSpan Timeout) => Task.Factory.StartNew(() => WaitForShutDown(Timeout));
   }
 }

@@ -53,6 +53,6 @@ namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
     }
 
     public async Task<RentCodeCheckOrderResults> Check(RentCodeResult rentCodeResult)
-      => await RequestGet<RentCodeCheckOrderResults>($"order/{rentCodeResult.Id}/check?apiKey={ApiKey}").ConfigureAwait(false);
+      => await RequestGet<RentCodeCheckOrderResults>(EndPoint + $"order/{rentCodeResult.Id}/check?apiKey={ApiKey}").ConfigureAwait(false);
   }
 }

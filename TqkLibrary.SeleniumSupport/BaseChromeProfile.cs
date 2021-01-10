@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Newtonsoft.Json;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.ObjectModel;
@@ -82,6 +83,21 @@ namespace TqkLibrary.SeleniumSupport
       options.AddUserProfilePreference("credentials_enable_service", false);
       options.AddUserProfilePreference("profile.password_manager_enabled", false);
       return options;
+    }
+
+    protected virtual ChromeOptions LoadFromJsonFile(string filePath)
+    {
+      ChromeOptionConfig chromeOptionConfig = JsonConvert.DeserializeObject<ChromeOptionConfig>(File.ReadAllText(filePath));
+      ChromeOptions chromeOptions = new ChromeOptions();
+      chromeOptionConfig.Arguments?.ForEach(x => chromeOptions.AddArgument(x));
+      chromeOptionConfig.ExcludedArguments?.ForEach(x => chromeOptions.AddExcludedArgument(x));
+      chromeOptionConfig.AdditionalCapabilitys?.ForEach(x => chromeOptions.AddAdditionalCapability(x.Name, x.Value));
+      chromeOptionConfig.UserProfilePreferences?.ForEach(x => chromeOptions.AddUserProfilePreference(x.Name, x.Value));
+      if (chromeOptionConfig.UserAgents?.Count > 0)
+      {
+        chromeOptions.AddUserAgent(chromeOptionConfig.UserAgents[new Random().Next(chromeOptionConfig.UserAgents.Count)]);
+      }
+      return chromeOptions;
     }
 
     public virtual bool OpenChrome(ChromeOptions chromeOptions)
@@ -177,49 +193,21 @@ namespace TqkLibrary.SeleniumSupport
 
     #region Func
 
-    protected bool ElementsExists(ReadOnlyCollection<IWebElement> webElements)
-    {
-      if (webElements?.Count > 0) return true;
-      return false;
-    }
+    protected bool ElementsExists(ReadOnlyCollection<IWebElement> webElements) => webElements?.Count > 0;
 
     //protected bool ElementsNotExists(ReadOnlyCollection<IWebElement> webElements) => !ElementsExists(webElements);
 
-    protected bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements)
-    {
-      if (webElements?.All(x => x.Displayed) == true) return true;
-      return false;
-    }
+    protected bool AllElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements?.All(x => x.Displayed) == true;
 
-    protected bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements)
-    {
-      if (webElements?.Any(x => x.Displayed) == true) return true;
-      return false;
-    }
+    protected bool AnyElementsVisible(ReadOnlyCollection<IWebElement> webElements) => webElements?.Any(x => x.Displayed) == true;
 
-    protected bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements)
-    {
-      if (webElements?.All(x => x.Displayed && x.Enabled) == true) return true;
-      return false;
-    }
+    protected bool AllElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements?.All(x => x.Displayed && x.Enabled) == true;
 
-    protected bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements)
-    {
-      if (webElements?.Any(x => x.Displayed && x.Enabled) == true) return true;
-      return false;
-    }
+    protected bool AnyElementsClickable(ReadOnlyCollection<IWebElement> webElements) => webElements?.Any(x => x.Displayed && x.Enabled) == true;
 
-    protected bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements)
-    {
-      if (webElements?.All(x => x.Selected) == true) return true;
-      return false;
-    }
+    protected bool AllElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements?.All(x => x.Selected) == true;
 
-    protected bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements)
-    {
-      if (webElements?.Any(x => x.Selected) == true) return true;
-      return false;
-    }
+    protected bool AnyElementsSelected(ReadOnlyCollection<IWebElement> webElements) => webElements?.Any(x => x.Selected) == true;
 
     #endregion Func
 

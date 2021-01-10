@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace TqkLibrary.Adb
 {
@@ -31,11 +33,27 @@ namespace TqkLibrary.Adb
 
     public event AdbLog LogEvent;
 
+    private readonly Random rd = new Random();
+    private readonly CancellationTokenSource tokenSource;
+
     public BaseAdb(string deviceName = null, string adbPath = null)
     {
       this.DeviceId = deviceName;
       this.adbPath = adbPath;
       if (File.Exists(adbPath)) _AdbPath = adbPath;
+      tokenSource = new CancellationTokenSource();
+    }
+
+    public void Stop() => tokenSource.Cancel();
+
+    public void Delay(int min, int max)
+    {
+      int time = rd.Next(min, max) / 100;
+      for (int i = 0; i < time; i++)
+      {
+        Task.Delay(100).Wait();
+        tokenSource?.Token.ThrowIfCancellationRequested();
+      }
     }
 
     public string AdbCommand(string command)

@@ -50,6 +50,21 @@ namespace TqkLibrary.Media.Images
       }
     }
 
+    public static Bitmap CropImageByPercent(this Bitmap source, double start_x, double start_y, double width, double height)
+      => CropImage(source, new Rectangle()
+      {
+        Location = new Point()
+        {
+          X = (int)(source.Width * start_x),
+          Y = (int)(source.Height * start_y),
+        },
+        Size = new Size()
+        {
+          Width = (int)(source.Width * width),
+          Height = (int)(source.Height * height),
+        }
+      });
+
     public static Bitmap CropImage(this Bitmap source, Rectangle rect)
     {
       var newImage = new Bitmap(rect.Width, rect.Height, PixelFormat.Format24bppRgb);

@@ -25,5 +25,12 @@ namespace TqkLibrary.SeleniumSupport
       chromeOptions.AddArgument("--user-data-dir=" + ProfilePath);
       return chromeOptions;
     }
+
+    public static ChromeOptions AddUserAgent(this ChromeOptions chromeOptions, string UA)
+    {
+      if (string.IsNullOrEmpty(UA)) throw new ArgumentNullException(nameof(UA));
+      chromeOptions.AddArgument("--user-agent=" + UA);
+      return chromeOptions;
+    }
   }
 }

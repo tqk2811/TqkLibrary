@@ -29,7 +29,7 @@ namespace TqkLibrary.Net.Captcha.TwoCaptchaCom
     /// <exception cref="HttpRequestException"></exception>
     /// <exception cref="JsonException"></exception>
     public async Task<TwoCaptchaResponse> GetResponseJson(string id)
-      => await RequestGet<TwoCaptchaResponse>(EndPoint + string.Format("/res.php?key={0}&id={1}&action=get&json=1", id, ApiKey)).ConfigureAwait(false);
+      => await RequestGet<TwoCaptchaResponse>(EndPoint + string.Format("/res.php?key={0}&id={1}&action=get&json=1", ApiKey, id)).ConfigureAwait(false);
 
     /// <summary>
     ///

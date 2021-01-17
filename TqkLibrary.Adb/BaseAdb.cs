@@ -34,17 +34,17 @@ namespace TqkLibrary.Adb
     public event AdbLog LogEvent;
 
     private readonly Random rd = new Random();
-    private readonly CancellationTokenSource tokenSource;
+    public CancellationTokenSource TokenSource { get; }
 
     public BaseAdb(string deviceName = null, string adbPath = null)
     {
       this.DeviceId = deviceName;
       this.adbPath = adbPath;
       if (File.Exists(adbPath)) _AdbPath = adbPath;
-      tokenSource = new CancellationTokenSource();
+      TokenSource = new CancellationTokenSource();
     }
 
-    public void Stop() => tokenSource.Cancel();
+    public void Stop() => TokenSource.Cancel();
 
     public void Delay(int min, int max)
     {
@@ -52,7 +52,7 @@ namespace TqkLibrary.Adb
       for (int i = 0; i < time; i++)
       {
         Task.Delay(100).Wait();
-        tokenSource?.Token.ThrowIfCancellationRequested();
+        TokenSource?.Token.ThrowIfCancellationRequested();
       }
     }
 

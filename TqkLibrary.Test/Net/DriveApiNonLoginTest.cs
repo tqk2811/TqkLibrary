@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using TqkLibrary.Net.CloudStorage.GoogleDrive;
 
-namespace TqkLibrary.Test
+namespace TqkLibrary.Test.Net
 {
   [TestClass]
   public class DriveApiNonLoginTest

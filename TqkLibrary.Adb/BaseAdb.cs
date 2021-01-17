@@ -36,9 +36,9 @@ namespace TqkLibrary.Adb
     private readonly Random rd = new Random();
     public CancellationTokenSource TokenSource { get; }
 
-    public BaseAdb(string deviceName = null, string adbPath = null)
+    public BaseAdb(string deviceId = null, string adbPath = null)
     {
-      this.DeviceId = deviceName;
+      this.DeviceId = deviceId;
       this.adbPath = adbPath;
       if (File.Exists(adbPath)) _AdbPath = adbPath;
       TokenSource = new CancellationTokenSource();
@@ -64,11 +64,20 @@ namespace TqkLibrary.Adb
       return ExecuteCommand(commands, adbLocation);
     }
 
+    public string AdbCommandCmd(string command)
+    {
+      string adbLocation = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
+      string commands = string.IsNullOrEmpty(DeviceId) ? command : $"-s {DeviceId} {command}";
+      LogEvent?.Invoke(commands);
+      return ExecuteCommandCmd(commands, adbLocation);
+    }
+
     private static string ExecuteCommand(string command, string adbPath = null)
     {
       using (Process process = new Process())
       {
         process.StartInfo.FileName = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
+        process.StartInfo.WorkingDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         process.StartInfo.Arguments = command;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.UseShellExecute = false;
@@ -162,7 +171,7 @@ namespace TqkLibrary.Adb
       bool IsDelete = false;
       if (string.IsNullOrEmpty(FilePath))
       {
-        FilePath = (string.IsNullOrEmpty(DeviceId) ? Guid.NewGuid().ToString() : DeviceId) + ".png";
+        FilePath = (string.IsNullOrEmpty(DeviceId) ? Guid.NewGuid().ToString() : DeviceId.Replace(":", "_")) + ".png";
         IsDelete = true;
       }
       const string androidPath = "/sdcard/screen.png";
@@ -178,7 +187,7 @@ namespace TqkLibrary.Adb
     public Point GetScreenResolution()
     {
       Regex regex = new Regex("(?<=mCurrentDisplayRect=Rect\\().*?(?=\\))", RegexOptions.Multiline);
-      string result = ExecuteCommandCmd("shell dumpsys display | Find \"mCurrentDisplayRect\"", adbPath);//
+      string result = AdbCommandCmd("shell dumpsys display | Find \"mCurrentDisplayRect\"");//
       Match match = regex.Match(result);
       if (match.Success)
       {

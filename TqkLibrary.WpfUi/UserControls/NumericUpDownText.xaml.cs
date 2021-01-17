@@ -45,11 +45,11 @@ namespace TqkLibrary.WpfUi.UserControls
       typeof(NumericUpDownText),
       new FrameworkPropertyMetadata(45, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-    public static readonly DependencyProperty HeaderTextProperty = DependencyProperty.Register(
-      nameof(HeaderText),
+    public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
+      nameof(Text),
       typeof(string),
       typeof(NumericUpDownText),
-      new FrameworkPropertyMetadata("Numeric Up Down", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+      new FrameworkPropertyMetadata("Numeric Up Down:", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
     private readonly System.Timers.Timer timer;
     private readonly System.Timers.Timer timer2;
@@ -127,10 +127,10 @@ namespace TqkLibrary.WpfUi.UserControls
       set { SetValue(AllowNullProperty, value); }
     }
 
-    public string HeaderText
+    public string Text
     {
-      get { return (string)GetValue(HeaderTextProperty); }
-      set { SetValue(HeaderTextProperty, value); }
+      get { return (string)GetValue(TextProperty); }
+      set { SetValue(TextProperty, value); }
     }
 
     public int InputWidth

@@ -9,7 +9,7 @@ namespace TqkLibrary.WpfUi.UserControls
 {
   public delegate void PressEnter();
 
-  public sealed partial class NumericUpDown : UserControl, IDisposable//, INotifyPropertyChanged
+  public sealed partial class NumericUpDown : UserControl
   {
     public static readonly DependencyProperty NumValueProperty = DependencyProperty.Register(
       nameof(NumValue),
@@ -41,27 +41,32 @@ namespace TqkLibrary.WpfUi.UserControls
       typeof(NumericUpDown),
       new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-    private readonly System.Timers.Timer timer;
-    private readonly System.Timers.Timer timer2;
+    private System.Timers.Timer timer;
+    private System.Timers.Timer timer2;
+
+    public event PressEnter PressEnter;
 
     public NumericUpDown()
     {
-      //this.DataContext = this;
       InitializeComponent();
-      timer = new System.Timers.Timer(1000)
-      {
-        AutoReset = false
-      };
+    }
+
+    private void root_Loaded(object sender, RoutedEventArgs e)
+    {
+      timer = new System.Timers.Timer(1000) { AutoReset = false };
       timer.Elapsed += Timer_Elapsed;
 
-      timer2 = new System.Timers.Timer(100)
-      {
-        AutoReset = false
-      };
+      timer2 = new System.Timers.Timer(100) { AutoReset = false };
       timer2.Elapsed += Timer2_Elapsed;
     }
 
-    public event PressEnter PressEnter;
+    private void root_Unloaded(object sender, RoutedEventArgs e)
+    {
+      timer.Dispose();
+      timer = null;
+      timer2.Dispose();
+      timer2 = null;
+    }
 
     public double? NumValue
     {

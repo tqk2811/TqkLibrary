@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:TqkLibrary.WpfUi.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
+             Loaded="root_Loaded"
+             Unloaded="root_Unloaded"
              MinHeight="16" Height="20" Width="133.189" MaxHeight="20"
              x:Name="root" GotKeyboardFocus="root_GotKeyboardFocus"
              d:DesignHeight="22">

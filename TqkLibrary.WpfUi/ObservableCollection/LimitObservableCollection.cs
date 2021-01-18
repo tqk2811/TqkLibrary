@@ -8,7 +8,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
   {
     public int Limit { get; set; } = 100;
     public bool IsInsertTop { get; set; } = false;
-    public string LogPath { get; set; } = "Logs.txt";
+    public string LogPath { get; set; } = $"{DateTime.Now.ToString("yyyy-MM-dd")}.log";
 
     protected override void InsertItem(int index, T item)
     {

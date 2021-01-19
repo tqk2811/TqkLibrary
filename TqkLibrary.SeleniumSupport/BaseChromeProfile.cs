@@ -18,17 +18,20 @@ namespace TqkLibrary.SeleniumSupport
     protected static readonly Random rd = new Random();
     protected readonly ChromeDriverService service;
 
-    public CancellationToken Token { get { return tokenSource.Token; } }
-    protected ChromeDriver chromeDriver { get; private set; }
-    protected CancellationTokenSource tokenSource { get; private set; }
-    protected Process process { get; private set; }
-
-    public event RunningStateChange StateChange;
+    private CancellationTokenRegistration? cancellationTokenRegistration;
 
     public bool IsOpenChrome
     {
       get { return chromeDriver != null || process != null; }
     }
+
+    public CancellationToken Token { get { return tokenSource.Token; } }
+
+    protected ChromeDriver chromeDriver { get; private set; }
+    protected CancellationTokenSource tokenSource { get; private set; }
+    protected Process process { get; private set; }
+
+    public event RunningStateChange StateChange;
 
     protected BaseChromeProfile() : this(null)
     {
@@ -38,7 +41,7 @@ namespace TqkLibrary.SeleniumSupport
     {
       if (string.IsNullOrEmpty(ChromeDrivePath))
       {
-        ChromeDrivePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\ChromeDriver";
+        ChromeDrivePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\AppData\\ChromeDriver";
       }
       service = ChromeDriverService.CreateDefaultService(ChromeDrivePath);
       service.HideCommandPromptWindow = HideCommandPromptWindow;
@@ -100,24 +103,17 @@ namespace TqkLibrary.SeleniumSupport
       return chromeOptions;
     }
 
-    public virtual bool OpenChrome(ChromeOptions chromeOptions)
+    public virtual bool OpenChrome(ChromeOptions chromeOptions) => OpenChrome(chromeOptions, CancellationToken.None);
+
+    public virtual bool OpenChrome(ChromeOptions chromeOptions, CancellationToken cancellationToken)
     {
       if (!IsOpenChrome)
       {
         tokenSource = new CancellationTokenSource();
+        cancellationTokenRegistration = cancellationToken.Register(() => { if (!tokenSource.IsCancellationRequested) tokenSource.Cancel(); });
         chromeDriver = new ChromeDriver(service, chromeOptions);
         StateChange?.Invoke(IsOpenChrome);
         return true;
-      }
-      return false;
-    }
-
-    public virtual bool OpenChrome(CancellationTokenSource cancellationTokenSource, Func<ChromeOptions> chromeOptions)
-    {
-      if (!IsOpenChrome)
-      {
-        tokenSource = cancellationTokenSource;
-        return OpenChrome(chromeOptions.Invoke());
       }
       return false;
     }
@@ -153,6 +149,8 @@ namespace TqkLibrary.SeleniumSupport
         process = null;
         chromeDriver?.Quit();
         chromeDriver = null;
+        cancellationTokenRegistration?.Dispose();
+        cancellationTokenRegistration = null;
         tokenSource?.Dispose();
         tokenSource = null;
         StateChange?.Invoke(IsOpenChrome);

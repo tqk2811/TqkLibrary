@@ -12,7 +12,7 @@ namespace TqkLibrary.Adb
 {
   public delegate void AdbLog(string log);
 
-  public class BaseAdb
+  public class BaseAdb : IDisposable
   {
     private static string _AdbPath = "adb.exe";
 
@@ -30,12 +30,14 @@ namespace TqkLibrary.Adb
     private const string swipe = "shell input swipe {0} {1} {2} {3} {4}";
 
     private readonly string adbPath;
+    private readonly Random rd = new Random();
+    protected CancellationTokenSource TokenSource;
+
+    public CancellationToken CancellationToken { get { return TokenSource.Token; } }
+
     public readonly string DeviceId;
 
     public event AdbLog LogEvent;
-
-    private readonly Random rd = new Random();
-    public CancellationTokenSource TokenSource { get; }
 
     public BaseAdb(string deviceId = null, string adbPath = null)
     {
@@ -53,9 +55,11 @@ namespace TqkLibrary.Adb
       for (int i = 0; i < time; i++)
       {
         Task.Delay(100).Wait();
-        TokenSource?.Token.ThrowIfCancellationRequested();
+        CancellationToken.ThrowIfCancellationRequested();
       }
     }
+
+    public void Dispose() => TokenSource.Dispose();
 
     public string AdbCommand(string command)
     {

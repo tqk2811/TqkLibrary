@@ -149,7 +149,11 @@ namespace TqkLibrary.Queues.TaskQueues
       }
       lock (Runnings)
       {
-        Runnings.Where(func).ToList().ForEach(x => Runnings.RemoveAll(o => o.CheckEquals(x)));
+        Runnings.Where(func).ToList().ForEach(x =>
+        {
+          x.Cancel();
+          Runnings.RemoveAll(o => o.CheckEquals(x));
+        });
       }
     }
 

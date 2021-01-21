@@ -63,6 +63,7 @@ namespace TqkLibrary.Adb
 
     public string AdbCommand(string command)
     {
+      CancellationToken.ThrowIfCancellationRequested();
       string adbLocation = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
       string commands = string.IsNullOrEmpty(DeviceId) ? command : $"-s {DeviceId} {command}";
       LogEvent?.Invoke(commands);
@@ -71,6 +72,7 @@ namespace TqkLibrary.Adb
 
     public string AdbCommandCmd(string command)
     {
+      CancellationToken.ThrowIfCancellationRequested();
       string adbLocation = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
       string commands = string.IsNullOrEmpty(DeviceId) ? command : $"-s {DeviceId} {command}";
       LogEvent?.Invoke(commands);

@@ -29,6 +29,7 @@ namespace TqkLibrary.Adb
     private const string tap = "shell input tap {0} {1}";
     private const string swipe = "shell input swipe {0} {1} {2} {3} {4}";
 
+    public int TimeoutDefault { get; set; } = 10000;
     private readonly string adbPath;
     private readonly Random rd = new Random();
     protected CancellationTokenSource TokenSource;
@@ -37,7 +38,7 @@ namespace TqkLibrary.Adb
 
     public readonly string DeviceId;
 
-    public event AdbLog LogEvent;
+    public event AdbLog LogCommand;
 
     public BaseAdb(string deviceId = null, string adbPath = null)
     {
@@ -61,13 +62,13 @@ namespace TqkLibrary.Adb
 
     public void Dispose() => TokenSource.Dispose();
 
-    public string AdbCommand(string command)
+    public string AdbCommand(string command,int? timeout = null)
     {
       CancellationToken.ThrowIfCancellationRequested();
       string adbLocation = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
       string commands = string.IsNullOrEmpty(DeviceId) ? command : $"-s {DeviceId} {command}";
-      LogEvent?.Invoke(commands);
-      return ExecuteCommand(commands, adbLocation);
+      LogCommand?.Invoke(commands);
+      return ExecuteCommand(commands, adbLocation,timeout == null ? TimeoutDefault : timeout.Value);
     }
 
     public string AdbCommandCmd(string command)
@@ -75,14 +76,14 @@ namespace TqkLibrary.Adb
       CancellationToken.ThrowIfCancellationRequested();
       string adbLocation = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
       string commands = string.IsNullOrEmpty(DeviceId) ? command : $"-s {DeviceId} {command}";
-      LogEvent?.Invoke(commands);
+      LogCommand?.Invoke(commands);
       return ExecuteCommandCmd(commands, adbLocation);
     }
 
-    private static string ExecuteCommand(string command, string adbPath = null)
+    public static string ExecuteCommand(string command, string adbPath = null,int timeout = 10000)
     {
       using (Process process = new Process())
-      {
+      {       
         process.StartInfo.FileName = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
         process.StartInfo.WorkingDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         process.StartInfo.Arguments = command;
@@ -92,7 +93,13 @@ namespace TqkLibrary.Adb
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardInput = true;
         process.Start();
-        process.WaitForExit();
+        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout);
+        using (cancellationTokenSource.Token.Register(() => process.Kill()))
+        {
+          process.WaitForExit();
+        }
+        if (cancellationTokenSource.IsCancellationRequested) throw new AdbTimeoutException();
+
         string result = process.StandardOutput.ReadToEnd();
         string err = process.StandardError.ReadToEnd();
         if (!string.IsNullOrEmpty(err)) throw new AdbException(err, result);
@@ -100,7 +107,7 @@ namespace TqkLibrary.Adb
       }
     }
 
-    private static string ExecuteCommandCmd(string command, string adbPath = null)
+    public static string ExecuteCommandCmd(string command, string adbPath = null)
     {
       using (Process process = new Process())
       {
@@ -125,7 +132,7 @@ namespace TqkLibrary.Adb
       }
     }
 
-    public void WaitForDevice() => AdbCommand("wait-for-device");
+    public void WaitForDevice(int timeout = 300000) => AdbCommand("wait-for-device",timeout);
 
     public static void KillServer() => ExecuteCommand("adb kill-server");
 
@@ -141,15 +148,15 @@ namespace TqkLibrary.Adb
 
     public void FastBoot() => AdbCommand("shell fastboot");
 
-    public void PushFile(string pcPath, string androidPath) => AdbCommand($"push \"{pcPath}\" \"{androidPath}\"");
+    public void PushFile(string pcPath, string androidPath,int timeout = 30000) => AdbCommand($"push \"{pcPath}\" \"{androidPath}\"",timeout);
 
-    public void PullFile(string androidPath, string pcPath) => AdbCommand($"pull \"{androidPath}\" \"{pcPath}\"");
+    public void PullFile(string androidPath, string pcPath, int timeout = 30000) => AdbCommand($"pull \"{androidPath}\" \"{pcPath}\"", timeout);
 
     public void DeleteFile(string androidPath) => AdbCommand($"shell rm \"{androidPath}\"");
 
-    public void InstallApk(string pcPath) => AdbCommand($"install \"{pcPath}\"");
+    public void InstallApk(string pcPath, int timeout = 30000) => AdbCommand($"install \"{pcPath}\"", timeout);
 
-    public void UpdateApk(string pcPath) => AdbCommand($"install -r \"{pcPath}\"");
+    public void UpdateApk(string pcPath, int timeout = 30000) => AdbCommand($"install -r \"{pcPath}\"", timeout);
 
     /// <summary>
     /// Example: com.google.android.gms/.accountsettings.mg.ui.main.MainActivity

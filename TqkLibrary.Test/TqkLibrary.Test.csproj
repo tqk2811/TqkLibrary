@@ -50,6 +50,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adb\AdbTest.cs" />
     <Compile Include="Net\DriveApiNonLoginTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.cs" />
@@ -58,6 +59,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TqkLibrary.Adb\TqkLibrary.Adb.csproj">
+      <Project>{adae52e4-0e9e-4938-a55b-c30b832d4f43}</Project>
+      <Name>TqkLibrary.Adb</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TqkLibrary.Net\TqkLibrary.Net.csproj">
       <Project>{c50525db-708d-42ce-91e7-0da0cee93210}</Project>
       <Name>TqkLibrary.Net</Name>

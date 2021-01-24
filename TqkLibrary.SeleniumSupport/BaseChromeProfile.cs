@@ -148,7 +148,6 @@ namespace TqkLibrary.SeleniumSupport
         process?.Dispose();
         process = null;
         chromeDriver?.Quit();
-        chromeDriver?.Dispose();
         chromeDriver = null;
         cancellationTokenRegistration?.Dispose();
         cancellationTokenRegistration = null;

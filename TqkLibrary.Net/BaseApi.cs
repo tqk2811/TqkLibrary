@@ -2,13 +2,13 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-
+using System.Threading;
 namespace TqkLibrary.Net
 {
   public abstract class BaseApi
   {
     protected readonly string ApiKey;
-
+    
     internal BaseApi(string ApiKey)
     {
       if (string.IsNullOrEmpty(ApiKey)) throw new ArgumentNullException(nameof(ApiKey));

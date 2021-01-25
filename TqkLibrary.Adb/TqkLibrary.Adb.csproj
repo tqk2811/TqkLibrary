@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net462;net48</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
-    <Platforms>AnyCPU;x86;x64</Platforms>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
 </Project>

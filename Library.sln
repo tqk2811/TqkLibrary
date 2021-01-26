@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.AspNetCoreLibrar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.SqlDataHelper", "TqkLibrary.SqlDataHelper\TqkLibrary.SqlDataHelper.csproj", "{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.ScrcpyCapture", "TqkLibrary.ScrcpyCapture\TqkLibrary.ScrcpyCapture.csproj", "{D7388E48-3763-4A8C-8116-8DBE82E64BE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TqkLibrary.ScrcpyDotNet", "TqkLibrary.ScrcpyDotNet\TqkLibrary.ScrcpyDotNet.csproj", "{0AE33E79-DECB-442D-BD3B-2596A1E25B0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,10 +77,10 @@ Global
 		{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02CD0E61-4DC5-401D-9C3A-093ADFC21B87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D7388E48-3763-4A8C-8116-8DBE82E64BE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7388E48-3763-4A8C-8116-8DBE82E64BE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7388E48-3763-4A8C-8116-8DBE82E64BE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7388E48-3763-4A8C-8116-8DBE82E64BE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AE33E79-DECB-442D-BD3B-2596A1E25B0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AE33E79-DECB-442D-BD3B-2596A1E25B0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AE33E79-DECB-442D-BD3B-2596A1E25B0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AE33E79-DECB-442D-BD3B-2596A1E25B0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

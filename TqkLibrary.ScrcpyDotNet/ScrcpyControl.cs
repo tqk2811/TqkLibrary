@@ -21,8 +21,14 @@ namespace TqkLibrary.ScrcpyDotNet
     public void SendControl(ScrcpyControlMessage scrcpyControlMessage)
     {
       byte[] buffer = scrcpyControlMessage.GetCommand();
-      _controlStream.Write(buffer, 0, buffer.Length);
-      _controlStream.Flush();
+      if(buffer != null)
+      {
+        _controlStream?.Write(buffer, 0, buffer.Length);
+        _controlStream?.Flush();
+#if DEBUG
+        Console.WriteLine("Control:" + BitConverter.ToString(buffer).Replace("-", ""));
+#endif
+      }
     }
   }
 }

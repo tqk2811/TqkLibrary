@@ -47,7 +47,7 @@ namespace TqkLibrary.ScrcpyDotNet
       return msg;
     }
 
-    public static ScrcpyControlMessage CreateInjectTouchEvent(AndroidMotionEventAction action, long pointerId, Rectangle position, ushort pressure, AndroidMotionEventButton buttons)
+    public static ScrcpyControlMessage CreateInjectTouchEvent(AndroidMotionEventAction action, long pointerId, Rectangle position, ushort pressure, AndroidMotionEventButton buttons = AndroidMotionEventButton.BUTTON_PRIMARY)
     {
       ScrcpyControlMessage msg = new ScrcpyControlMessage();
       msg.ControlType = ScrcpyControlType.TYPE_INJECT_TOUCH_EVENT;

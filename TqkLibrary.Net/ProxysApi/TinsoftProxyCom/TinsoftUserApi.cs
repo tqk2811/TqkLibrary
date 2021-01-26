@@ -9,25 +9,25 @@ namespace TqkLibrary.Net.ProxysApi.TinsoftProxyCom
     {
     }
 
-    public async Task<UserKeyInfo> GetUserKeys()
-      => await RequestGet<UserKeyInfo>(string.Format(TinsoftProxyApi.EndPoint + "/getUserKeys.php?key={0}", ApiKey)).ConfigureAwait(false);
+    public Task<UserKeyInfo> GetUserKeys()
+      => RequestGet<UserKeyInfo>(string.Format(TinsoftProxyApi.EndPoint + "/getUserKeys.php?key={0}", ApiKey));
 
-    public async Task<UserInfo> GetUserInfo()
-      => await RequestGet<UserInfo>(string.Format(TinsoftProxyApi.EndPoint + "/getUserInfo.php?key={0}", ApiKey)).ConfigureAwait(false);
+    public Task<UserInfo> GetUserInfo()
+      => RequestGet<UserInfo>(string.Format(TinsoftProxyApi.EndPoint + "/getUserInfo.php?key={0}", ApiKey));
 
-    public async Task<OrderResult> OrderKeys(int quantity, DateTime dateTime, TinsoftVip tinsoftVip)
-      => await RequestGet<OrderResult>(string.Format(
+    public Task<OrderResult> OrderKeys(int quantity, DateTime dateTime, TinsoftVip tinsoftVip)
+      => RequestGet<OrderResult>(string.Format(
         TinsoftProxyApi.EndPoint + "/orderKeys.php?key={0}&quantity={1}&days={2}&vip={3}",
         ApiKey,
         quantity,
         dateTime.ToString("dd-MM-yyyy HH:mm:ss"),
-        (int)tinsoftVip)).ConfigureAwait(false);
+        (int)tinsoftVip));
 
-    public async Task<BaseResult> ExtendKey(DateTime dateTime, string proxyKey)
-      => await RequestGet<BaseResult>(string.Format(
+    public Task<BaseResult> ExtendKey(DateTime dateTime, string proxyKey)
+      => RequestGet<BaseResult>(string.Format(
         TinsoftProxyApi.EndPoint + "/extendKey.php?key={0}&days={1}&proxy_key={2}",
         ApiKey,
         dateTime.ToString("dd-MM-yyyy HH:mm:ss"),
-        proxyKey)).ConfigureAwait(false);
+        proxyKey));
   }
 }

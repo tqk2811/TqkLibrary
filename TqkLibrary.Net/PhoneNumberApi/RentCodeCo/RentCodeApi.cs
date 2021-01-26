@@ -20,7 +20,7 @@ namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
     /// <param name="serviceProviderId"></param>
     /// <exception cref="RentCodeException"></exception>
     /// <returns></returns>
-    public async Task<RentCodeResult> Request(
+    public Task<RentCodeResult> Request(
       int? MaximumSms = null,
       bool? AllowVoiceSms = null,
       NetworkProvider networkProvider = NetworkProvider.None,
@@ -35,10 +35,10 @@ namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
       if (MaximumSms != null) parameters["MaximumSms"] = MaximumSms.Value.ToString();
       if (AllowVoiceSms != null) parameters["AllowVoiceSms"] = AllowVoiceSms.Value.ToString();
 
-      return await RequestGet<RentCodeResult>(EndPoint + "order/request?" + parameters.ToString()).ConfigureAwait(false);
+      return RequestGet<RentCodeResult>(EndPoint + "order/request?" + parameters.ToString());
     }
 
-    public async Task<RentCodeResult> RequestHolding(
+    public Task<RentCodeResult> RequestHolding(
       int Duration = 300,
       int Unit = 1,
       NetworkProvider networkProvider = NetworkProvider.None)
@@ -49,10 +49,10 @@ namespace TqkLibrary.Net.PhoneNumberApi.RentCodeCo
       parameters["Unit"] = Unit.ToString();
       if (networkProvider != NetworkProvider.None) parameters["NetworkProvider"] = ((int)networkProvider).ToString();
 
-      return await RequestGet<RentCodeResult>(EndPoint + $"order/request-holding?apiKey={ApiKey}&Duration={Duration}&Unit=1&NetworkProvider={(int)networkProvider}").ConfigureAwait(false);
+      return RequestGet<RentCodeResult>(EndPoint + $"order/request-holding?apiKey={ApiKey}&Duration={Duration}&Unit=1&NetworkProvider={(int)networkProvider}");
     }
 
-    public async Task<RentCodeCheckOrderResults> Check(RentCodeResult rentCodeResult)
-      => await RequestGet<RentCodeCheckOrderResults>(EndPoint + $"order/{rentCodeResult.Id}/check?apiKey={ApiKey}").ConfigureAwait(false);
+    public Task<RentCodeCheckOrderResults> Check(RentCodeResult rentCodeResult)
+      => RequestGet<RentCodeCheckOrderResults>(EndPoint + $"order/{rentCodeResult.Id}/check?apiKey={ApiKey}");
   }
 }

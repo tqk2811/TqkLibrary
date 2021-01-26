@@ -106,6 +106,9 @@ namespace TqkLibrary.ScrcpyDotNet
           }
           cancellationTokenSource.Token.ThrowIfCancellationRequested();
         }
+#if DEBUG
+        Console.WriteLine("Got stream");
+#endif
         stream = client.GetStream();
         BufferedStream bf = new BufferedStream(stream);
         bf.Read(buffer, 0, 64);
@@ -121,16 +124,8 @@ namespace TqkLibrary.ScrcpyDotNet
         streamSupport = new FfmpegBufferReaderSupport(bf, buffer.Length);
         Control._controlStream = bf;
 
-
-        Control.SendControl(ScrcpyControlMessage.BackOrScreenOn());
-        Thread.Sleep(1000);
-        Control.SendControl(ScrcpyControlMessage.CreateSetClipboard("day la test",true));
-
-
-        Thread.Sleep(1000);
-        Control.SendControl(ScrcpyControlMessage.CreateInjectKeycode(AndroidKeyEventAction.ACTION_DOWN, AndroidKeyCode.KEYCODE_ZOOM_OUT));
-        Thread.Sleep(1000); 
-        Control.SendControl(ScrcpyControlMessage.CreateInjectKeycode(AndroidKeyEventAction.ACTION_UP, AndroidKeyCode.KEYCODE_ZOOM_IN));
+        //Control.SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(AndroidMotionEventAction.ACTION_DOWN, 0, new Rectangle() { Location = new Point(495, 142), Size = new Size(1080, 1920) }, 0));
+        //Control.SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(AndroidMotionEventAction.ACTION_UP, 0, new Rectangle() { Location = new Point(495, 142), Size = new Size(1080, 1920) }, 0));
 
         CaptureFrame();//Task.Factory.StartNew(, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Wait();
       }
@@ -257,7 +252,9 @@ namespace TqkLibrary.ScrcpyDotNet
                   MJPEG_encoder_codec_ctx->width, MJPEG_encoder_codec_ctx->height, MJPEG_encoder_codec_ctx->pix_fmt, ffmpeg.SWS_BILINEAR, null, null, null);//Need release
 
         AutoResetEvent.Set();
-
+#if DEBUG
+        Console.WriteLine("Main loop");
+#endif
         while (IsRunning)
         {
           int error_code = ffmpeg.av_read_frame(aVFormatContext, &avPacket);
@@ -301,9 +298,11 @@ namespace TqkLibrary.ScrcpyDotNet
               byte[] buffer_result = new byte[out_packet.size];
               Marshal.Copy(new IntPtr(out_packet.data), buffer_result, 0, out_packet.size);
               lock (_lock) this.buffer_image = buffer_result;
-
+#if DEBUG
+              Console.WriteLine("Got frame");
               using FileStream fileStream = new FileStream($"D:\\temp\\test\\{i++.ToString("0000")}.jpeg",FileMode.Create,FileAccess.Write,FileShare.ReadWrite);
               fileStream.Write(buffer_result, 0, buffer_result.Length);
+#endif
             }
             finally
             {

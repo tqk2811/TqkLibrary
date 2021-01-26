@@ -35,5 +35,7 @@ namespace TqkLibrary.Net
       using HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
       return JsonConvert.DeserializeObject<T>(await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStringAsync().ConfigureAwait(false));
     }
+
+    
   }
 }

@@ -19,23 +19,23 @@ namespace TqkLibrary.Net.Captcha.AntiCaptchaCom
     {
     }
 
-    public async Task<AntiCaptchaTaskResponse> CreateTask(AntiCaptchaTask antiCaptchaTask, string languagePool = "en")
+    public Task<AntiCaptchaTaskResponse> CreateTask(AntiCaptchaTask antiCaptchaTask, string languagePool = "en")
     {
       CreateTaskJson createTaskJson = new CreateTaskJson();
       createTaskJson.ClientKey = ApiKey;
       createTaskJson.Task = antiCaptchaTask;
       createTaskJson.LanguagePool = languagePool;
 
-      return await RequestPost<AntiCaptchaTaskResponse>(EndPoint + "/createTask", new StringContent(JsonConvert.SerializeObject(createTaskJson, NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+      return RequestPost<AntiCaptchaTaskResponse>(EndPoint + "/createTask", new StringContent(JsonConvert.SerializeObject(createTaskJson, NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json"));
     }
 
-    public async Task<AntiCaptchaTaskResultResponse> GetTaskResult(int taskId)
+    public Task<AntiCaptchaTaskResultResponse> GetTaskResult(int taskId)
     {
       TaskResultJson taskResultJson = new TaskResultJson();
       taskResultJson.ClientKey = ApiKey;
       taskResultJson.TaskId = taskId;
 
-      return await RequestPost<AntiCaptchaTaskResultResponse>(EndPoint + "/createTask", new StringContent(JsonConvert.SerializeObject(taskResultJson, NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json")).ConfigureAwait(false);
+      return RequestPost<AntiCaptchaTaskResultResponse>(EndPoint + "/createTask", new StringContent(JsonConvert.SerializeObject(taskResultJson, NetExtensions.JsonSerializerSettings), Encoding.UTF8, "application/json"));
     }
 
     private class CreateTaskJson

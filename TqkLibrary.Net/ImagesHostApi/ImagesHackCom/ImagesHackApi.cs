@@ -19,7 +19,7 @@ namespace TqkLibrary.Net.ImagesHostApi.ImagesHackCom
     {
     }
 
-    public async Task<ImagesHackResponse<ImagesHackUploadResult>> UploadImage(Bitmap bitmap)
+    public Task<ImagesHackResponse<ImagesHackUploadResult>> UploadImage(Bitmap bitmap)
     {
       byte[] buffer_bitmap = null;
       using (MemoryStream memoryStream = new MemoryStream())
@@ -33,7 +33,7 @@ namespace TqkLibrary.Net.ImagesHostApi.ImagesHackCom
       ByteArrayContent imageContent_instructions = new ByteArrayContent(buffer_bitmap);
       imageContent_instructions.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
       requestContent.Add(imageContent_instructions, "file", "file.png");
-      return await RequestPost<ImagesHackResponse<ImagesHackUploadResult>>(new Uri(EndPoint + $"?api_key={ApiKey}"), requestContent).ConfigureAwait(false);
+      return RequestPost<ImagesHackResponse<ImagesHackUploadResult>>(new Uri(EndPoint + $"?api_key={ApiKey}"), requestContent);
     }
   }
 }

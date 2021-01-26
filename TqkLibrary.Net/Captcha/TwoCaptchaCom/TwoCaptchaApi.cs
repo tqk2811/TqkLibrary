@@ -28,8 +28,8 @@ namespace TqkLibrary.Net.Captcha.TwoCaptchaCom
     /// <exception cref="InvalidOperationException"></exception>
     /// <exception cref="HttpRequestException"></exception>
     /// <exception cref="JsonException"></exception>
-    public async Task<TwoCaptchaResponse> GetResponseJson(string id)
-      => await RequestGet<TwoCaptchaResponse>(EndPoint + string.Format("/res.php?key={0}&id={1}&action=get&json=1", ApiKey, id)).ConfigureAwait(false);
+    public Task<TwoCaptchaResponse> GetResponseJson(string id)
+      => RequestGet<TwoCaptchaResponse>(EndPoint + string.Format("/res.php?key={0}&id={1}&action=get&json=1", ApiKey, id));
 
     /// <summary>
     ///
@@ -62,7 +62,7 @@ namespace TqkLibrary.Net.Captcha.TwoCaptchaCom
     }
 
     //https://2captcha.com/2captcha-api#solving_recaptchav2_old
-    public async Task<TwoCaptchaResponse> ReCaptchaV2_old(Bitmap bitmap, Bitmap imginstructions, int? recaptcharows = null, int? recaptchacols = null)
+    public Task<TwoCaptchaResponse> ReCaptchaV2_old(Bitmap bitmap, Bitmap imginstructions, int? recaptcharows = null, int? recaptchacols = null)
     {
       if (null == bitmap) throw new ArgumentNullException(nameof(bitmap));
       if (null == imginstructions) throw new ArgumentNullException(nameof(imginstructions));
@@ -103,10 +103,10 @@ namespace TqkLibrary.Net.Captcha.TwoCaptchaCom
       imageContent_instructions.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
       requestContent.Add(imageContent_instructions, "imginstructions", "imginstructions.jpg");
 
-      return await RequestPost<TwoCaptchaResponse>(uri, requestContent).ConfigureAwait(false);
+      return RequestPost<TwoCaptchaResponse>(uri, requestContent);
     }
 
-    public async Task<TwoCaptchaResponse> Nomal(Bitmap bitmap)
+    public Task<TwoCaptchaResponse> Nomal(Bitmap bitmap)
     {
       byte[] buffer_bitmap = null;
       using (MemoryStream memoryStream = new MemoryStream())
@@ -127,11 +127,11 @@ namespace TqkLibrary.Net.Captcha.TwoCaptchaCom
       imageContent_bitmap.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
       requestContent.Add(imageContent_bitmap, "file", "file.jpg");
 
-      return await RequestPost<TwoCaptchaResponse>(uri, requestContent).ConfigureAwait(false);
+      return RequestPost<TwoCaptchaResponse>(uri, requestContent);
     }
 
     //https://2captcha.com/2captcha-api#recaptchav2new_proxy
-    public async Task<TwoCaptchaResponse> RecaptchaV2(string googleKey, string pageUrl, string cookies = null, string proxy = null, string proxytype = null)
+    public Task<TwoCaptchaResponse> RecaptchaV2(string googleKey, string pageUrl, string cookies = null, string proxy = null, string proxytype = null)
     {
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["key"] = ApiKey;
@@ -144,7 +144,7 @@ namespace TqkLibrary.Net.Captcha.TwoCaptchaCom
       if (!string.IsNullOrEmpty(proxytype)) parameters["proxytype"] = proxytype;
       Uri uri = new Uri(EndPoint + "/in.php?" + parameters.ToString());
 
-      return await RequestGet<TwoCaptchaResponse>(uri).ConfigureAwait(false);
+      return RequestGet<TwoCaptchaResponse>(uri);
     }
   }
 }

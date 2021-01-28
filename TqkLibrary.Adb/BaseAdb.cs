@@ -245,7 +245,7 @@ namespace TqkLibrary.Adb
         FilePath = (string.IsNullOrEmpty(DeviceId) ? Guid.NewGuid().ToString() : DeviceId.Replace(":", "_")) + ".png";
         IsDelete = true;
       }
-      const string androidPath = "/sdcard/screen.png";
+      string androidPath = $"/sdcard/{Guid.NewGuid()}.png";
       AdbCommand($"shell screencap -p \"{androidPath}\"");
       PullFile(androidPath, FilePath);
       DeleteFile(androidPath);

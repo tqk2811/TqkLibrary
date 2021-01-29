@@ -19,25 +19,13 @@
     <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avcodec-58.dll" Link="avcodec-58.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avdevice-58.dll" Link="avdevice-58.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avfilter-7.dll" Link="avfilter-7.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avformat-58.dll" Link="avformat-58.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avutil-56.dll" Link="avutil-56.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\postproc-55.dll" Link="postproc-55.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\swresample-3.dll" Link="swresample-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\swscale-5.dll" Link="swscale-5.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

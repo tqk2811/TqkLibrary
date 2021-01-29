@@ -311,6 +311,8 @@ namespace TqkLibrary.Adb
 
     public void Key(ADBKeyEvent key) => AdbCommand(string.Format("shell input keyevent {0}", key));
 
+    public void Key(int keyCode) => AdbCommand(string.Format("shell input keyevent {0}", keyCode));
+
     public void InputText(string text) => AdbCommand(string.Format("shell input text \"{0}\"",
         text.Replace(" ", "%s").Replace("&", "\\&").Replace("<", "\\<").Replace(">", "\\>").Replace("?", "\\?").Replace(":", "\\:").Replace("{", "\\{").Replace("}", "\\}").Replace("[", "\\[").Replace("]", "\\]").Replace("|", "\\|")));
 

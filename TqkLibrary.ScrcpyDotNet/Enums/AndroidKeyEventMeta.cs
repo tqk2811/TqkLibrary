@@ -8,7 +8,6 @@ namespace TqkLibrary.ScrcpyDotNet
   [Flags]
   public enum AndroidKeyEventMeta : int
   {
-    META_NONE = 0,
     META_SHIFT_ON = 1,
     META_ALT_ON = 2,
     META_SYM_ON = 4,

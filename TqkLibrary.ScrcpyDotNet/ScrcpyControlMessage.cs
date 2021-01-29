@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Text;
-
+using System.Linq;
 namespace TqkLibrary.ScrcpyDotNet
 {
   /// <summary>
@@ -16,8 +16,8 @@ namespace TqkLibrary.ScrcpyDotNet
     internal AndroidKeyEventAction KeyEventAction { get; private set; }//KeyEvent.ACTION_*
     internal AndroidKeyCode Keycode { get; private set; } // KeyEvent.KEYCODE_*
     internal AndroidMotionEventButton Buttons { get; private set; } // MotionEvent.BUTTON_*
-    internal long PointerId { get; private set; }
-    internal ushort Pressure { get; private set; }
+    internal AndroidPointerId PointerId { get; private set; }
+    internal float Pressure { get; private set; }
     internal Rectangle Position { get; private set; }
     internal int hScroll { get; private set; }
     internal int vScroll { get; private set; }
@@ -27,7 +27,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     private ScrcpyControlMessage() { }
 
-    public static ScrcpyControlMessage CreateInjectKeycode(AndroidKeyEventAction action, AndroidKeyCode keycode, int repeat = 1, AndroidKeyEventMeta metaState = AndroidKeyEventMeta.META_NONE)
+    public static ScrcpyControlMessage CreateInjectKeycode(AndroidKeyEventAction action, AndroidKeyCode keycode, int repeat = 1, AndroidKeyEventMeta metaState = AndroidKeyEventMeta.META_META_ON)
     {
       ScrcpyControlMessage msg = new ScrcpyControlMessage();
       msg.ControlType = ScrcpyControlType.TYPE_INJECT_KEYCODE;
@@ -47,7 +47,7 @@ namespace TqkLibrary.ScrcpyDotNet
       return msg;
     }
 
-    public static ScrcpyControlMessage CreateInjectTouchEvent(AndroidMotionEventAction action, long pointerId, Rectangle position, ushort pressure, AndroidMotionEventButton buttons = AndroidMotionEventButton.BUTTON_PRIMARY)
+    public static ScrcpyControlMessage CreateInjectTouchEvent(AndroidMotionEventAction action, AndroidPointerId pointerId, Rectangle position, float pressure, AndroidMotionEventButton buttons = AndroidMotionEventButton.BUTTON_PRIMARY)
     {
       ScrcpyControlMessage msg = new ScrcpyControlMessage();
       msg.ControlType = ScrcpyControlType.TYPE_INJECT_TOUCH_EVENT;
@@ -104,8 +104,19 @@ namespace TqkLibrary.ScrcpyDotNet
       return msg;
     }
 
+
+    UInt16 to_fixed_point_16(float f)
+    {
+      UInt32 u = (UInt32)f * 2 << 15;
+      if (u >= 0xffff)
+      {
+        u = 0xffff;
+      }
+      return (UInt16)u;
+    }
     /// <summary>
     /// https://github.com/Genymobile/scrcpy/blob/master/server/src/main/java/com/genymobile/scrcpy/ControlMessageReader.java
+    /// https://github.com/Genymobile/scrcpy/blob/master/app/src/control_msg.c
     /// </summary>
     /// <returns></returns>
     internal byte[] GetCommand()
@@ -118,9 +129,9 @@ namespace TqkLibrary.ScrcpyDotNet
             buffer = new byte[14];
             buffer[0] = (byte)ControlType;
             buffer[1] = (byte)KeyEventAction;
-            Array.Copy(BitConverter.GetBytes((int)Keycode), 0, buffer, 2, 4);//2-5
-            Array.Copy(BitConverter.GetBytes(Repeat), 0, buffer, 6, 4);//6-9
-            Array.Copy(BitConverter.GetBytes((int)MetaState), 0, buffer, 10, 4);//10-13
+            Array.Copy(BitConverter.GetBytes((int)Keycode).Reverse().ToArray(), 0, buffer, 2, 4);//2-5
+            Array.Copy(BitConverter.GetBytes(Repeat).Reverse().ToArray(), 0, buffer, 6, 4);//6-9
+            Array.Copy(BitConverter.GetBytes((int)MetaState).Reverse().ToArray(), 0, buffer, 10, 4);//10-13
           }
           break;
 
@@ -129,7 +140,7 @@ namespace TqkLibrary.ScrcpyDotNet
             byte[] utf8_text = Encoding.UTF8.GetBytes(Text);
             buffer = new byte[5 + utf8_text.Length];
             buffer[0] = (byte)ControlType;
-            Array.Copy(BitConverter.GetBytes(utf8_text.Length), 0, buffer, 1, 4);//1-4
+            Array.Copy(BitConverter.GetBytes(utf8_text.Length).Reverse().ToArray(), 0, buffer, 1, 4);//1-4
             Array.Copy(utf8_text, 0, buffer, 5, utf8_text.Length);//5-....
           }
           break;
@@ -139,13 +150,13 @@ namespace TqkLibrary.ScrcpyDotNet
             buffer = new byte[28];
             buffer[0] = (byte)ControlType;
             buffer[1] = (byte)MotionEventAction;
-            Array.Copy(BitConverter.GetBytes(PointerId), 0, buffer, 2, 8);//2-9
-            Array.Copy(BitConverter.GetBytes(Position.X), 0, buffer, 10, 4);//10-13
-            Array.Copy(BitConverter.GetBytes(Position.Y), 0, buffer, 14, 4);//14-17
-            Array.Copy(BitConverter.GetBytes((ushort)Position.Width), 0, buffer, 18, 2);//18-19
-            Array.Copy(BitConverter.GetBytes((ushort)Position.Height), 0, buffer, 20, 2);//20-21
-            Array.Copy(BitConverter.GetBytes(Pressure), 0, buffer, 22, 2);//22-23
-            Array.Copy(BitConverter.GetBytes((int)Buttons), 0, buffer, 24, 4);//24-27
+            Array.Copy(BitConverter.GetBytes((ulong)PointerId).Reverse().ToArray(), 0, buffer, 2, 8);//2-9
+            Array.Copy(BitConverter.GetBytes(Position.X).Reverse().ToArray(), 0, buffer, 10, 4);//10-13
+            Array.Copy(BitConverter.GetBytes(Position.Y).Reverse().ToArray(), 0, buffer, 14, 4);//14-17
+            Array.Copy(BitConverter.GetBytes((UInt16)Position.Width).Reverse().ToArray(), 0, buffer, 18, 2);//18-19
+            Array.Copy(BitConverter.GetBytes((UInt16)Position.Height).Reverse().ToArray(), 0, buffer, 20, 2);//20-21
+            Array.Copy(BitConverter.GetBytes(to_fixed_point_16(Pressure)).Reverse().ToArray(), 0, buffer, 22, 2);//22-23
+            Array.Copy(BitConverter.GetBytes((int)Buttons).Reverse().ToArray(), 0, buffer, 24, 4);//24-27
           }
           break;
 
@@ -153,12 +164,12 @@ namespace TqkLibrary.ScrcpyDotNet
           {
             buffer = new byte[21];
             buffer[0] = (byte)ControlType;
-            Array.Copy(BitConverter.GetBytes(Position.X), 0, buffer, 1, 4);//1-4
-            Array.Copy(BitConverter.GetBytes(Position.Y), 0, buffer, 5, 4);//5-8
-            Array.Copy(BitConverter.GetBytes((ushort)Position.Width), 0, buffer, 9, 2);//9-10
-            Array.Copy(BitConverter.GetBytes((ushort)Position.Height), 0, buffer, 11, 2);//11-12
-            Array.Copy(BitConverter.GetBytes(hScroll), 0, buffer, 13, 4);//13-16
-            Array.Copy(BitConverter.GetBytes(vScroll), 0, buffer, 17, 4);//17-20
+            Array.Copy(BitConverter.GetBytes(Position.X).Reverse().ToArray(), 0, buffer, 1, 4);//1-4
+            Array.Copy(BitConverter.GetBytes(Position.Y).Reverse().ToArray(), 0, buffer, 5, 4);//5-8
+            Array.Copy(BitConverter.GetBytes((UInt16)Position.Width).Reverse().ToArray(), 0, buffer, 9, 2);//9-10
+            Array.Copy(BitConverter.GetBytes((UInt16)Position.Height).Reverse().ToArray(), 0, buffer, 11, 2);//11-12
+            Array.Copy(BitConverter.GetBytes(hScroll).Reverse().ToArray(), 0, buffer, 13, 4);//13-16
+            Array.Copy(BitConverter.GetBytes(vScroll).Reverse().ToArray(), 0, buffer, 17, 4);//17-20
           }
           break;
 
@@ -168,7 +179,7 @@ namespace TqkLibrary.ScrcpyDotNet
             buffer = new byte[6 + utf8_text.Length];
             buffer[0] = (byte)ControlType;
             Array.Copy(BitConverter.GetBytes(Paste), 0, buffer, 1, 1);//1
-            Array.Copy(BitConverter.GetBytes(utf8_text.Length), 0, buffer, 2, 4);//2-5
+            Array.Copy(BitConverter.GetBytes(utf8_text.Length).Reverse().ToArray(), 0, buffer, 2, 4);//2-5
             Array.Copy(utf8_text, 0, buffer, 6, utf8_text.Length);//6-....
           }
           break;
@@ -194,5 +205,7 @@ namespace TqkLibrary.ScrcpyDotNet
       }
       return buffer;
     }
+
+    //const int CONTROL_MSG_MAX_SIZE = 1 << 18;//256k
   }
 }

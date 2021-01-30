@@ -16,18 +16,18 @@ namespace TqkLibrary.ScrcpyDotNet
     internal AndroidKeyEventAction KeyEventAction { get; private set; }//KeyEvent.ACTION_*
     internal AndroidKeyCode Keycode { get; private set; } // KeyEvent.KEYCODE_*
     internal AndroidMotionEventButton Buttons { get; private set; } // MotionEvent.BUTTON_*
-    internal AndroidPointerId PointerId { get; private set; }
+    internal long PointerId { get; private set; }
     internal float Pressure { get; private set; }
     internal Rectangle Position { get; private set; }
     internal int hScroll { get; private set; }
     internal int vScroll { get; private set; }
     internal bool Paste { get; private set; }
-    internal int Repeat { get; private set; }
+    internal uint Repeat { get; private set; }
     internal ScrcpyScreenPowerMode PowerMode { get; private set; }
 
     private ScrcpyControlMessage() { }
 
-    public static ScrcpyControlMessage CreateInjectKeycode(AndroidKeyEventAction action, AndroidKeyCode keycode, int repeat = 1, AndroidKeyEventMeta metaState = AndroidKeyEventMeta.META_META_ON)
+    public static ScrcpyControlMessage CreateInjectKeycode(AndroidKeyEventAction action, AndroidKeyCode keycode, uint repeat = 1, AndroidKeyEventMeta metaState = AndroidKeyEventMeta.META_META_ON)
     {
       ScrcpyControlMessage msg = new ScrcpyControlMessage();
       msg.ControlType = ScrcpyControlType.TYPE_INJECT_KEYCODE;
@@ -47,7 +47,7 @@ namespace TqkLibrary.ScrcpyDotNet
       return msg;
     }
 
-    public static ScrcpyControlMessage CreateInjectTouchEvent(AndroidMotionEventAction action, AndroidPointerId pointerId, Rectangle position, float pressure, AndroidMotionEventButton buttons = AndroidMotionEventButton.BUTTON_PRIMARY)
+    public static ScrcpyControlMessage CreateInjectTouchEvent(AndroidMotionEventAction action, long pointerId, Rectangle position, float pressure = 1f, AndroidMotionEventButton buttons = AndroidMotionEventButton.BUTTON_PRIMARY)
     {
       ScrcpyControlMessage msg = new ScrcpyControlMessage();
       msg.ControlType = ScrcpyControlType.TYPE_INJECT_TOUCH_EVENT;
@@ -93,7 +93,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public static ScrcpyControlMessage CollapseNotificationPanel() => CreateEmpty(ScrcpyControlType.TYPE_COLLAPSE_NOTIFICATION_PANEL);
 
-    public static ScrcpyControlMessage GetClipboard() => CreateEmpty(ScrcpyControlType.TYPE_GET_CLIPBOARD);
+    internal static ScrcpyControlMessage GetClipboard() => CreateEmpty(ScrcpyControlType.TYPE_GET_CLIPBOARD);
 
     public static ScrcpyControlMessage RotateDevice() => CreateEmpty(ScrcpyControlType.TYPE_ROTATE_DEVICE);
 
@@ -129,9 +129,9 @@ namespace TqkLibrary.ScrcpyDotNet
             buffer = new byte[14];
             buffer[0] = (byte)ControlType;
             buffer[1] = (byte)KeyEventAction;
-            Array.Copy(BitConverter.GetBytes((int)Keycode).Reverse().ToArray(), 0, buffer, 2, 4);//2-5
+            Array.Copy(BitConverter.GetBytes((uint)Keycode).Reverse().ToArray(), 0, buffer, 2, 4);//2-5
             Array.Copy(BitConverter.GetBytes(Repeat).Reverse().ToArray(), 0, buffer, 6, 4);//6-9
-            Array.Copy(BitConverter.GetBytes((int)MetaState).Reverse().ToArray(), 0, buffer, 10, 4);//10-13
+            Array.Copy(BitConverter.GetBytes((uint)MetaState).Reverse().ToArray(), 0, buffer, 10, 4);//10-13
           }
           break;
 

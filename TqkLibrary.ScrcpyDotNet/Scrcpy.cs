@@ -15,21 +15,50 @@ using TqkLibrary.ScrcpyDotNet.Util;
 using static FFmpeg.AutoGen.ffmpeg;
 namespace TqkLibrary.ScrcpyDotNet
 {
+  public delegate void OnException(Exception ex);
   //https://github.com/Genymobile/scrcpy/issues/673
   public sealed class Scrcpy
   {
     static readonly Random random = new Random();
     static string adbPath = "adb.exe";
 
-    public string DeviceName { get; set; }
-    public int Width { get; set; } = -1;
-    public int Height { get; set; } = -1;
+    public event OnException OnException;
+
+    public bool ShowTouches { get; set; } = true;
+    public bool StayAwake { get; set; } = true;
+
+
+    public string DeviceName { get; private set; }
+    public int Width { get; private set; } = -1;
+    public int Height { get; private set; } = -1;
     public ScrcpyControl Control { get; }
 
     int reversePort = 34676;
     public readonly string deviceId;
-    bool IsRunning = false;
-    AutoResetEvent AutoResetEvent = new AutoResetEvent(false);
+
+    bool _isRunning = false;
+    public bool IsRunning
+    {
+      get { return _isRunning; }
+      private set
+      {
+        if (value)
+        {
+          _isRunning = value;
+        }
+        else
+        {
+          if (scrcpyStream != null)
+          {
+            scrcpyStream.IsRunning = value;
+            _isRunning = value;
+          }          
+        }
+      }
+    }
+
+    AutoResetEvent AutoResetEvent_Connect = new AutoResetEvent(false);
+    AutoResetEvent AutoResetEvent_FirstFrame = new AutoResetEvent(false);
     stream scrcpyStream;
     public Scrcpy(string deviceId = null, string adbPath = null)
     {
@@ -46,38 +75,35 @@ namespace TqkLibrary.ScrcpyDotNet
     {
       if(!IsRunning)
       {
-        AutoResetEvent.Reset();
-        Task.Factory.StartNew(InitServerConnection, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        AutoResetEvent_Connect.Reset();
+        AutoResetEvent_FirstFrame.Reset();
+        Task.Factory.StartNew(InitServerConnection, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
         IsRunning = true;
       }
     }
 
-    public bool WaitForConnect(int timeout = 60000)
+    public bool WaitForConnect(int timeout = 10000)
     {
-      return AutoResetEvent.WaitOne(timeout);
+      return AutoResetEvent_Connect.WaitOne(timeout);
+    }
+
+    public bool WaitForFirstFrame(int timeout = 10000)
+    {
+      return AutoResetEvent_FirstFrame.WaitOne(timeout);
     }
 
     public void Stop()
     {
       Control._controlStream = null;
       IsRunning = false;
+      AdbCommand("reverse --remove localabstract:scrcpy");
     }
-
-    //public Bitmap GetLastedFrame()
-    //{
-    //  lock (_lock)
-    //  {
-    //    if (buffer_image == null) return null;
-    //    MemoryStream memoryStream = new MemoryStream(buffer_image);
-    //    return (Bitmap)Bitmap.FromStream(memoryStream);
-    //  }
-    //}
 
     void InitServerConnection()
     {
       TcpListener server = null;
-      TcpClient client = null;
-      NetworkStream stream = null;
+      TcpClient video_client = null;
+      TcpClient control_client = null;
       try
       {
         while(true)
@@ -102,36 +128,50 @@ namespace TqkLibrary.ScrcpyDotNet
         {
           using(cancellationTokenSource.Token.Register(() => server.Stop()))
           {
-            client = server.AcceptTcpClient();
+            video_client = server.AcceptTcpClient();
+            control_client = server.AcceptTcpClient();
           }
           cancellationTokenSource.Token.ThrowIfCancellationRequested();
         }
-        stream = client.GetStream();
-        BinaryReader br = new BinaryReader(stream);
-        br.Read(buffer, 0, 64);
+
+        NetworkStream stream = video_client.GetStream();
+        stream.Read(buffer, 0, 64);
         DeviceName = Encoding.ASCII.GetString(buffer, 0, 64);
 
-        br.Read(sizebuff, 0, sizebuff.Length);
+        stream.Read(sizebuff, 0, sizebuff.Length);
         Width = BitConverter.ToInt16(sizebuff.Reverse().ToArray(), 0);
 
-        br.Read(sizebuff, 0, sizebuff.Length);
+        stream.Read(sizebuff, 0, sizebuff.Length);
         Height = BitConverter.ToInt16(sizebuff.Reverse().ToArray(), 0);
 
-        Control._controlStream = stream;
+        Control._controlStream = control_client.GetStream();
 
-        AutoResetEvent.Set();
-        using (scrcpyStream = new stream(client, Width, Height)) scrcpyStream.RunStream();
+        AutoResetEvent_Connect.Set();
+        using (scrcpyStream = new stream(video_client, Width, Height))
+        {
+          scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();
+          scrcpyStream.IsRunning = IsRunning;
+          scrcpyStream.RunStream();
+        }
       }
       finally
       {
-        client?.Dispose();
-        server.Stop();
+        scrcpyStream = null;
+
+        control_client?.Dispose();
+        video_client?.Dispose();
+
+        server?.Stop();
       }
     }
 
     void DeployServer()
     {
-      AdbCommand("reverse --remove localabstract:scrcpy");
+      try
+      {
+        AdbCommand("reverse --remove localabstract:scrcpy");
+      }
+      catch (Exception) { }
       AdbCommand($"push scrcpy-server1.17.jar \"/data/local/tmp/scrcpy-server.jar\"");
       AdbCommand($"reverse localabstract:scrcpy tcp:{reversePort}");
       string version = "1.17";
@@ -144,13 +184,11 @@ namespace TqkLibrary.ScrcpyDotNet
       string crop = "-";
       bool frame_meta = true;//required
       bool control = true;
-      int display_id_string = 0;
-      bool show_touches = true;
-      bool stay_awake = true;
+      int display_id_string = 0;      
       string codec_options = "-";
       string encoder_name = "-";
 
-      AdbCommand($"shell CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / com.genymobile.scrcpy.Server {version} {loglevel} {max_size_string} {bit_rate_string} {max_fps_string} {lock_video_orientation_string} {tunnel_forward} {crop} {frame_meta} {control} {display_id_string} {show_touches} {stay_awake} {codec_options} {encoder_name}");
+      AdbCommand($"shell CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / com.genymobile.scrcpy.Server {version} {loglevel} {max_size_string} {bit_rate_string} {max_fps_string} {lock_video_orientation_string} {tunnel_forward} {crop} {frame_meta} {control} {display_id_string} {ShowTouches} {StayAwake} {codec_options} {encoder_name}");
     }
 
     string AdbCommand(string command)
@@ -174,9 +212,16 @@ namespace TqkLibrary.ScrcpyDotNet
 
       string result = process.StandardOutput.ReadToEnd();
       string err = process.StandardError.ReadToEnd();
+      if (!string.IsNullOrEmpty(err)) throw new AdbException(command, result, err);
       return result;
     }
 
     public Bitmap GetScreenShot() => scrcpyStream?.GetScreenShot();
+
+    void TaskContinue(Task task)
+    {
+      IsRunning = false;
+      if (task.IsFaulted) OnException?.Invoke(task.Exception);
+    }
   }
 }

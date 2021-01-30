@@ -12,8 +12,11 @@ using System.Drawing;
 
 namespace TqkLibrary.ScrcpyDotNet.Util
 {
+  internal delegate void FirstFrameTrigger();
   internal unsafe class stream : IDisposable
   {
+    public event FirstFrameTrigger firstFrameTrigger;
+    public bool IsRunning { get; set; } = false;
     readonly object _lock = new object();
     const int BUFSIZE = 0x10000;
     const ulong NO_PTS = ulong.MaxValue;
@@ -72,7 +75,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     public void RunStream()
     {
-      while (true)
+      while (IsRunning)
       {
         AVPacket packet;
         bool ok = stream_recv_packet(&packet);//push byte[] to packet
@@ -84,6 +87,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         if (!ok)
           break;// cannot process packet
       }
+      Console.WriteLine("Scrcpy Exit");
     }
 
     //push byte[] to packet
@@ -239,6 +243,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         buffer_result = new byte[image->size];
         Marshal.Copy(new IntPtr(image->data), buffer_result, 0, image->size);
       }
+      firstFrameTrigger?.Invoke();
     }
 
     readonly object lock_ = new object();

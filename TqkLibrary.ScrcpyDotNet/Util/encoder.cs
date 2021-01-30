@@ -33,9 +33,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     public void Dispose()
     {
-      fixed (AVPacket** f = &rendering_packet) av_packet_free(f);
       avcodec_close(codec_ctx);
       fixed (AVCodecContext** f = &codec_ctx) avcodec_free_context(f);
+      fixed (AVPacket** f = &rendering_packet) av_packet_free(f);
     }
 
     public AVPacket* encoder_push(AVFrame* frame)

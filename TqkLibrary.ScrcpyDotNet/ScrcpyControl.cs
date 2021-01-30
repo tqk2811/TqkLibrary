@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
 namespace TqkLibrary.ScrcpyDotNet
 {
   public sealed class ScrcpyControl
   {
     public readonly Scrcpy Scrcpy;
-    internal Stream _controlStream = null;
+    internal NetworkStream _controlStream = null;
 
     internal ScrcpyControl(Scrcpy Scrcpy)
     {
@@ -32,27 +32,86 @@ namespace TqkLibrary.ScrcpyDotNet
       }
     }
 
-    public void Tap(int x,int y)
+    public void Tap(int x,int y,int releaseDelay = 100)
     {
-      SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(AndroidMotionEventAction.ACTION_DOWN, 
-        AndroidPointerId.POINTER_ID_VIRTUAL_FINGER, 
-        new Rectangle() { X = x, Y = y, Width = Scrcpy.Width, Height = Scrcpy.Height }, 
-        20f, 
+      long pointerId = random.Next(int.MinValue, int.MaxValue);
+      SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
+        AndroidMotionEventAction.ACTION_DOWN,
+        pointerId,
+        new Rectangle() { X = x, Y = y, Width = Scrcpy.Width, Height = Scrcpy.Height },
+        1f,
         AndroidMotionEventButton.BUTTON_PRIMARY));
-      Thread.Sleep(100);
-      SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(AndroidMotionEventAction.ACTION_UP,
-       AndroidPointerId.POINTER_ID_VIRTUAL_FINGER,
+
+      Thread.Sleep(releaseDelay);
+
+      SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
+        AndroidMotionEventAction.ACTION_UP,
+       pointerId,
        new Rectangle() { X = x, Y = y, Width = Scrcpy.Width, Height = Scrcpy.Height },
-       20f,
+       1f,
        AndroidMotionEventButton.BUTTON_PRIMARY));
     }
 
-    public void Key(AndroidKeyCode androidKeyCode,int repeat = 1, int releaseDelay = 100)
+    public void Key(AndroidKeyCode androidKeyCode,uint repeat = 1, int releaseDelay = 100)
     {
-      SendControl(ScrcpyControlMessage.CreateInjectKeycode(AndroidKeyEventAction.ACTION_DOWN, androidKeyCode, repeat));
-      Thread.Sleep(releaseDelay); 
-      SendControl(ScrcpyControlMessage.CreateInjectKeycode(AndroidKeyEventAction.ACTION_UP, androidKeyCode, repeat));
+      SendControl(ScrcpyControlMessage.CreateInjectKeycode(AndroidKeyEventAction.ACTION_DOWN, androidKeyCode, repeat, AndroidKeyEventMeta.META_NONE));
+      Thread.Sleep(releaseDelay);
+      SendControl(ScrcpyControlMessage.CreateInjectKeycode(AndroidKeyEventAction.ACTION_UP, androidKeyCode, repeat, AndroidKeyEventMeta.META_NONE));
     }
 
+    public void WriteText(string text) => SendControl(ScrcpyControlMessage.CreateInjectText(text));
+
+    public void Scroll(int x, int y, int hScroll, int vScroll)
+    {
+      SendControl(ScrcpyControlMessage.CreateInjectScrollEvent(new Rectangle() { X = x, Y = y, Width = Scrcpy.Width, Height = Scrcpy.Height }, hScroll, vScroll));
+    }
+
+    readonly Random random = new Random();
+    public void Swipe(int x1,int y1, int x2,int y2,int time = 100,int delay = 5)
+    {
+      long pointerId = random.Next(int.MinValue, int.MaxValue);
+      SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
+        AndroidMotionEventAction.ACTION_DOWN,
+        pointerId,
+        new Rectangle() { X = x1, Y = y1, Width = Scrcpy.Width, Height = Scrcpy.Height}));
+      int times = time / delay;
+      for(int i = 0; i < times; i++)
+      {
+        int x = (x2 - x1) / times;
+        int y = (y2 - y1) / times;
+        SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
+          AndroidMotionEventAction.ACTION_MOVE,
+          pointerId,
+          new Rectangle() { X = x1 + x * i, Y = y1 + y * i, Width = Scrcpy.Width, Height = Scrcpy.Height }));
+        Thread.Sleep(delay);
+      }
+      SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
+       AndroidMotionEventAction.ACTION_UP,
+       pointerId,
+       new Rectangle() { X = x1, Y = y1, Width = Scrcpy.Width, Height = Scrcpy.Height }));
+    }
+
+    public string GetClipboard()
+    {
+      SendControl(ScrcpyControlMessage.GetClipboard());
+      BinaryReader binaryReader = new BinaryReader(_controlStream);
+      uint size = binaryReader.ReadUInt32();
+      StreamReader streamReader = new StreamReader(_controlStream);
+      return streamReader.ReadToEnd();
+    }
+
+
+
+
+
+
+
+
+
+
+
+    public void Test()
+    {
+    }
   }
 }

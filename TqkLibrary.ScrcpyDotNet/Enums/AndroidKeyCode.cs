@@ -3,7 +3,7 @@
   /// <summary>
   /// https://developer.android.com/reference/android/view/KeyEvent#KEYCODE_0
   /// </summary>
-  public enum AndroidKeyCode : int
+  public enum AndroidKeyCode : uint
   {
     KEYCODE_UNKNOWN = 0,
     KEYCODE_SOFT_LEFT = 1,

@@ -7,7 +7,6 @@ namespace TqkLibrary.ScrcpyDotNet.Util
   internal unsafe class decoder : IDisposable
   {
     AVFrame* decoding_frame;
-    //AVFrame* rendering_frame;
     AVCodecContext* codec_ctx;
 
     public decoder(AVCodec* codec)
@@ -24,10 +23,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     public void Dispose()
     {
-      fixed (AVFrame** f = &decoding_frame) av_frame_free(f);
-      //fixed (AVFrame** f = &rendering_frame) av_frame_free(f);
       avcodec_close(codec_ctx);
       fixed (AVCodecContext** f = &codec_ctx) avcodec_free_context(f);
+      fixed (AVFrame** f = &decoding_frame) av_frame_free(f);
     }
 
     public AVFrame* decoder_push(AVPacket* packet)

@@ -69,6 +69,7 @@ namespace TqkLibrary.ScrcpyDotNet
         else Scrcpy.adbPath = adbPath;
       }
       Control = new ScrcpyControl(this);
+      //Extensions.LoadDll();
     }
 
     public void Start()
@@ -123,8 +124,8 @@ namespace TqkLibrary.ScrcpyDotNet
         byte[] buffer = new byte[64];
         byte[] sizebuff = new byte[2];
 
-        Task.Factory.StartNew(DeployServer, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        using(CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(60000))
+        Task.Factory.StartNew(DeployServer, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
+        using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(60000))
         {
           using(cancellationTokenSource.Token.Register(() => server.Stop()))
           {

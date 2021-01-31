@@ -66,7 +66,7 @@ namespace TqkLibrary.ScrcpyDotNet
       SendControl(ScrcpyControlMessage.CreateInjectScrollEvent(new Rectangle() { X = x, Y = y, Width = Scrcpy.Width, Height = Scrcpy.Height }, hScroll, vScroll));
     }
 
-    readonly Random random = new Random();
+    static readonly Random random = new Random();
     public void Swipe(int x1,int y1, int x2,int y2,int time = 100,int delay = 5)
     {
       long pointerId = random.Next(int.MinValue, int.MaxValue);
@@ -91,6 +91,7 @@ namespace TqkLibrary.ScrcpyDotNet
        new Rectangle() { X = x1, Y = y1, Width = Scrcpy.Width, Height = Scrcpy.Height }));
     }
 
+#if DEBUG
     public string GetClipboard()
     {
       SendControl(ScrcpyControlMessage.GetClipboard());
@@ -99,19 +100,6 @@ namespace TqkLibrary.ScrcpyDotNet
       StreamReader streamReader = new StreamReader(_controlStream);
       return streamReader.ReadToEnd();
     }
-
-
-
-
-
-
-
-
-
-
-
-    public void Test()
-    {
-    }
+#endif
   }
 }

@@ -16,16 +16,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avcodec-58.dll" Link="avcodec-58.dll">
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\Win32\avcodec-58.dll" Link="x86\avcodec-58.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avformat-58.dll" Link="avformat-58.dll">
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\Win32\avformat-58.dll" Link="x86\avformat-58.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\avutil-56.dll" Link="avutil-56.dll">
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\Win32\avutil-56.dll" Link="x86\avutil-56.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\..\..\..\lib\FFmpeg\bin\x64\swresample-3.dll" Link="swresample-3.dll">
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\Win32\swresample-3.dll" Link="x86\swresample-3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\x64\avcodec-58.dll" Link="x64\avcodec-58.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\x64\avformat-58.dll" Link="x64\avformat-58.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\x64\avutil-56.dll" Link="x64\avutil-56.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\..\..\lib\ffmpeg dll stable 4.2.2\build\native\bin\x64\swresample-3.dll" Link="x64\swresample-3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -50,6 +62,11 @@
     <None Update="swscale-5.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="x64\" />
+    <Folder Include="x86\" />
   </ItemGroup>
 
 </Project>

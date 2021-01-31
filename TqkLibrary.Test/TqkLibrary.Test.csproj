@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Adb\AdbTest.cs" />
     <Compile Include="Net\DriveApiNonLoginTest.cs" />
+    <Compile Include="Net\PhoneNumberApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.cs" />
   </ItemGroup>

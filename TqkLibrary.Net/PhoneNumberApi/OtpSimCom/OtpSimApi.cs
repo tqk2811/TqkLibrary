@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -17,20 +18,20 @@ namespace TqkLibrary.Net.PhoneNumberApi.OtpSimCom
       => RequestGet<BaseResult<List<DataNetwork>>>(string.Format(EndPoint + "/networks?token={0}", ApiKey));
 
     public Task<BaseResult<List<DataService>>> GetServices()
-      => RequestGet<BaseResult<List<DataService>>>(string.Format(EndPoint + "/networks?token={0}", ApiKey));
+      => RequestGet<BaseResult<List<DataService>>>(string.Format(EndPoint + "/service/request?token={0}", ApiKey));
 
     public Task<BaseResult<PhoneRequestResult>> PhonesRequest(
       DataService dataService,
-      List<DataNetwork> dataNetworks = null,
-      List<string> prefixs = null,
-      List<string> exceptPrefixs = null)
+      IEnumerable<DataNetwork> dataNetworks = null,
+      IEnumerable<string> prefixs = null,
+      IEnumerable<string> exceptPrefixs = null)
     {
       if (null == dataService) throw new ArgumentNullException(nameof(dataService));
 
       var parameters = HttpUtility.ParseQueryString(string.Empty);
       parameters["token"] = ApiKey;
       parameters["service"] = dataService.Id.ToString();
-      if (null != dataNetworks) parameters["network"] = string.Join(",", dataNetworks);
+      if (null != dataNetworks) parameters["network"] = string.Join(",", dataNetworks.Select(x => x.Id));
       if (null != prefixs) parameters["prefix"] = string.Join(",", prefixs);
       if (null != exceptPrefixs) parameters["exceptPrefix"] = string.Join(",", exceptPrefixs);
 

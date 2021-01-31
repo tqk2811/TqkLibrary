@@ -108,7 +108,7 @@ namespace TqkLibrary.Adb
 
         string result = process.StandardOutput.ReadToEnd();
         string err = process.StandardError.ReadToEnd();
-        if (!string.IsNullOrEmpty(err)) throw new AdbException(err, result);
+        if (!string.IsNullOrEmpty(err) && !err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
         return result;
       }
     }
@@ -136,7 +136,7 @@ namespace TqkLibrary.Adb
         process.WaitForExit();
         string result = process.StandardOutput.ReadToEnd();
         string err = process.StandardError.ReadToEnd();
-        if (!string.IsNullOrEmpty(err)) throw new AdbException(err, result);
+        if (!string.IsNullOrEmpty(err) && !err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
         return result;
       }
     }
@@ -249,10 +249,20 @@ namespace TqkLibrary.Adb
       AdbCommand($"shell screencap -p \"{androidPath}\"");
       PullFile(androidPath, FilePath);
       DeleteFile(androidPath);
-      using FileStream fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-      Bitmap result = (Bitmap)Bitmap.FromStream(fs);
-      if (IsDelete) try { File.Delete(FilePath); } catch (Exception) { }
-      return result;
+      if(File.Exists(FilePath))
+      {
+        try
+        {
+          byte[] buff = File.ReadAllBytes(FilePath);
+          MemoryStream memoryStream = new MemoryStream(buff);
+          return (Bitmap)Bitmap.FromStream(memoryStream);
+        }
+        finally
+        {
+          if (IsDelete) try { File.Delete(FilePath); } catch (Exception) { }
+        }
+      }
+      throw new FileNotFoundException(FilePath);
     }
 
     Point? point = null;

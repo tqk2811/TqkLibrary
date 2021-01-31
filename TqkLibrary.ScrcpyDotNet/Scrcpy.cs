@@ -173,7 +173,7 @@ namespace TqkLibrary.ScrcpyDotNet
         AdbCommand("reverse --remove localabstract:scrcpy");
       }
       catch (Exception) { }
-      AdbCommand($"push scrcpy-server1.17.jar \"/data/local/tmp/scrcpy-server.jar\"");
+      AdbCommand($"push scrcpy-server1.17.jar \"/data/local/tmp/scrcpy_server_tqk.jar\"");
       AdbCommand($"reverse localabstract:scrcpy tcp:{reversePort}");
       string version = "1.17";
       string loglevel = "info";
@@ -189,7 +189,7 @@ namespace TqkLibrary.ScrcpyDotNet
       string codec_options = "-";
       string encoder_name = "-";
 
-      AdbCommand($"shell CLASSPATH=/data/local/tmp/scrcpy-server.jar app_process / com.genymobile.scrcpy.Server {version} {loglevel} {max_size_string} {bit_rate_string} {max_fps_string} {lock_video_orientation_string} {tunnel_forward} {crop} {frame_meta} {control} {display_id_string} {ShowTouches} {StayAwake} {codec_options} {encoder_name}");
+      AdbCommand($"shell CLASSPATH=/data/local/tmp/scrcpy_server_tqk.jar app_process / com.genymobile.scrcpy.Server {version} {loglevel} {max_size_string} {bit_rate_string} {max_fps_string} {lock_video_orientation_string} {tunnel_forward} {crop} {frame_meta} {control} {display_id_string} {ShowTouches} {StayAwake} {codec_options} {encoder_name}");
     }
 
     string AdbCommand(string command)

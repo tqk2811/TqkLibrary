@@ -9,21 +9,21 @@ namespace TqkLibrary.ScrcpyDotNet
   /// </summary>
   public sealed class ScrcpyControlMessage
   {
-    internal ScrcpyControlType ControlType { get; private set; }
-    internal string Text { get; private set; }
-    internal AndroidKeyEventMeta MetaState { get; private set; } // KeyEvent.META_*
-    internal AndroidMotionEventAction MotionEventAction { get; private set; }//MotionEvent.ACTION_
-    internal AndroidKeyEventAction KeyEventAction { get; private set; }//KeyEvent.ACTION_*
-    internal AndroidKeyCode Keycode { get; private set; } // KeyEvent.KEYCODE_*
-    internal AndroidMotionEventButton Buttons { get; private set; } // MotionEvent.BUTTON_*
-    internal long PointerId { get; private set; }
-    internal float Pressure { get; private set; }
-    internal Rectangle Position { get; private set; }
-    internal int hScroll { get; private set; }
-    internal int vScroll { get; private set; }
-    internal bool Paste { get; private set; }
-    internal uint Repeat { get; private set; }
-    internal ScrcpyScreenPowerMode PowerMode { get; private set; }
+    private ScrcpyControlType ControlType { get; set; }
+    private string Text { get; set; }
+    private AndroidKeyEventMeta MetaState { get; set; } // KeyEvent.META_*
+    private AndroidMotionEventAction MotionEventAction { get; set; }//MotionEvent.ACTION_
+    private AndroidKeyEventAction KeyEventAction { get; set; }//KeyEvent.ACTION_*
+    private AndroidKeyCode Keycode { get; set; } // KeyEvent.KEYCODE_*
+    private AndroidMotionEventButton Buttons { get; set; } // MotionEvent.BUTTON_*
+    private long PointerId { get; set; }
+    private float Pressure { get; set; }
+    private Rectangle Position { get; set; }
+    private int hScroll { get; set; }
+    private int vScroll { get; set; }
+    private bool Paste { get; set; }
+    private uint Repeat { get; set; }
+    private ScrcpyScreenPowerMode PowerMode { get; set; }
 
     private ScrcpyControlMessage() { }
 

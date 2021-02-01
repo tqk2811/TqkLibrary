@@ -54,6 +54,8 @@ namespace TqkLibrary.Adb
 
     public static void StartServer(int timeout = 30000) => ExecuteCommand("adb start-server", timeout);
 
+    public static void Root() => ExecuteCommand("adb root");
+
     public static List<string> GetDevices()
     {
       List<string> ListDevices = new List<string>();
@@ -108,7 +110,15 @@ namespace TqkLibrary.Adb
 
         string result = process.StandardOutput.ReadToEnd();
         string err = process.StandardError.ReadToEnd();
-        if (!string.IsNullOrEmpty(err) && !err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
+        if (!string.IsNullOrEmpty(err))
+        {
+          if (err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
+          else
+          {
+            Console.WriteLine($"AdbCommand:" + command);
+            Console.WriteLine($"\t" + err);
+          }
+        }
         return result;
       }
     }
@@ -136,7 +146,15 @@ namespace TqkLibrary.Adb
         process.WaitForExit();
         string result = process.StandardOutput.ReadToEnd();
         string err = process.StandardError.ReadToEnd();
-        if (!string.IsNullOrEmpty(err) && !err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
+        if (!string.IsNullOrEmpty(err))
+        {
+          if(err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
+          else
+          {
+            Console.WriteLine($"AdbCommand:" + command);
+            Console.WriteLine($"\t" + err);
+          }
+        }
         return result;
       }
     }
@@ -214,11 +232,12 @@ namespace TqkLibrary.Adb
     public void UpdateApk(string pcPath, int timeout = 30000) => AdbCommand($"install -r \"{pcPath}\"", timeout);
 
     /// <summary>
-    /// Example: com.google.android.gms/.accountsettings.mg.ui.main.MainActivity
+    /// Example: com.google.android.gms/.accountsettings.mg.ui.main.MainActivity<br/>
     /// OpenApk("com.google.android.gms",".accountsettings.mg.ui.main.MainActivity");
     /// </summary>
     /// <param name="packageName"></param>
     /// <param name="activityName"></param>
+    //https://developer.android.com/studio/command-line/adb#IntentSpec
     public void OpenApk(string packageName, string activityName) => AdbCommand($"shell am start -n {packageName}/{activityName}");
 
     public void DisableApk(string packageName) => AdbCommand($"shell pm disable {packageName}");

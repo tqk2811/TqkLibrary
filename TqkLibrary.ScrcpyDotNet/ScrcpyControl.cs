@@ -67,18 +67,18 @@ namespace TqkLibrary.ScrcpyDotNet
     }
 
     static readonly Random random = new Random();
-    public void Swipe(int x1,int y1, int x2,int y2,int time = 100,int delay = 5)
+    public void Swipe(int x1,int y1, int x2,int y2,int duration = 100,int delay = 5)
     {
       long pointerId = random.Next(int.MinValue, int.MaxValue);
       SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
         AndroidMotionEventAction.ACTION_DOWN,
         pointerId,
         new Rectangle() { X = x1, Y = y1, Width = Scrcpy.Width, Height = Scrcpy.Height}));
-      int times = time / delay;
-      for(int i = 0; i < times; i++)
-      {
-        int x = (x2 - x1) / times;
-        int y = (y2 - y1) / times;
+      int times = duration / delay; 
+      int x = (x2 - x1) / times;
+      int y = (y2 - y1) / times;
+      for (int i = 0; i < times; i++)
+      {        
         SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
           AndroidMotionEventAction.ACTION_MOVE,
           pointerId,

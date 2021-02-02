@@ -54,8 +54,6 @@ namespace TqkLibrary.Adb
 
     public static void StartServer(int timeout = 30000) => ExecuteCommand("adb start-server", timeout);
 
-    public static void Root() => ExecuteCommand("adb root");
-
     public static List<string> GetDevices()
     {
       List<string> ListDevices = new List<string>();
@@ -200,6 +198,8 @@ namespace TqkLibrary.Adb
     }
 
     //public void WaitForDevice() => AdbCommand("wait-for-device");
+    public void Root() => AdbCommand("root"); 
+    public void UnRoot() => AdbCommand("unroot");
 
     public void WaitForDevice(int timeout = 120000) => AdbCommand("wait-for-device",timeout);
 

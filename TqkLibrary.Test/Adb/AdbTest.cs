@@ -14,5 +14,13 @@ namespace TqkLibrary.Test.Adb
       baseAdb.TimeoutDefault = 1;
       baseAdb.Swipe(10, 10, 200, 200, 1000);
     }
+
+    [TestMethod]
+    public void TestRoot()
+    {
+      BaseAdb baseAdb = new BaseAdb();
+      baseAdb.Root();
+      baseAdb.UnRoot();
+    }
   }
 }

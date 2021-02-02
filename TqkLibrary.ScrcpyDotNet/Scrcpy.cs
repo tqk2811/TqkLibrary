@@ -27,7 +27,6 @@ namespace TqkLibrary.ScrcpyDotNet
     public bool ShowTouches { get; set; } = true;
     public bool StayAwake { get; set; } = true;
 
-
     public string DeviceName { get; private set; }
     public int Width { get; private set; } = -1;
     public int Height { get; private set; } = -1;
@@ -60,6 +59,7 @@ namespace TqkLibrary.ScrcpyDotNet
     AutoResetEvent AutoResetEvent_Connect = new AutoResetEvent(false);
     AutoResetEvent AutoResetEvent_FirstFrame = new AutoResetEvent(false);
     stream scrcpyStream;
+    int ImageBufferLength = 1024 * 1024;
     public Scrcpy(string deviceId = null, string adbPath = null)
     {
       this.deviceId = deviceId;
@@ -72,10 +72,11 @@ namespace TqkLibrary.ScrcpyDotNet
       //Extensions.LoadDll();
     }
 
-    public void Start()
+    public void Start(int ImageBufferLength = 1024 * 1024)
     {
       if(!IsRunning)
       {
+        this.ImageBufferLength = ImageBufferLength;
         AutoResetEvent_Connect.Reset();
         AutoResetEvent_FirstFrame.Reset();
         Task.Factory.StartNew(InitServerConnection, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
@@ -99,6 +100,14 @@ namespace TqkLibrary.ScrcpyDotNet
       IsRunning = false;
       AdbCommand("reverse --remove localabstract:scrcpy");
     }
+
+    public Bitmap GetScreenShot() => scrcpyStream?.GetScreenShot();
+
+#if TestVideo
+    public MemoryStream InitVideoH264Stream() => scrcpyStream.InitVideoH264Stream();
+
+    public void StopStream() => scrcpyStream.StopStream();
+#endif
 
     void InitServerConnection()
     {
@@ -148,7 +157,7 @@ namespace TqkLibrary.ScrcpyDotNet
         Control._controlStream = control_client.GetStream();
 
         AutoResetEvent_Connect.Set();
-        using (scrcpyStream = new stream(video_client, Width, Height))
+        using (scrcpyStream = new stream(video_client, Width, Height, ImageBufferLength))
         {
           scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();
           scrcpyStream.IsRunning = IsRunning;
@@ -197,6 +206,7 @@ namespace TqkLibrary.ScrcpyDotNet
       if (string.IsNullOrEmpty(deviceId)) return ExecuteCommand(command);
       else return ExecuteCommand($"-s {deviceId} {command}");
     }
+
     static string ExecuteCommand(string command)
     {
       using Process process = new Process();
@@ -216,8 +226,6 @@ namespace TqkLibrary.ScrcpyDotNet
       if (!string.IsNullOrEmpty(err)) throw new AdbException(command, result, err);
       return result;
     }
-
-    public Bitmap GetScreenShot() => scrcpyStream?.GetScreenShot();
 
     void TaskContinue(Task task)
     {

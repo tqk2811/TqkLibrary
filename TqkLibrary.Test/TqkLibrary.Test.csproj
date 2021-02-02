@@ -48,9 +48,11 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Adb\AdbTest.cs" />
+    <Compile Include="Media\OpenCvTest.cs" />
     <Compile Include="Net\DriveApiNonLoginTest.cs" />
     <Compile Include="Net\PhoneNumberApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,6 +65,10 @@
     <ProjectReference Include="..\TqkLibrary.Adb\TqkLibrary.Adb.csproj">
       <Project>{adae52e4-0e9e-4938-a55b-c30b832d4f43}</Project>
       <Name>TqkLibrary.Adb</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TqkLibrary.Media\TqkLibrary.Media.csproj">
+      <Project>{7426d8ac-c975-4039-9438-18e26f1bdab3}</Project>
+      <Name>TqkLibrary.Media</Name>
     </ProjectReference>
     <ProjectReference Include="..\TqkLibrary.Net\TqkLibrary.Net.csproj">
       <Project>{c50525db-708d-42ce-91e7-0da0cee93210}</Project>

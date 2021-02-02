@@ -37,13 +37,16 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     bool has_pending = false;
     AVPacket pending;
-    public stream(TcpClient client, int width, int height)
+    public stream(TcpClient client, int width, int height,int imageBufferLength)
     {
       this.client = client;
       this.Width = width;
       this.Height = height;
-
-      av_register_all();
+      buffer_result = new byte[imageBufferLength];
+#if TestVideo
+      buffer_h264 = new byte[imageBufferLength];
+#endif
+      //av_register_all();
       avformat_network_init();
 
       h264_codec = avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264);
@@ -71,6 +74,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       fixed (AVCodecContext** f = &h264_codec_ctx) avcodec_free_context(f);
       decoder?.Dispose();
       encoder?.Dispose();
+#if TestVideo
+      memoryStream?.Dispose();
+#endif
     }
 
     public void RunStream()
@@ -221,9 +227,22 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       return true;
     }
 
-    int i = 0;
     void process_frame(AVPacket* packet)
     {
+#if TestVideo
+      lock (lock_stream)
+      {
+        if (memoryStream?.CanWrite == true)
+        {
+          if(packet->size <= buffer_h264.Length && memoryStream?.CanWrite == true)
+          {
+            Marshal.Copy(new IntPtr(packet->data), buffer_h264, 0, packet->size);
+            memoryStream.Write(buffer_h264, 0, packet->size);
+          }
+        }
+      }
+#endif
+
       AVFrame* decode_frame = decoder.decoder_push(packet);
       if (decode_frame == null)
       {
@@ -240,26 +259,64 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
       lock (lock_)
       {
-        buffer_result = new byte[image->size];
+        if (image->size > buffer_result.Length) return;
+        length_Result = image->size;
         Marshal.Copy(new IntPtr(image->data), buffer_result, 0, image->size);
       }
+
       firstFrameTrigger?.Invoke();
     }
 
-    readonly object lock_ = new object();
-    byte[] buffer_result;
 
+
+
+
+
+    readonly object lock_ = new object();
+    int length_Result = 0;
+    readonly byte[] buffer_result;
     public Bitmap GetScreenShot()
     {
       lock(lock_)
       {
-        if(buffer_result != null)
+        if(length_Result > 0)
         {
-          MemoryStream memoryStream = new MemoryStream(buffer_result);
+          MemoryStream memoryStream = new MemoryStream();
+          memoryStream.Write(buffer_result, 0, length_Result);
           return (Bitmap)Bitmap.FromStream(memoryStream);
         }
         return null;
       }
     }
+
+#if TestVideo
+    int length_h264 = 0;
+    readonly byte[] buffer_h264;
+    readonly object lock_stream = new object();
+    MemoryStream memoryStream;
+    public MemoryStream InitVideoH264Stream()
+    {
+      lock(lock_stream)
+      {
+        if (memoryStream == null)
+        {
+          memoryStream = new MemoryStream();
+        }
+        return memoryStream;
+      }      
+    }
+
+    public void StopStream()
+    {
+      lock (lock_stream)
+      {
+        if (memoryStream != null)
+        {
+          memoryStream.Dispose();
+          memoryStream = null;
+        }
+      }
+    }
+#endif
   }
 }

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Images
 {
-  public class ImageScanOpenCv
+  public class OpenCvHelper
   {
     public Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
     {
@@ -28,7 +28,7 @@ namespace TqkLibrary.Media.Images
         double[] minValues, maxValues;
         System.Drawing.Point[] minLocations, maxLocations;
         result.MinMax(out minValues, out maxValues, out minLocations, out maxLocations);
-
+        
         double currentMax = 0;
         for (int i = 0; i < maxValues.Length; i++)
         {
@@ -38,7 +38,6 @@ namespace TqkLibrary.Media.Images
             resPoint = maxLocations[i];
           }
         }
-        
       }
       GC.Collect();
       GC.WaitForPendingFinalizers();
@@ -63,6 +62,21 @@ namespace TqkLibrary.Media.Images
       return point;
     }
 
+    public Point? FindOutPoint(Bitmap mainBitmap,double percent = 0.9, params Bitmap[] subBitmaps)
+    {
+      foreach(var subBitmap in subBitmaps)
+      {
+        Point? point = FindOutPoint(mainBitmap, subBitmap, percent);
+        if (point != null) return point;
+      }
+      return null;
+    }
+
+    public Point? FindOutPoint(Bitmap mainBitmap, Rectangle crop, double percent = 0.9, params Bitmap[] subBitmaps)
+    {
+      using Bitmap bm_crop = mainBitmap.CropImage(crop);
+      return FindOutPoint(bm_crop, percent, subBitmaps);
+    }
 
     public static List<Point> FindOutPoints(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
     {
@@ -107,5 +121,14 @@ namespace TqkLibrary.Media.Images
       }
       return points;
     }
+
+    public static Bitmap CropNonTransparent(Bitmap bitmap)
+    {
+      using Image<Bgra,byte> imageIn = bitmap.ToImage<Bgra, byte>();
+      using Mat mat = new Mat(/*imageIn.Size, Emgu.CV.CvEnum.DepthType.Cv8U, 1*/);
+      CvInvoke.FindNonZero(imageIn, mat);
+      return mat.ToBitmap();
+    }
+
   }
 }

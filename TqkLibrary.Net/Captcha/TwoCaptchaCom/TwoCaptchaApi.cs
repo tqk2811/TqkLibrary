@@ -44,11 +44,11 @@ namespace TqkLibrary.Net.Captcha.TwoCaptchaCom
     /// <exception cref="HttpRequestException"></exception>
     /// <exception cref="JsonException"></exception>
     /// <exception cref="OperationCanceledException"></exception>
-    public async Task<TwoCaptchaResponse> WaitResponseJsonCompleted(string id, CancellationToken cancellationToken, int delay = 5000, int step = 100)
+    public async Task<TwoCaptchaResponse> WaitResponseJsonCompleted(string id, CancellationToken cancellationToken, int delay = 5000)
     {
       while (true)
       {
-        CaptchaWait.Wait(cancellationToken, delay, step);
+        Task.Delay(delay, cancellationToken).Wait();
         TwoCaptchaResponse twoCaptchaResponse = await GetResponseJson(id).ConfigureAwait(false);
         switch (twoCaptchaResponse.CheckState())
         {

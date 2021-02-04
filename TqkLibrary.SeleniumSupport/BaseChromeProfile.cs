@@ -163,12 +163,7 @@ namespace TqkLibrary.SeleniumSupport
 
     protected virtual void Delay(int min, int max)
     {
-      int time = rd.Next(min, max) / 100;
-      for (int i = 0; i < time; i++)
-      {
-        Task.Delay(100).Wait();
-        tokenSource?.Token.ThrowIfCancellationRequested();
-      }
+      if(tokenSource != null) Task.Delay(rd.Next(min, max), tokenSource.Token);
     }
 
     public virtual void SaveHtml(string path)
@@ -223,7 +218,9 @@ namespace TqkLibrary.SeleniumSupport
       {
         var eles = searchContext.FindElements(by);
         if (func(eles)) return eles;
-        Task.Delay(delay).Wait();
+        if(tokenSource !=null) Task.Delay(delay, tokenSource.Token).Wait();
+        else Task.Delay(delay, timeoutToken.Token).Wait();
+
         tokenSource?.Token.ThrowIfCancellationRequested();
       }
       if (isThrow) throw new ChromeAutoException(by.ToString());

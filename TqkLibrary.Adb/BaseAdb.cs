@@ -161,15 +161,7 @@ namespace TqkLibrary.Adb
 
     public void Stop() => TokenSource.Cancel();
 
-    public void Delay(int min, int max)
-    {
-      int time = rd.Next(min, max) / 100;
-      for (int i = 0; i < time; i++)
-      {
-        Task.Delay(100).Wait();
-        CancellationToken.ThrowIfCancellationRequested();
-      }
-    }
+    public void Delay(int min, int max) =>Task.Delay(rd.Next(min, max), CancellationToken).Wait();
 
     public void Dispose() => TokenSource.Dispose();
 
@@ -199,6 +191,7 @@ namespace TqkLibrary.Adb
 
     //public void WaitForDevice() => AdbCommand("wait-for-device");
     public void Root() => AdbCommand("root"); 
+
     public void UnRoot() => AdbCommand("unroot");
 
     public void WaitForDevice(int timeout = 120000) => AdbCommand("wait-for-device",timeout);

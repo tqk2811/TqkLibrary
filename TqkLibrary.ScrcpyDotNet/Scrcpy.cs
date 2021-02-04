@@ -96,9 +96,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public void Stop()
     {
-      Control._controlStream = null;
       IsRunning = false;
-      AdbCommand("reverse --remove localabstract:scrcpy");
     }
 
     public Bitmap GetScreenShot() => scrcpyStream?.GetScreenShot();
@@ -159,6 +157,7 @@ namespace TqkLibrary.ScrcpyDotNet
         AutoResetEvent_Connect.Set();
         using (scrcpyStream = new stream(video_client, Width, Height, ImageBufferLength))
         {
+          scrcpyStream.stopCallback += ScrcpyStream_stopCallback;
           scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();
           scrcpyStream.IsRunning = IsRunning;
           scrcpyStream.RunStream();
@@ -166,13 +165,19 @@ namespace TqkLibrary.ScrcpyDotNet
       }
       finally
       {
+        _isRunning = false;
         scrcpyStream = null;
-
+        Control._controlStream = null;
         control_client?.Dispose();
         video_client?.Dispose();
-
         server?.Stop();
+        AdbCommand("reverse --remove localabstract:scrcpy");
       }
+    }
+
+    private void ScrcpyStream_stopCallback(bool byUser)
+    {
+      //_isRunning = false;
     }
 
     void DeployServer()

@@ -12,10 +12,12 @@ using System.Drawing;
 
 namespace TqkLibrary.ScrcpyDotNet.Util
 {
+  internal delegate void StopCallback(bool byUser);
   internal delegate void FirstFrameTrigger();
   internal unsafe class stream : IDisposable
   {
     public event FirstFrameTrigger firstFrameTrigger;
+    public event StopCallback stopCallback;
     public bool IsRunning { get; set; } = false;
     readonly object _lock = new object();
     const int BUFSIZE = 0x10000;
@@ -94,6 +96,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
           break;// cannot process packet
       }
       Console.WriteLine("Scrcpy Exit");
+      stopCallback.Invoke(IsRunning);
+      IsRunning = false;
+      length_Result = 0;
     }
 
     //push byte[] to packet

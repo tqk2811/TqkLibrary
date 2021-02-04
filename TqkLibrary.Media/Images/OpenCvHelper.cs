@@ -12,7 +12,7 @@ namespace TqkLibrary.Media.Images
 {
   public class OpenCvHelper
   {
-    public Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
+    public static Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
     {
       if (subBitmap == null || mainBitmap == null)
         return null;
@@ -39,12 +39,10 @@ namespace TqkLibrary.Media.Images
           }
         }
       }
-      GC.Collect();
-      GC.WaitForPendingFinalizers();
       return resPoint;
     }
 
-    public Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap,Rectangle crop, double percent = 0.9)
+    public static Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap,Rectangle crop, double percent = 0.9)
     {
       if (subBitmap == null || mainBitmap == null)
         return null;
@@ -58,11 +56,12 @@ namespace TqkLibrary.Media.Images
         Point subpoint = point.Value;
         subpoint.X += crop.X;
         subpoint.Y += crop.Y;
+        point = subpoint;
       }
       return point;
     }
 
-    public Point? FindOutPoint(Bitmap mainBitmap,double percent = 0.9, params Bitmap[] subBitmaps)
+    public static Point? FindOutPoint(Bitmap mainBitmap,double percent = 0.9, params Bitmap[] subBitmaps)
     {
       foreach(var subBitmap in subBitmaps)
       {
@@ -72,7 +71,7 @@ namespace TqkLibrary.Media.Images
       return null;
     }
 
-    public Point? FindOutPoint(Bitmap mainBitmap, Rectangle crop, double percent = 0.9, params Bitmap[] subBitmaps)
+    public static Point? FindOutPoint(Bitmap mainBitmap, Rectangle crop, double percent = 0.9, params Bitmap[] subBitmaps)
     {
       using Bitmap bm_crop = mainBitmap.CropImage(crop);
       return FindOutPoint(bm_crop, percent, subBitmaps);
@@ -129,6 +128,5 @@ namespace TqkLibrary.Media.Images
       CvInvoke.FindNonZero(imageIn, mat);
       return mat.ToBitmap();
     }
-
   }
 }

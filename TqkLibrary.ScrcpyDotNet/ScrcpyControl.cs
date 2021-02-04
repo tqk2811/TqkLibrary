@@ -91,7 +91,7 @@ namespace TqkLibrary.ScrcpyDotNet
       SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
        AndroidMotionEventAction.ACTION_UP,
        pointerId,
-       new Rectangle() { X = x1, Y = y1, Width = Scrcpy.Width, Height = Scrcpy.Height }));
+       new Rectangle() { X = x2, Y = y2, Width = Scrcpy.Width, Height = Scrcpy.Height }));
     }
 
 #if DEBUG

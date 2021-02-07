@@ -116,6 +116,14 @@ namespace TqkLibrary.Queues.TaskQueues
         if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, queue);
         else OnQueueComplete.Invoke(result, queue);
       }
+      if (queue is IDisposable disposable)
+      {
+        try
+        {
+          disposable.Dispose();
+        }
+        catch (Exception) { }
+      }
       RunNewQueue();
     }
 

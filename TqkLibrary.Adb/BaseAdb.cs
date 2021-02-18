@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TqkLibrary.Adb
 {
@@ -146,7 +146,7 @@ namespace TqkLibrary.Adb
         string err = process.StandardError.ReadToEnd();
         if (!string.IsNullOrEmpty(err))
         {
-          if(err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
+          if (err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
           else
           {
             Console.WriteLine($"AdbCommand:" + command);
@@ -161,7 +161,7 @@ namespace TqkLibrary.Adb
 
     public void Stop() => TokenSource.Cancel();
 
-    public void Delay(int min, int max) =>Task.Delay(rd.Next(min, max), CancellationToken).Wait();
+    public void Delay(int min, int max) => Task.Delay(rd.Next(min, max), CancellationToken).Wait();
 
     public void Dispose() => TokenSource.Dispose();
 
@@ -190,11 +190,11 @@ namespace TqkLibrary.Adb
     }
 
     //public void WaitForDevice() => AdbCommand("wait-for-device");
-    public void Root() => AdbCommand("root"); 
+    public void Root() => AdbCommand("root");
 
     public void UnRoot() => AdbCommand("unroot");
 
-    public void WaitForDevice(int timeout = 120000) => AdbCommand("wait-for-device",timeout);
+    public void WaitForDevice(int timeout = 120000) => AdbCommand("wait-for-device", timeout);
 
     public void Shutdown() => AdbCommand("shell reboot -p");
 
@@ -208,7 +208,7 @@ namespace TqkLibrary.Adb
 
     public void PushFile(string pcPath, string androidPath) => AdbCommand($"push \"{pcPath}\" \"{androidPath}\"");
 
-    public void PushFile(string pcPath, string androidPath,int timeout) => AdbCommand($"push \"{pcPath}\" \"{androidPath}\"",timeout);
+    public void PushFile(string pcPath, string androidPath, int timeout) => AdbCommand($"push \"{pcPath}\" \"{androidPath}\"", timeout);
 
     public void PullFile(string androidPath, string pcPath) => AdbCommand($"pull \"{androidPath}\" \"{pcPath}\"");
 
@@ -243,7 +243,7 @@ namespace TqkLibrary.Adb
 
     public void ClearApk(string packageName) => AdbCommand($"shell pm clear {packageName}");
 
-    public void SetProxy(string proxy,int timeout) => AdbCommand($"shell settings put global http_proxy {proxy}", timeout);
+    public void SetProxy(string proxy, int timeout) => AdbCommand($"shell settings put global http_proxy {proxy}", timeout);
 
     public void SetProxy(string proxy) => AdbCommand($"shell settings put global http_proxy {proxy}", TimeoutDefault);
 
@@ -261,7 +261,7 @@ namespace TqkLibrary.Adb
       AdbCommand($"shell screencap -p \"{androidPath}\"");
       PullFile(androidPath, FilePath);
       DeleteFile(androidPath);
-      if(File.Exists(FilePath))
+      if (File.Exists(FilePath))
       {
         try
         {

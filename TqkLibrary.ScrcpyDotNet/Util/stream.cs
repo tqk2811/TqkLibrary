@@ -1,14 +1,11 @@
 ﻿using FFmpeg.AutoGen;
-using static FFmpeg.AutoGen.ffmpeg;
 using System;
-using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Drawing;
+using static FFmpeg.AutoGen.ffmpeg;
 
 namespace TqkLibrary.ScrcpyDotNet.Util
 {
@@ -39,7 +36,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     bool has_pending = false;
     AVPacket pending;
-    public stream(TcpClient client, int width, int height,int imageBufferLength)
+    public stream(TcpClient client, int width, int height, int imageBufferLength)
     {
       this.client = client;
       this.Width = width;
@@ -239,7 +236,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       {
         if (memoryStream?.CanWrite == true)
         {
-          if(packet->size <= buffer_h264.Length && memoryStream?.CanWrite == true)
+          if (packet->size <= buffer_h264.Length && memoryStream?.CanWrite == true)
           {
             Marshal.Copy(new IntPtr(packet->data), buffer_h264, 0, packet->size);
             memoryStream.Write(buffer_h264, 0, packet->size);
@@ -282,13 +279,27 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     readonly byte[] buffer_result;
     public Bitmap GetScreenShot()
     {
-      lock(lock_)
+      lock (lock_)
       {
-        if(length_Result > 0)
+        if (length_Result > 0)
         {
           MemoryStream memoryStream = new MemoryStream();
           memoryStream.Write(buffer_result, 0, length_Result);
           return (Bitmap)Bitmap.FromStream(memoryStream);
+        }
+        return null;
+      }
+    }
+
+    public byte[] GetScreenShotByteArray()
+    {
+      lock (lock_)
+      {
+        if (length_Result > 0)
+        {
+          byte[] tempbuff = new byte[length_Result];
+          Array.Copy(buffer_result, tempbuff, length_Result);
+          return tempbuff;
         }
         return null;
       }
@@ -301,14 +312,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     MemoryStream memoryStream;
     public MemoryStream InitVideoH264Stream()
     {
-      lock(lock_stream)
+      lock (lock_stream)
       {
         if (memoryStream == null)
         {
           memoryStream = new MemoryStream();
         }
         return memoryStream;
-      }      
+      }
     }
 
     public void StopStream()
@@ -322,6 +333,16 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         }
       }
     }
+
+    //public void InitStream(NetworkStream stream)
+    //{
+
+    //}
+
+    //public void UnInitStream()
+    //{
+
+    //}
 #endif
   }
 }

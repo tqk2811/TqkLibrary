@@ -14,10 +14,10 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       decoding_frame = av_frame_alloc();
       //rendering_frame = av_frame_alloc();
       codec_ctx = avcodec_alloc_context3(codec);
-      if (codec_ctx == null) 
+      if (codec_ctx == null)
         throw new Exception();
       int error = avcodec_open2(codec_ctx, codec, null);
-      if(error<0)
+      if (error < 0)
         throw new Exception();
     }
 

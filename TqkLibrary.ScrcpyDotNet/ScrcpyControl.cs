@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 namespace TqkLibrary.ScrcpyDotNet
 {
   public sealed class ScrcpyControl
@@ -22,20 +17,38 @@ namespace TqkLibrary.ScrcpyDotNet
     public void SendControl(ScrcpyControlMessage scrcpyControlMessage)
     {
       byte[] buffer = scrcpyControlMessage.GetCommand();
-      if(buffer != null)
+      if (buffer != null)
       {
-        lock(_controlStream)
+        lock (_controlStream)
         {
           _controlStream?.Write(buffer, 0, buffer.Length);
           _controlStream?.Flush();
-        }        
+        }
 #if DEBUG
         Console.WriteLine("Control:" + BitConverter.ToString(buffer).Replace("-", ""));
 #endif
       }
     }
 
-    public void Tap(int x,int y,int releaseDelay = 100)
+    public void SendControlBuffer(byte[] buffer)
+    {
+      lock (_controlStream)
+      {
+        _controlStream?.Write(buffer, 0, buffer.Length);
+        _controlStream?.Flush();
+      }
+    }
+
+    public void SendControlBuffer(byte[] buffer, int index, int size)
+    {
+      lock (_controlStream)
+      {
+        _controlStream?.Write(buffer, index, size);
+        _controlStream?.Flush();
+      }
+    }
+
+    public void Tap(int x, int y, int releaseDelay = 100)
     {
       long pointerId = random.Next(int.MinValue, int.MaxValue);
       SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
@@ -55,7 +68,7 @@ namespace TqkLibrary.ScrcpyDotNet
        AndroidMotionEventButton.BUTTON_PRIMARY));
     }
 
-    public void Key(AndroidKeyCode androidKeyCode,uint repeat = 1, int releaseDelay = 100)
+    public void Key(AndroidKeyCode androidKeyCode, uint repeat = 1, int releaseDelay = 100)
     {
       SendControl(ScrcpyControlMessage.CreateInjectKeycode(AndroidKeyEventAction.ACTION_DOWN, androidKeyCode, repeat, AndroidKeyEventMeta.META_NONE));
       Thread.Sleep(releaseDelay);
@@ -70,18 +83,18 @@ namespace TqkLibrary.ScrcpyDotNet
     }
 
     static readonly Random random = new Random();
-    public void Swipe(int x1,int y1, int x2,int y2,int duration = 100,int delay = 5)
+    public void Swipe(int x1, int y1, int x2, int y2, int duration = 100, int delay = 5)
     {
       long pointerId = random.Next(int.MinValue, int.MaxValue);
       SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
         AndroidMotionEventAction.ACTION_DOWN,
         pointerId,
-        new Rectangle() { X = x1, Y = y1, Width = Scrcpy.Width, Height = Scrcpy.Height}));
-      int times = duration / delay; 
+        new Rectangle() { X = x1, Y = y1, Width = Scrcpy.Width, Height = Scrcpy.Height }));
+      int times = duration / delay;
       int x = (x2 - x1) / times;
       int y = (y2 - y1) / times;
       for (int i = 0; i < times; i++)
-      {        
+      {
         SendControl(ScrcpyControlMessage.CreateInjectTouchEvent(
           AndroidMotionEventAction.ACTION_MOVE,
           pointerId,

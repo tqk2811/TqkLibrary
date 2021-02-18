@@ -1,9 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace TqkLibrary.Net.ProxysApi.TmProxyCom
@@ -11,13 +7,13 @@ namespace TqkLibrary.Net.ProxysApi.TmProxyCom
   public class TmProxyApi : BaseApi
   {
     const string EndPoint = "https://tmproxy.com/api/proxy/";
-    public TmProxyApi(string ApiKey): base(ApiKey)
+    public TmProxyApi(string ApiKey) : base(ApiKey)
     {
 
     }
 
     public Task<TMProxyResponse<TMProxyStatResponse>> Stats()
-      => RequestPost<TMProxyResponse<TMProxyStatResponse>>($"{EndPoint}stats",new StringContent(JsonConvert.SerializeObject(new { api_key = ApiKey })));
+      => RequestPost<TMProxyResponse<TMProxyStatResponse>>($"{EndPoint}stats", new StringContent(JsonConvert.SerializeObject(new { api_key = ApiKey })));
 
     public Task<TMProxyResponse<TMProxyProxyResponse>> GetCurrentProxy()
      => RequestPost<TMProxyResponse<TMProxyProxyResponse>>($"{EndPoint}get-current-proxy", new StringContent(JsonConvert.SerializeObject(new { api_key = ApiKey })));

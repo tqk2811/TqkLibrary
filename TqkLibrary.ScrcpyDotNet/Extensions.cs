@@ -1,9 +1,4 @@
-﻿using static FFmpeg.AutoGen.ffmpeg;
-using System.IO;
-using System.Linq;
-using FFmpeg.AutoGen;
-using System.Net.Sockets;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 //using TqkLibrary.ScrcpyDotNet.Util;
 
@@ -16,7 +11,7 @@ namespace TqkLibrary.ScrcpyDotNet
       if (error_code < 0) throw new ScrcpyException(error_code, message);
     }
 
-    [DllImport("Kernel32.dll",CharSet = CharSet.Auto)]
+    [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
     public extern static IntPtr AddDllDirectory(string NewDirectory);
 
     static bool IsLoad = false;

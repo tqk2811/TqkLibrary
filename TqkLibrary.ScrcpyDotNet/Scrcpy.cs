@@ -5,14 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FFmpeg.AutoGen;
 using TqkLibrary.ScrcpyDotNet.Util;
 //using TqkLibrary.ScrcpyDotNet.Util;
-using static FFmpeg.AutoGen.ffmpeg;
 namespace TqkLibrary.ScrcpyDotNet
 {
   public delegate void OnException(Exception ex);
@@ -51,7 +48,7 @@ namespace TqkLibrary.ScrcpyDotNet
           {
             scrcpyStream.IsRunning = value;
             _isRunning = value;
-          }          
+          }
         }
       }
     }
@@ -74,7 +71,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public void Start(int ImageBufferLength = 1024 * 1024)
     {
-      if(!IsRunning)
+      if (!IsRunning)
       {
         this.ImageBufferLength = ImageBufferLength;
         AutoResetEvent_Connect.Reset();
@@ -101,7 +98,42 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public Bitmap GetScreenShot() => scrcpyStream?.GetScreenShot();
 
+    public byte[] GetScreenShotByteArray() => scrcpyStream?.GetScreenShotByteArray();
 #if TestVideo
+
+    //TcpListener stream_server = null;
+    //int server_port;
+    //public string InitServerStream()
+    //{
+    //  if (stream_server == null)
+    //  {
+    //    while (true)
+    //    {
+    //      try
+    //      {
+    //        server_port = random.Next(10000, 55000);
+    //        stream_server = new TcpListener(IPAddress.Parse("127.0.0.1"), reversePort);
+    //        stream_server.Start();
+    //        break;
+    //      }
+    //      catch (Exception)
+    //      {
+
+    //      }
+    //    }
+    //    stream_server.BeginAcceptSocket()
+
+
+
+
+    //  }
+    //}
+
+    //public void StopServerStream()
+    //{
+
+    //}
+
     public MemoryStream InitVideoH264Stream() => scrcpyStream.InitVideoH264Stream();
 
     public void StopStream() => scrcpyStream.StopStream();
@@ -114,7 +146,7 @@ namespace TqkLibrary.ScrcpyDotNet
       TcpClient control_client = null;
       try
       {
-        while(true)
+        while (true)
         {
           try
           {
@@ -127,14 +159,14 @@ namespace TqkLibrary.ScrcpyDotNet
           {
 
           }
-        }        
+        }
         byte[] buffer = new byte[64];
         byte[] sizebuff = new byte[2];
 
         Task.Factory.StartNew(DeployServer, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
         using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(60000))
         {
-          using(cancellationTokenSource.Token.Register(() => server.Stop()))
+          using (cancellationTokenSource.Token.Register(() => server.Stop()))
           {
             video_client = server.AcceptTcpClient();
             control_client = server.AcceptTcpClient();
@@ -199,7 +231,7 @@ namespace TqkLibrary.ScrcpyDotNet
       string crop = "-";
       bool frame_meta = true;//required
       bool control = true;
-      int display_id_string = 0;      
+      int display_id_string = 0;
       string codec_options = "-";
       string encoder_name = "-";
 

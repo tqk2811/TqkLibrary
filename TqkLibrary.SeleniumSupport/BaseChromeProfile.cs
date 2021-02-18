@@ -69,9 +69,10 @@ namespace TqkLibrary.SeleniumSupport
     /// profile.password_manager_enabled false</para>
     /// </summary>
     /// <returns></returns>
-    protected virtual ChromeOptions DefaultChromeOptions()
+    protected virtual ChromeOptions DefaultChromeOptions(string BinaryLocation = null)
     {
       ChromeOptions options = new ChromeOptions();
+      if (!string.IsNullOrWhiteSpace(BinaryLocation)) options.BinaryLocation = BinaryLocation;
       options.AddArgument("--disable-notifications");
       options.AddArgument("--disable-web-security");
       options.AddArgument("--disable-blink-features");
@@ -110,7 +111,7 @@ namespace TqkLibrary.SeleniumSupport
       if (!IsOpenChrome)
       {
         tokenSource = new CancellationTokenSource();
-        cancellationTokenRegistration = cancellationToken.Register(() => { if (!tokenSource.IsCancellationRequested) tokenSource.Cancel(); });
+        cancellationTokenRegistration = cancellationToken.Register(() => { if (tokenSource?.IsCancellationRequested == false) tokenSource.Cancel(); });
         chromeDriver = new ChromeDriver(service, chromeOptions);
         StateChange?.Invoke(IsOpenChrome);
         return true;
@@ -163,7 +164,7 @@ namespace TqkLibrary.SeleniumSupport
 
     protected virtual void Delay(int min, int max)
     {
-      if(tokenSource != null) Task.Delay(rd.Next(min, max), tokenSource.Token);
+      if (tokenSource != null) Task.Delay(rd.Next(min, max), tokenSource.Token);
     }
 
     public virtual void SaveHtml(string path)
@@ -218,7 +219,7 @@ namespace TqkLibrary.SeleniumSupport
       {
         var eles = searchContext.FindElements(by);
         if (func(eles)) return eles;
-        if(tokenSource !=null) Task.Delay(delay, tokenSource.Token).Wait();
+        if (tokenSource != null) Task.Delay(delay, tokenSource.Token).Wait();
         else Task.Delay(delay, timeoutToken.Token).Wait();
 
         tokenSource?.Token.ThrowIfCancellationRequested();

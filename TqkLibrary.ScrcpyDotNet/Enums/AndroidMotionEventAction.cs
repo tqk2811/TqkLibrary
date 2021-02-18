@@ -5,8 +5,8 @@
   /// </summary>
   public enum AndroidMotionEventAction : byte
   {
-    ACTION_DOWN = 0, 
-    ACTION_UP = 1, 
+    ACTION_DOWN = 0,
+    ACTION_UP = 1,
     ACTION_MOVE = 2,
     ACTION_CANCEL = 3,
     ACTION_OUTSIDE = 4,

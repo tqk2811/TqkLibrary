@@ -12,7 +12,7 @@ namespace TqkLibrary.Adb
     public string StandardOutput { get; }
   }
 
-  public class AdbTimeoutException: Exception
+  public class AdbTimeoutException : Exception
   {
     public AdbTimeoutException()
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using System.Text;
 using System.Linq;
+using System.Text;
 namespace TqkLibrary.ScrcpyDotNet
 {
   /// <summary>
@@ -121,7 +121,7 @@ namespace TqkLibrary.ScrcpyDotNet
     /// <returns></returns>
     internal byte[] GetCommand()
     {
-      byte[] buffer = null;      
+      byte[] buffer = null;
       switch (ControlType)
       {
         case ScrcpyControlType.TYPE_INJECT_KEYCODE:

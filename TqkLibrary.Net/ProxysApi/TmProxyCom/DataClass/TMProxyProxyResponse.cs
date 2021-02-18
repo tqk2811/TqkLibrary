@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TqkLibrary.Net.ProxysApi.TmProxyCom
+﻿namespace TqkLibrary.Net.ProxysApi.TmProxyCom
 {
   public class TMProxyProxyResponse
   {

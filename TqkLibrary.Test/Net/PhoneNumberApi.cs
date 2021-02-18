@@ -1,7 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
-using TqkLibrary.Net.PhoneNumberApi.OtpSimCom;
 
 namespace TqkLibrary.Test.Net
 {
@@ -11,7 +8,7 @@ namespace TqkLibrary.Test.Net
     [TestMethod]
     public void TestMethod1()
     {
-      
+
     }
   }
 }

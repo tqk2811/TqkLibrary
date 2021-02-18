@@ -8,10 +8,10 @@ namespace TqkLibrary.ScrcpyDotNet.Util
   {
     AVPacket* rendering_packet;
     AVCodecContext* codec_ctx;
-    public encoder(AVCodec* codec,int width,int height)
+    public encoder(AVCodec* codec, int width, int height)
     {
       rendering_packet = av_packet_alloc();
-      codec_ctx = avcodec_alloc_context3(codec);      
+      codec_ctx = avcodec_alloc_context3(codec);
       if (codec_ctx == null)
         throw new Exception();
       codec_ctx->time_base.num = 1;

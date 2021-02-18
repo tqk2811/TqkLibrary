@@ -1,12 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
-using Emgu.CV.Util;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Images
 {
@@ -28,7 +23,7 @@ namespace TqkLibrary.Media.Images
         double[] minValues, maxValues;
         System.Drawing.Point[] minLocations, maxLocations;
         result.MinMax(out minValues, out maxValues, out minLocations, out maxLocations);
-        
+
         double currentMax = 0;
         for (int i = 0; i < maxValues.Length; i++)
         {
@@ -42,7 +37,7 @@ namespace TqkLibrary.Media.Images
       return resPoint;
     }
 
-    public static Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap,Rectangle crop, double percent = 0.9)
+    public static Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle crop, double percent = 0.9)
     {
       if (subBitmap == null || mainBitmap == null)
         return null;
@@ -51,7 +46,7 @@ namespace TqkLibrary.Media.Images
 
       using Bitmap bm_crop = mainBitmap.CropImage(crop);
       Point? point = FindOutPoint(bm_crop, subBitmap, percent);
-      if(point != null)
+      if (point != null)
       {
         Point subpoint = point.Value;
         subpoint.X += crop.X;
@@ -61,9 +56,9 @@ namespace TqkLibrary.Media.Images
       return point;
     }
 
-    public static Point? FindOutPoint(Bitmap mainBitmap,double percent = 0.9, params Bitmap[] subBitmaps)
+    public static Point? FindOutPoint(Bitmap mainBitmap, double percent = 0.9, params Bitmap[] subBitmaps)
     {
-      foreach(var subBitmap in subBitmaps)
+      foreach (var subBitmap in subBitmaps)
       {
         Point? point = FindOutPoint(mainBitmap, subBitmap, percent);
         if (point != null) return point;
@@ -86,7 +81,7 @@ namespace TqkLibrary.Media.Images
         return resPoint;
 
       using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
-      using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();      
+      using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
       while (true)
       {
         using (Image<Gray, float> result = source.MatchTemplate(template, Emgu.CV.CvEnum.TemplateMatchingType.CcoeffNormed))
@@ -111,7 +106,7 @@ namespace TqkLibrary.Media.Images
     {
       using Bitmap bm_crop = mainBitmap.CropImage(crop);
       List<Point> points = FindOutPoints(bm_crop, subBitmap, percent);
-      for(int i = 0; i < points.Count; i++)
+      for (int i = 0; i < points.Count; i++)
       {
         Point temp = points[i];
         temp.X += crop.X;
@@ -123,7 +118,7 @@ namespace TqkLibrary.Media.Images
 
     public static Bitmap CropNonTransparent(Bitmap bitmap)
     {
-      using Image<Bgra,byte> imageIn = bitmap.ToImage<Bgra, byte>();
+      using Image<Bgra, byte> imageIn = bitmap.ToImage<Bgra, byte>();
       using Mat mat = new Mat(/*imageIn.Size, Emgu.CV.CvEnum.DepthType.Cv8U, 1*/);
       CvInvoke.FindNonZero(imageIn, mat);
       return mat.ToBitmap();

@@ -1,14 +1,31 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Threading;
+
+/* Unmerged change from project 'TqkLibrary.Net (net48)'
+Before:
+using System.Threading;
+After:
+using System.Threading.Tasks;
+*/
 namespace TqkLibrary.Net
 {
   public abstract class BaseApi
   {
+
+/* Unmerged change from project 'TqkLibrary.Net (net48)'
+Before:
     protected readonly string ApiKey;
     
+    internal BaseApi(string ApiKey)
+After:
+    protected readonly string ApiKey;
+
+    internal BaseApi(string ApiKey)
+*/
+    protected readonly string ApiKey;
+
     internal BaseApi(string ApiKey)
     {
       if (string.IsNullOrEmpty(ApiKey)) throw new ArgumentNullException(nameof(ApiKey));
@@ -36,6 +53,6 @@ namespace TqkLibrary.Net
       return JsonConvert.DeserializeObject<T>(await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStringAsync().ConfigureAwait(false));
     }
 
-    
+
   }
 }

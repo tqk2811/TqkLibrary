@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using TqkLibrary.Adb;
 namespace TqkLibrary.Test.Adb
 {

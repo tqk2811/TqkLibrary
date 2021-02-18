@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TqkLibrary.Net.Captcha.CapMonsterCloud
+﻿namespace TqkLibrary.Net.Captcha.CapMonsterCloud
 {
   internal class CapMonsterApi : BaseApi
   {

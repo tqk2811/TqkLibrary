@@ -8,7 +8,7 @@ using System.Windows.Threading;
 
 namespace TqkLibrary.Queues.TaskQueues
 {
-  public interface IQueue
+  public interface IQueue : IDisposable
   {
     bool IsPrioritize { get; }
     bool ReQueue { get; }
@@ -116,14 +116,16 @@ namespace TqkLibrary.Queues.TaskQueues
         if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, queue);
         else OnQueueComplete.Invoke(result, queue);
       }
-      if (queue is IDisposable disposable)
+
+      if (!queue.ReQueue)
       {
         try
         {
-          disposable.Dispose();
+          queue.Dispose();
         }
         catch (Exception) { }
       }
+
       RunNewQueue();
     }
 
@@ -175,7 +177,11 @@ namespace TqkLibrary.Queues.TaskQueues
     public void ShutDown()
     {
       MaxRun = 0;
-      lock (Queues) Queues.Clear();
+      lock (Queues)
+      {
+        Queues.ForEach(o => o.Dispose());
+        Queues.Clear();
+      }
       lock (Runnings) Runnings.ForEach(o => o.Cancel());
     }
 

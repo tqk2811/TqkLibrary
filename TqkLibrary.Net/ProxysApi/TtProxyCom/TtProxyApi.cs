@@ -1,20 +1,33 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.
+/* Unmerged change from project 'TqkLibrary.Net (net48)'
+Before:
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Web;
 using System.Net.Http;
+After:
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Cryptography;
+using System.Web;
+*/
+Net.Http;
+using System.Security.Tasks;
+using System.Threading.Tasks;
 
 namespace TqkLibrary.Net.ProxysApi.TtProxyCom
 {
-  public class TtProxyApi: BaseApi
+  public class TtProxyApi : BaseApi
   {
     const string EndPoint = "https://api.ttproxy.com/v1/";
     readonly string secret;
-    public TtProxyApi(string license, string secret): base(license)
+    public TtProxyApi(string license, string secret) : base(license)
     {
       if (string.IsNullOrEmpty(secret)) throw new ArgumentNullException(nameof(secret));
       this.secret = secret;
@@ -30,7 +43,7 @@ namespace TqkLibrary.Net.ProxysApi.TtProxyCom
         byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(sign);
         byte[] hashBytes = md5.ComputeHash(inputBytes);
         sign_md5 = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-      }      
+      }
       return $"license={ApiKey}&time={unix}&sign={sign_md5}";
     }
 

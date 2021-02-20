@@ -113,7 +113,7 @@ namespace TqkLibrary.Queues.TaskQueues
       if (queue.ReQueue) lock (Queues) Queues.Add(queue);
       if (OnQueueComplete != null)
       {
-        if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, queue);
+        if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, new object[] { result, queue });
         else OnQueueComplete.Invoke(result, queue);
       }
 

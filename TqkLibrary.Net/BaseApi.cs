@@ -2,6 +2,7 @@
 using System;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 
 /* Unmerged change from project 'TqkLibrary.Net (net48)'
 Before:

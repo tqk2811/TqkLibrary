@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 namespace TqkLibrary.ScrcpyDotNet

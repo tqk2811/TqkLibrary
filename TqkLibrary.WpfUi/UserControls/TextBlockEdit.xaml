@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="TqkLibrary.WpfUi.UserControls.TextBlockEdit"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TqkLibrary.WpfUi.UserControls"
+             xmlns:Converters="clr-namespace:TqkLibrary.WpfUi.Converters"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             MinHeight="16" Height="2.625" 
+             Width="60" MaxHeight="22"
+             x:Name="root" 
+             Focusable="True"
+             Loaded="root_Loaded"
+             d:DesignWidth="60">
+    <UserControl.Resources>
+        <Converters:BooleanFalseToHiddenConverter x:Key="TrueToVisibleConverter"/>
+        <Converters:BooleanFalseToHiddenConverter x:Key="FalseToVisibleConverter" IsReversed="True"/>
+    </UserControl.Resources>
+    <StackPanel Orientation="Vertical">
+        <StackPanel.Style>
+            <Style TargetType="StackPanel">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsEditing,RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                        <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=tb_name}"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </StackPanel.Style>
+        <TextBlock Text="{Binding Text,RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                   Visibility="{Binding IsEditing,RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource FalseToVisibleConverter}}"/>
+        
+        <TextBox x:Name="tb_name" Text="{Binding Text,RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                 Visibility="{Binding IsEditing,RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource TrueToVisibleConverter}}"
+                 GotFocus="tb_name_GotFocus" LostFocus="tb_name_LostFocus" KeyDown="tb_name_KeyDown"/>
+    </StackPanel>
+</UserControl>

@@ -9,6 +9,7 @@
   <ItemGroup>
     <None Remove="UserControls\NumericUpDown.xaml" />
     <None Remove="UserControls\NumericUpDownText.xaml" />
+    <None Remove="UserControls\TextBlockEdit.xaml" />
     <None Remove="Windows\OauthWindow.xaml" />
   </ItemGroup>
 
@@ -19,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Include="UserControls\TextBlockEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\NumericUpDownText.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

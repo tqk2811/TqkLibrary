@@ -249,7 +249,7 @@ namespace TqkLibrary.Adb
 
     public void ClearProxy() => AdbCommand("shell settings put global http_proxy :0");
 
-    public Bitmap ScreenShot(string FilePath = null)
+    public Bitmap ScreenShot(string FilePath = null, bool deleteInAndroid = true)
     {
       bool IsDelete = false;
       if (string.IsNullOrEmpty(FilePath))
@@ -260,7 +260,7 @@ namespace TqkLibrary.Adb
       string androidPath = $"/sdcard/{Guid.NewGuid()}.png";
       AdbCommand($"shell screencap -p \"{androidPath}\"");
       PullFile(androidPath, FilePath);
-      DeleteFile(androidPath);
+      if(deleteInAndroid) DeleteFile(androidPath);
       if (File.Exists(FilePath))
       {
         try

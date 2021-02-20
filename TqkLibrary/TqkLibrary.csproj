@@ -11,7 +11,6 @@
     <ProjectReference Include="..\TqkLibrary.Media\TqkLibrary.Media.csproj" />
     <ProjectReference Include="..\TqkLibrary.Net\TqkLibrary.Net.csproj" />
     <ProjectReference Include="..\TqkLibrary.Queues\TqkLibrary.Queues.csproj" />
-    <ProjectReference Include="..\TqkLibrary.ScrcpyCapture\TqkLibrary.ScrcpyCapture.csproj" />
     <ProjectReference Include="..\TqkLibrary.ScrcpyDotNet\TqkLibrary.ScrcpyDotNet.csproj" />
     <ProjectReference Include="..\TqkLibrary.SeleniumSupport\TqkLibrary.SeleniumSupport.csproj" />
     <ProjectReference Include="..\TqkLibrary.SqlDataHelper\TqkLibrary.SqlDataHelper.csproj" />

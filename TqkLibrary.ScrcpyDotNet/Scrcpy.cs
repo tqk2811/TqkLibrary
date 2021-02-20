@@ -55,7 +55,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     AutoResetEvent AutoResetEvent_Connect = new AutoResetEvent(false);
     AutoResetEvent AutoResetEvent_FirstFrame = new AutoResetEvent(false);
-    stream scrcpyStream;
+    stream_in scrcpyStream;
     int ImageBufferLength = 1024 * 1024;
     public Scrcpy(string deviceId = null, string adbPath = null)
     {
@@ -66,7 +66,6 @@ namespace TqkLibrary.ScrcpyDotNet
         else Scrcpy.adbPath = adbPath;
       }
       Control = new ScrcpyControl(this);
-      //Extensions.LoadDll();
     }
 
     public void Start(int ImageBufferLength = 1024 * 1024)
@@ -81,15 +80,9 @@ namespace TqkLibrary.ScrcpyDotNet
       }
     }
 
-    public bool WaitForConnect(int timeout = 10000)
-    {
-      return AutoResetEvent_Connect.WaitOne(timeout);
-    }
+    public bool WaitForConnect(int timeout = 10000) => AutoResetEvent_Connect.WaitOne(timeout);
 
-    public bool WaitForFirstFrame(int timeout = 10000)
-    {
-      return AutoResetEvent_FirstFrame.WaitOne(timeout);
-    }
+    public bool WaitForFirstFrame(int timeout = 10000) => AutoResetEvent_FirstFrame.WaitOne(timeout);
 
     public void Stop()
     {
@@ -99,44 +92,13 @@ namespace TqkLibrary.ScrcpyDotNet
     public Bitmap GetScreenShot() => scrcpyStream?.GetScreenShot();
 
     public byte[] GetScreenShotByteArray() => scrcpyStream?.GetScreenShotByteArray();
+
 #if TestVideo
 
-    //TcpListener stream_server = null;
-    //int server_port;
-    //public string InitServerStream()
-    //{
-    //  if (stream_server == null)
-    //  {
-    //    while (true)
-    //    {
-    //      try
-    //      {
-    //        server_port = random.Next(10000, 55000);
-    //        stream_server = new TcpListener(IPAddress.Parse("127.0.0.1"), reversePort);
-    //        stream_server.Start();
-    //        break;
-    //      }
-    //      catch (Exception)
-    //      {
-
-    //      }
-    //    }
-    //    stream_server.BeginAcceptSocket()
-
-
-
-
-    //  }
-    //}
-
-    //public void StopServerStream()
-    //{
-
-    //}
-
-    public MemoryStream InitVideoH264Stream() => scrcpyStream.InitVideoH264Stream();
+    public string InitVideoH264Stream() => scrcpyStream.InitVideoH264Stream();
 
     public void StopStream() => scrcpyStream.StopStream();
+
 #endif
 
     void InitServerConnection()
@@ -187,7 +149,7 @@ namespace TqkLibrary.ScrcpyDotNet
         Control._controlStream = control_client.GetStream();
 
         AutoResetEvent_Connect.Set();
-        using (scrcpyStream = new stream(video_client, Width, Height, ImageBufferLength))
+        using (scrcpyStream = new stream_in(video_client, Width, Height, ImageBufferLength))
         {
           scrcpyStream.stopCallback += ScrcpyStream_stopCallback;
           scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();

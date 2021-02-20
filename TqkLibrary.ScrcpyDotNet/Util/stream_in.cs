@@ -11,7 +11,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 {
   internal delegate void StopCallback(bool byUser);
   internal delegate void FirstFrameTrigger();
-  internal unsafe class stream : IDisposable
+  internal unsafe class stream_in : IDisposable
   {
     public event FirstFrameTrigger firstFrameTrigger;
     public event StopCallback stopCallback;
@@ -36,15 +36,12 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     bool has_pending = false;
     AVPacket pending;
-    public stream(TcpClient client, int width, int height, int imageBufferLength)
+    public stream_in(TcpClient client, int width, int height, int imageBufferLength)
     {
       this.client = client;
       this.Width = width;
       this.Height = height;
       buffer_result = new byte[imageBufferLength];
-#if TestVideo
-      buffer_h264 = new byte[imageBufferLength];
-#endif
       //av_register_all();
       avformat_network_init();
 
@@ -73,9 +70,6 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       fixed (AVCodecContext** f = &h264_codec_ctx) avcodec_free_context(f);
       decoder?.Dispose();
       encoder?.Dispose();
-#if TestVideo
-      memoryStream?.Dispose();
-#endif
     }
 
     public void RunStream()
@@ -231,20 +225,6 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     void process_frame(AVPacket* packet)
     {
-#if TestVideo
-      lock (lock_stream)
-      {
-        if (memoryStream?.CanWrite == true)
-        {
-          if (packet->size <= buffer_h264.Length && memoryStream?.CanWrite == true)
-          {
-            Marshal.Copy(new IntPtr(packet->data), buffer_h264, 0, packet->size);
-            memoryStream.Write(buffer_h264, 0, packet->size);
-          }
-        }
-      }
-#endif
-
       AVFrame* decode_frame = decoder.decoder_push(packet);
       if (decode_frame == null)
       {
@@ -258,6 +238,15 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         Console.WriteLine("encoder mjpeg failed");
         return;
       }
+#if TestVideo
+      lock (lock_stream)
+      {
+        if (streamOut != null)
+        {
+          streamOut.WriteVideoFrame(packet);
+        }
+      }
+#endif
 
       lock (lock_)
       {
@@ -306,19 +295,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     }
 
 #if TestVideo
-    int length_h264 = 0;
-    readonly byte[] buffer_h264;
     readonly object lock_stream = new object();
-    MemoryStream memoryStream;
-    public MemoryStream InitVideoH264Stream()
+    stream_out streamOut;
+    public string InitVideoH264Stream()
     {
-      lock (lock_stream)
+      lock(lock_stream)
       {
-        if (memoryStream == null)
-        {
-          memoryStream = new MemoryStream();
-        }
-        return memoryStream;
+        if (streamOut == null) streamOut = new stream_out(Width, Height);
+        return streamOut.StreamUri;
       }
     }
 
@@ -326,13 +310,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     {
       lock (lock_stream)
       {
-        if (memoryStream != null)
-        {
-          memoryStream.Dispose();
-          memoryStream = null;
-        }
+        streamOut.Dispose();
+        streamOut = null;
       }
     }
+
+
+
+
 
     //public void InitStream(NetworkStream stream)
     //{

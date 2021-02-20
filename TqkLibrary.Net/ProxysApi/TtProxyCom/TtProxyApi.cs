@@ -1,24 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.
-/* Unmerged change from project 'TqkLibrary.Net (net48)'
-Before:
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Security.Cryptography;
-using System.Web;
-using System.Net.Http;
-After:
 using System.Net.Http;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Cryptography;
-using System.Web;
-*/
-Net.Http;
-using System.Security.Tasks;
 using System.Threading.Tasks;
 
 namespace TqkLibrary.Net.ProxysApi.TtProxyCom

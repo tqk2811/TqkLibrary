@@ -95,9 +95,9 @@ namespace TqkLibrary.ScrcpyDotNet
 
 #if TestVideo
 
-    public string InitVideoH264Stream() => scrcpyStream.InitVideoH264Stream();
+    public string InitVideoH264Stream() => scrcpyStream?.InitVideoH264Stream();
 
-    public void StopStream() => scrcpyStream.StopStream();
+    public void StopStream() => scrcpyStream?.StopStream();
 
 #endif
 

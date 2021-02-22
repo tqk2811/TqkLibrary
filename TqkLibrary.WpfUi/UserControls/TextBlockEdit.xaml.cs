@@ -44,7 +44,8 @@ namespace TqkLibrary.WpfUi.UserControls
     private void root_Loaded(object sender, RoutedEventArgs e)
     {
       Window window = Window.GetWindow(this);
-      window.MouseDown += Window_MouseDown;
+      if(window != null) //fix design
+        window.MouseDown += Window_MouseDown;
     }
 
     private void Window_MouseDown(object sender, MouseButtonEventArgs e)

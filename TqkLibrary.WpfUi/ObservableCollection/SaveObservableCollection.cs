@@ -30,7 +30,10 @@ namespace TqkLibrary.WpfUi
 
     private void Timer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      using (StreamWriter sw = new StreamWriter(SavePath, false)) sw.Write(JsonConvert.SerializeObject(this.Select(x => x.Data).ToList()));
+      lock(timer)
+      {
+        using (StreamWriter sw = new StreamWriter(SavePath, false)) sw.Write(JsonConvert.SerializeObject(this.Select(x => x.Data).ToList()));
+      }
     }
 
     public void Save()
@@ -40,6 +43,16 @@ namespace TqkLibrary.WpfUi
         timer.Stop();
         timer.Start();
       }
+    }
+
+    public void ForceSave()
+    {
+      timer.Stop();
+      try
+      {
+        Timer_Elapsed(null, null);
+      }
+      catch (Exception) { }
     }
 
     public void Load(Func<T2, T1> func)//Func - Action - Predicate - ....

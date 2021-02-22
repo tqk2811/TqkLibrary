@@ -6,9 +6,8 @@
              xmlns:local="clr-namespace:TqkLibrary.WpfUi.UserControls"
              xmlns:Converters="clr-namespace:TqkLibrary.WpfUi.Converters"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             mc:Ignorable="d"
-             MinHeight="16" Height="2.625" 
-             Width="60" MaxHeight="22"
+             mc:Ignorable="d"             
+             Height="auto" Width="auto"
              x:Name="root" 
              Focusable="True"
              Loaded="root_Loaded"
@@ -17,21 +16,21 @@
         <Converters:BooleanFalseToHiddenConverter x:Key="TrueToVisibleConverter"/>
         <Converters:BooleanFalseToHiddenConverter x:Key="FalseToVisibleConverter" IsReversed="True"/>
     </UserControl.Resources>
-    <StackPanel Orientation="Vertical">
-        <StackPanel.Style>
-            <Style TargetType="StackPanel">
+    <Grid>
+        <Grid.Style>
+            <Style TargetType="Grid">
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsEditing,RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
                         <Setter Property="FocusManager.FocusedElement" Value="{Binding ElementName=tb_name}"/>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
-        </StackPanel.Style>
+        </Grid.Style>
         <TextBlock Text="{Binding Text,RelativeSource={RelativeSource AncestorType=UserControl}}" 
                    Visibility="{Binding IsEditing,RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource FalseToVisibleConverter}}"/>
         
         <TextBox x:Name="tb_name" Text="{Binding Text,RelativeSource={RelativeSource AncestorType=UserControl}}" 
                  Visibility="{Binding IsEditing,RelativeSource={RelativeSource AncestorType=UserControl},Converter={StaticResource TrueToVisibleConverter}}"
                  GotFocus="tb_name_GotFocus" LostFocus="tb_name_LostFocus" KeyDown="tb_name_KeyDown"/>
-    </StackPanel>
+    </Grid>
 </UserControl>

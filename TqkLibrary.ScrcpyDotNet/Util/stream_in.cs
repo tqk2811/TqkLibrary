@@ -42,7 +42,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       this.Width = width;
       this.Height = height;
       buffer_result = new byte[imageBufferLength];
-      //av_register_all();
+      av_register_all();
       avformat_network_init();
 
       h264_codec = avcodec_find_decoder(AVCodecID.AV_CODEC_ID_H264);

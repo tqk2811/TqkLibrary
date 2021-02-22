@@ -17,17 +17,22 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     int port = 0;
     public string StreamUri { get; private set; }
 
-    AVCodec* h264_encode_codec;
+    AVCodec* out_codec;
+    AVStream* out_stream;
     public stream_out(int width, int height, int bitrate = 40000)
     {
-      h264_encode_codec = avcodec_find_encoder(AVCodecID.AV_CODEC_ID_H264);
+      out_codec = avcodec_find_encoder(AVCodecID.AV_CODEC_ID_H264);
+      //out_stream = avformat_new_stream(ofmt_ctx, out_codec);
+      //out_codec_ctx = avcodec_alloc_context3(out_codec);
 
-      InitOutputStream(h264_encode_codec);
+
+
+      InitOutputStream();
       Console.WriteLine("InitOutputStream");
 
       if (fmt->video_codec != AVCodecID.AV_CODEC_ID_NONE)
       {
-        AddVideoToStream(h264_encode_codec, width, height, bitrate);
+        AddVideoToStream(out_codec, width, height, bitrate);
         Console.WriteLine("AddVideoToStream");
       }
 
@@ -52,7 +57,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     AVFormatContext* oc;
     AVOutputFormat* fmt;
-    void InitOutputStream(AVCodec* codec)
+    void InitOutputStream()
     {
       TcpListener server = null;
       while (true)
@@ -70,7 +75,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         }
       }
       server.Stop();
-      StreamUri = $"rtsp://127.0.0.1:{port}/live.sdp";
+      StreamUri = $"rtmp://127.0.0.1:{port}/live.sdp";
 
       int ret;
       fixed (AVFormatContext** f = &oc)
@@ -104,6 +109,8 @@ namespace TqkLibrary.ScrcpyDotNet.Util
             c->bit_rate = bitrate;
             c->width = width;
             c->height = height;
+            c->codec_id = AVCodecID.AV_CODEC_ID_H264;
+            c->codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO;
             //c->time_base.den = 30;
             //c->time_base.num = 1;
             //stream_codecCtx->gop_size = 12;//emit one intra frame every twelve frames at most

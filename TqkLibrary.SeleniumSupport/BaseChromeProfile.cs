@@ -164,7 +164,7 @@ namespace TqkLibrary.SeleniumSupport
 
     protected virtual void Delay(int min, int max)
     {
-      if (tokenSource != null) Task.Delay(rd.Next(min, max), tokenSource.Token);
+      Task.Delay(rd.Next(min, max), tokenSource.Token).Wait();
     }
 
     public virtual void SaveHtml(string path)

@@ -20,7 +20,7 @@ namespace TqkLibrary.WpfUi.UserControls
       nameof(Text),
       typeof(string),
       typeof(TextBlockEdit),
-      new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+      new FrameworkPropertyMetadata("TextBlockEdit", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
 
     public bool IsEditing

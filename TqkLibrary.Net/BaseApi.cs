@@ -3,28 +3,10 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-
-/* Unmerged change from project 'TqkLibrary.Net (net48)'
-Before:
-using System.Threading;
-After:
-using System.Threading.Tasks;
-*/
 namespace TqkLibrary.Net
 {
   public abstract class BaseApi
   {
-
-/* Unmerged change from project 'TqkLibrary.Net (net48)'
-Before:
-    protected readonly string ApiKey;
-    
-    internal BaseApi(string ApiKey)
-After:
-    protected readonly string ApiKey;
-
-    internal BaseApi(string ApiKey)
-*/
     protected readonly string ApiKey;
 
     internal BaseApi(string ApiKey)

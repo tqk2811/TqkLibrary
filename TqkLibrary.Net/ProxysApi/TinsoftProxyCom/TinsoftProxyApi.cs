@@ -21,5 +21,8 @@ namespace TqkLibrary.Net.ProxysApi.TinsoftProxyCom
 
     public Task<KeyInfo> DeleteKey()
       => RequestGet<KeyInfo>(string.Format(EndPoint + "/deleteKey.php?key={0}", ApiKey));
+
+    public Task<LocationResult> GetLocations()
+      => RequestGet<LocationResult>(EndPoint + "/getLocations.php");
   }
 }

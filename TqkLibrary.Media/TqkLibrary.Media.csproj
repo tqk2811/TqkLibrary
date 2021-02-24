@@ -7,29 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="x64\" />
-    <Folder Include="x86\" />
     <Folder Include="Videos\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\..\lib\emgu.cv.runtime.windows.4.5.1.4349\runtimes\win-x64\native\cvextern.dll" Link="x64\cvextern.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\lib\emgu.cv.runtime.windows.4.5.1.4349\runtimes\win-x64\native\opencv_videoio_ffmpeg451_64.dll" Link="x64\opencv_videoio_ffmpeg451_64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\lib\emgu.cv.runtime.windows.4.5.1.4349\runtimes\win-x86\native\cvextern.dll" Link="x86\cvextern.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\lib\emgu.cv.runtime.windows.4.5.1.4349\runtimes\win-x86\native\opencv_videoio_ffmpeg451.dll" Link="x86\opencv_videoio_ffmpeg451.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Emgu.CV" Version="4.5.1.4349" />
-    <PackageReference Include="Emgu.CV.Bitmap" Version="4.5.1.4349" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 

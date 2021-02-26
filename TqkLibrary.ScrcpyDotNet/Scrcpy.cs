@@ -159,13 +159,19 @@ namespace TqkLibrary.ScrcpyDotNet
       }
       finally
       {
-        _isRunning = false;
-        scrcpyStream = null;
-        Control._controlStream = null;
-        control_client?.Dispose();
-        video_client?.Dispose();
-        server?.Stop();
-        AdbCommand("reverse --remove localabstract:scrcpy");
+        try
+        {
+          scrcpyStream = null;
+          Control._controlStream = null;
+          control_client?.Dispose();
+          video_client?.Dispose();
+          server?.Stop();
+          AdbCommand("reverse --remove localabstract:scrcpy");
+        }
+        finally
+        {
+          _isRunning = false;
+        }
       }
     }
 

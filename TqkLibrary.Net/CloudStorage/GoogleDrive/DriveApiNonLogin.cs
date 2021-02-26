@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -15,7 +16,7 @@ namespace TqkLibrary.Net.CloudStorage.GoogleDrive
     /// <param name="save"></param>
     /// <exception cref="HttpRequestException"></exception>
     /// <returns></returns>
-    public static async Task Download(string fileId, Stream save) => await Download(fileId, save, CancellationToken.None).ConfigureAwait(false);
+    public static async Task Download(string fileId, Dictionary<string, string> cookies, Stream save) => await Download(fileId, cookies, save, CancellationToken.None).ConfigureAwait(false);
 
     /// <summary>
     ///
@@ -25,11 +26,27 @@ namespace TqkLibrary.Net.CloudStorage.GoogleDrive
     /// <param name="cancellationToken"></param>
     /// <exception cref="HttpRequestException"></exception>
     /// <returns></returns>
-    public static async Task Download(string fileId, Stream save, CancellationToken cancellationToken)
+    public static async Task Download(string fileId, Dictionary<string, string> cookies, Stream save, CancellationToken cancellationToken)
     {
       using HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, $"https://docs.google.com/uc?id={fileId}");
+      httpRequestMessage.Headers.Add("Cookie", cookies.GetCookiesString());
       using HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-      await (await httpResponseMessage.EnsureSuccessStatusCode().Content.ReadAsStreamAsync().ConfigureAwait(false)).CopyToAsync(save, 81920, cancellationToken).ConfigureAwait(false);
+      if (httpResponseMessage.EnsureSuccessStatusCode().Content.Headers.ContentType.MediaType.Contains("application"))
+      {
+        await (await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false)).CopyToAsync(save, 81920, cancellationToken).ConfigureAwait(false);
+        return;
+      }
+
+      using HttpRequestMessage httpRequestMessage2 = new HttpRequestMessage(HttpMethod.Get, $"https://docs.google.com/uc?confirm=abeQ?id={fileId}");
+      httpRequestMessage2.Headers.Add("Cookie", cookies.GetCookiesString());
+      using HttpResponseMessage httpResponseMessage2 = await NetExtensions.httpClient.SendAsync(httpRequestMessage2, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+      if (httpResponseMessage2.EnsureSuccessStatusCode().Content.Headers.ContentType.MediaType.Equals("application/octet-stream"))
+      {
+        await (await httpResponseMessage2.Content.ReadAsStreamAsync().ConfigureAwait(false)).CopyToAsync(save, 81920, cancellationToken).ConfigureAwait(false);
+        return;
+      }
+
+      throw new Exception("Download Failed");
     }
 
     //https://clients6.google.com/drive/v2beta/files?openDrive=false&reason=102&syncType=0&errorRecovery=false&q=trashed%20%3D%20false%20and%20

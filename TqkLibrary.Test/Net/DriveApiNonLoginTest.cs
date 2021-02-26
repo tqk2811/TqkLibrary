@@ -11,8 +11,8 @@ namespace TqkLibrary.Test.Net
     [TestMethod]
     public void TestDownload()
     {
-      using FileStream fileStream = new FileStream("D:\\file.rar", FileMode.Create, FileAccess.Write, FileShare.Read);
-      DriveApiNonLogin.Download("1d_EhjSXQqFWFTtDi-vxbGI16XcNhXPI5", fileStream).Wait();
+      //using FileStream fileStream = new FileStream("D:\\file.rar", FileMode.Create, FileAccess.Write, FileShare.Read);
+      //DriveApiNonLogin.Download("1d_EhjSXQqFWFTtDi-vxbGI16XcNhXPI5", fileStream).Wait();
     }
 
     [TestMethod]

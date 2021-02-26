@@ -9,14 +9,19 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Timers;
 
-namespace TqkLibrary.WpfUi
+namespace TqkLibrary.WpfUi.ObservableCollection
 {
-  public class SaveObservableCollection<T1, T2> : ObservableCollection<T1>
-    where T2 : class
-    where T1 : class, IViewModel<T2>
+  public class SaveObservableCollection<TData, TViewModel> : ObservableCollection<TViewModel>
+    where TData : class
+    where TViewModel : class, IViewModel<TData>
   {
     public string SavePath { get; set; }
     public bool IsAutoSave { get; set; } = true;
+    public double Interval
+    {
+      get{ return timer.Interval; }
+      set { timer.Interval = value; }
+    }
 
     private readonly Timer timer;
     private bool IsLoaded = false;
@@ -55,20 +60,20 @@ namespace TqkLibrary.WpfUi
       catch (Exception) { }
     }
 
-    public void Load(Func<T2, T1> func)//Func - Action - Predicate - ....
+    public void Load(Func<TData, TViewModel> func)//Func - Action - Predicate - ....
     {
       if (func == null) throw new ArgumentNullException(nameof(func));
 
       IsLoaded = false;
       this.Clear();
-      List<T2> t2s = new List<T2>();
+      List<TData> t2s = new List<TData>();
       if (File.Exists(SavePath))
       {
         try
         {
           using (StreamReader sr = new StreamReader(SavePath))
           {
-            List<T2> list = JsonConvert.DeserializeObject<List<T2>>(sr.ReadToEnd());
+            List<TData> list = JsonConvert.DeserializeObject<List<TData>>(sr.ReadToEnd());
             t2s.AddRange(list);
           }
         }
@@ -78,7 +83,7 @@ namespace TqkLibrary.WpfUi
       IsLoaded = true;
     }
 
-    public void Load(string SavePath, Func<T2, T1> func)
+    public void Load(string SavePath, Func<TData, TViewModel> func)
     {
       this.SavePath = SavePath;
       Load(func);
@@ -86,28 +91,28 @@ namespace TqkLibrary.WpfUi
 
     #region ObservableCollection
 
-    protected override void InsertItem(int index, T1 item)
+    protected override void InsertItem(int index, TViewModel item)
     {
-      item.Change += Item_Change;
+      item.Change += ItemData_Change;
       base.InsertItem(index, item);
     }
 
     protected override void ClearItems()
     {
-      foreach (var item in this) item.Change -= Item_Change;
+      foreach (var item in this) item.Change -= ItemData_Change;
       base.ClearItems();
     }
 
     protected override void RemoveItem(int index)
     {
-      this[index].Change -= Item_Change;
+      this[index].Change -= ItemData_Change;
       base.RemoveItem(index);
     }
 
-    protected override void SetItem(int index, T1 item)
+    protected override void SetItem(int index, TViewModel item)
     {
-      this[index].Change -= Item_Change;
-      item.Change += Item_Change;
+      this[index].Change -= ItemData_Change;
+      item.Change += ItemData_Change;
       base.SetItem(index, item);
     }
 
@@ -119,7 +124,7 @@ namespace TqkLibrary.WpfUi
 
     #endregion ObservableCollection
 
-    private void Item_Change(object obj, T2 data)
+    private void ItemData_Change(object obj, TData data)
     {
       if (IsAutoSave) Save();
     }
@@ -128,14 +133,5 @@ namespace TqkLibrary.WpfUi
     {
       OnPropertyChanged(new PropertyChangedEventArgs(name));
     }
-  }
-
-  public delegate void ChangeCallBack<T>(object obj, T data);
-
-  public interface IViewModel<T> where T : class
-  {
-    T Data { get; }
-
-    event ChangeCallBack<T> Change;
   }
 }

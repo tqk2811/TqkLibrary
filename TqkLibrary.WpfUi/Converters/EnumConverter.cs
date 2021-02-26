@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace TqkLibrary.WpfUi.Converters
 {
-  public class EnumConventer : IValueConverter
+  public class EnumConverter : IValueConverter
   {
     public bool IsAttributeFlag { get; set; } = true;
 

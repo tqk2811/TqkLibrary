@@ -13,9 +13,9 @@ namespace TqkLibrary.SeleniumSupport
     public static void GenerateExtension(string filepath, string host, string port, string username, string password)
     {
       string background_ = background_js.Replace("{host}", host).Replace("{port}", port.ToString()).Replace("{username}", username).Replace("{password}", password);
-      if(File.Exists(filepath))
+      if (File.Exists(filepath))
       {
-        try { File.Delete(filepath); }catch (Exception) { }
+        try { File.Delete(filepath); } catch (Exception) { }
       }
       ZipFile zipFile = ZipFile.Create(filepath);
       zipFile.BeginUpdate();

@@ -16,8 +16,9 @@ namespace TqkLibrary.SeleniumSupport
   public abstract class BaseChromeProfile
   {
     protected static readonly Random rd = new Random();
-    protected readonly ChromeDriverService service;
-
+    protected ChromeDriverService service;
+    public string ChromeDrivePath { get; set; }
+    public bool HideCommandPromptWindow { get; set; } = true;
     private CancellationTokenRegistration? cancellationTokenRegistration;
 
     public bool IsOpenChrome
@@ -37,14 +38,13 @@ namespace TqkLibrary.SeleniumSupport
     {
     }
 
-    protected BaseChromeProfile(string ChromeDrivePath, bool HideCommandPromptWindow = true)
+    protected BaseChromeProfile(string ChromeDrivePath)
     {
       if (string.IsNullOrEmpty(ChromeDrivePath))
       {
         ChromeDrivePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\AppData\\ChromeDriver";
       }
-      service = ChromeDriverService.CreateDefaultService(ChromeDrivePath);
-      service.HideCommandPromptWindow = HideCommandPromptWindow;
+      this.ChromeDrivePath = ChromeDrivePath;
     }
 
     /// <summary>
@@ -110,6 +110,9 @@ namespace TqkLibrary.SeleniumSupport
     {
       if (!IsOpenChrome)
       {
+        service = ChromeDriverService.CreateDefaultService(ChromeDrivePath);
+        service.HideCommandPromptWindow = HideCommandPromptWindow;
+
         tokenSource = new CancellationTokenSource();
         cancellationTokenRegistration = cancellationToken.Register(() => { if (tokenSource?.IsCancellationRequested == false) tokenSource.Cancel(); });
         chromeDriver = new ChromeDriver(service, chromeOptions);
@@ -125,14 +128,7 @@ namespace TqkLibrary.SeleniumSupport
       {
         process = new Process();
         if (!string.IsNullOrEmpty(ChromePath)) process.StartInfo.FileName = ChromePath;
-        else
-        {
-          string chrome64 = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-          string chrome86 = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-          if (File.Exists(chrome64)) process.StartInfo.FileName = chrome64;
-          else if (File.Exists(chrome86)) process.StartInfo.FileName = chrome86;
-          else throw new FileNotFoundException("chrome.exe");
-        }
+        else process.StartInfo.FileName = ChromeDriverUpdater.GetPath();
         process.StartInfo.Arguments = Arguments;
         process.Start();
         StateChange?.Invoke(IsOpenChrome);
@@ -150,6 +146,8 @@ namespace TqkLibrary.SeleniumSupport
         process = null;
         chromeDriver?.Quit();
         chromeDriver = null;
+        service?.Dispose();
+        service = null;
         cancellationTokenRegistration?.Dispose();
         cancellationTokenRegistration = null;
         tokenSource?.Dispose();

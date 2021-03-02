@@ -7,8 +7,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace TqkLibrary.WpfUi.ObservableCollection
@@ -111,7 +109,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
       IsLoaded = true;
     }
 
-    public void Search(Func<TData,bool> predicate)
+    public void Search(Func<TData, bool> predicate)
     {
       IsLoaded = false;
       IsSearchMode = true;
@@ -120,7 +118,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
       IsLoaded = true;
     }
 
-    public void ChangeGroup(TData data,TId newId)
+    public void ChangeGroup(TData data, TId newId)
     {
       if (data == null) throw new ArgumentNullException(nameof(data));
       if (newId == null) throw new ArgumentNullException(nameof(newId));
@@ -129,7 +127,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
       if (!IsSearchMode)
       {
         TViewModel viewModel = this.FirstOrDefault(x => data.Equals(x.Data));
-        if(!this.Remove(viewModel))
+        if (!this.Remove(viewModel))
         {
           if (newId.Equals(currentId))
           {
@@ -145,7 +143,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
 
     public void RestoreData(IEnumerable<TData> restore_datas)
     {
-      lock(datas)
+      lock (datas)
       {
         HideAll();
         datas.Clear();
@@ -175,9 +173,9 @@ namespace TqkLibrary.WpfUi.ObservableCollection
     protected override void MoveItem(int oldIndex, int newIndex)
     {
       if (IsLoaded && IsSearchMode) throw new NotSupportedException("Can't change in search mode");
-      if(IsLoaded)
+      if (IsLoaded)
       {
-        lock(datas)
+        lock (datas)
         {
           var data_move = this[oldIndex].Data;
           int data_move_index = datas.IndexOf(data_move);
@@ -199,7 +197,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
       if (IsLoaded && IsSearchMode) throw new NotSupportedException("Can't change in search mode");
       if (IsLoaded)
       {
-        if(index == this.Count)
+        if (index == this.Count)
         {
           lock (datas) datas.Add(item.Data);
         }
@@ -226,7 +224,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
       if (IsLoaded)
       {
         var data_target = this[index].Data;
-        lock(datas) datas.Remove(data_target);
+        lock (datas) datas.Remove(data_target);
       }
       this[index].Change -= ItemData_Change;
       base.RemoveItem(index);

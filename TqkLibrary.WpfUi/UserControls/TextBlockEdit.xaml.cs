@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace TqkLibrary.WpfUi.UserControls
@@ -44,7 +42,7 @@ namespace TqkLibrary.WpfUi.UserControls
     private void root_Loaded(object sender, RoutedEventArgs e)
     {
       Window window = Window.GetWindow(this);
-      if(window != null) //fix design
+      if (window != null) //fix design
         window.MouseDown += Window_MouseDown;
     }
 

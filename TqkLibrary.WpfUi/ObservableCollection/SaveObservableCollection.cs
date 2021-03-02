@@ -19,7 +19,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
     public bool IsAutoSave { get; set; } = true;
     public double Interval
     {
-      get{ return timer.Interval; }
+      get { return timer.Interval; }
       set { timer.Interval = value; }
     }
 
@@ -35,7 +35,7 @@ namespace TqkLibrary.WpfUi.ObservableCollection
 
     private void Timer_Elapsed(object sender, ElapsedEventArgs e)
     {
-      lock(timer)
+      lock (timer)
       {
         using (StreamWriter sw = new StreamWriter(SavePath, false)) sw.Write(JsonConvert.SerializeObject(this.Select(x => x.Data).ToList()));
       }

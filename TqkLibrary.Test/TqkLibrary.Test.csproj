@@ -57,6 +57,7 @@
     <Compile Include="Net\PhoneNumberApi.cs" />
     <Compile Include="Net\ProxyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeleniumSupport\UnitTest1.cs" />
     <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +79,10 @@
     <ProjectReference Include="..\TqkLibrary.Net\TqkLibrary.Net.csproj">
       <Project>{c50525db-708d-42ce-91e7-0da0cee93210}</Project>
       <Name>TqkLibrary.Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TqkLibrary.SeleniumSupport\TqkLibrary.SeleniumSupport.csproj">
+      <Project>{ac345115-04d3-4586-b96a-67cff23f6953}</Project>
+      <Name>TqkLibrary.SeleniumSupport</Name>
     </ProjectReference>
     <ProjectReference Include="..\TqkLibrary\TqkLibrary.csproj">
       <Project>{f6629203-ec18-4079-bd48-d1702c214587}</Project>

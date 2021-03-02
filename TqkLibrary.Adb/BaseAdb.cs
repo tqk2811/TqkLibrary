@@ -260,7 +260,7 @@ namespace TqkLibrary.Adb
       string androidPath = $"/sdcard/{Guid.NewGuid()}.png";
       AdbCommand($"shell screencap -p \"{androidPath}\"");
       PullFile(androidPath, FilePath);
-      if(deleteInAndroid) DeleteFile(androidPath);
+      if (deleteInAndroid) DeleteFile(androidPath);
       if (File.Exists(FilePath))
       {
         try

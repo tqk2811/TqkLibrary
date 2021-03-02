@@ -53,6 +53,8 @@ namespace TqkLibrary.Queues.TaskQueues
       }
     }
 
+    public bool IsRunning { get { return RunningCount != 0 || QueueCount != 0; } }
+
     public int RunningCount
     {
       get { return Runnings.Count; }

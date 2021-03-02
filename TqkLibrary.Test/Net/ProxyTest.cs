@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using TqkLibrary.Net.ProxysApi.TinsoftProxyCom;
 namespace TqkLibrary.Test.Net
 {

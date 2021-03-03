@@ -16,12 +16,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     public event FirstFrameTrigger firstFrameTrigger;
     public event StopCallback stopCallback;
     public bool IsRunning { get; set; } = false;
+    public int ReadTryAgainTimes { get; set; } = 3;
     readonly object _lock = new object();
     const int BUFSIZE = 0x10000;
     const ulong NO_PTS = ulong.MaxValue;
     const int HEADER_SIZE = 12;
 
     readonly TcpClient client;
+    readonly NetworkStream networkStream;
     readonly int Width;
     readonly int Height;
 
@@ -36,12 +38,15 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     bool has_pending = false;
     AVPacket pending;
-    public stream_in(TcpClient client, int width, int height, int imageBufferLength)
+    public stream_in(TcpClient client, int width, int height, int bufferLength)
     {
       this.client = client;
       this.Width = width;
       this.Height = height;
-      buffer_result = new byte[imageBufferLength];
+      this.networkStream = client.GetStream();
+      content_buff = new byte[bufferLength];
+      buffer_result = new byte[bufferLength];
+
       av_register_all();
       avformat_network_init();
 
@@ -79,49 +84,74 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         AVPacket packet;
         bool ok = stream_recv_packet(&packet);//push byte[] to packet
         if (!ok)
-          break;//eof
+        {
+          Console.WriteLine("Scrcpy exit by eof");
+          //continue;
+          break;
+        }
 
         ok = stream_push_packet(&packet);
         av_packet_unref(&packet);
         if (!ok)
-          break;// cannot process packet
+        {
+          Console.WriteLine("Scrcpy exit (cannot process packet)");
+          break;
+        }
       }
-      Console.WriteLine("Scrcpy Exit");
+      if(!IsRunning) Console.WriteLine("Scrcpy exit by user");
       stopCallback.Invoke(IsRunning);
       IsRunning = false;
       length_Result = 0;
     }
 
+
+    int ReadStream(byte[] buffer,int read_size)
+    {
+      int r = networkStream.Read(buffer, 0, read_size);
+      int tryagain = 0;
+      while(r < read_size && tryagain < this.ReadTryAgainTimes)
+      {
+#if DEBUG
+        Console.WriteLine($"ReadStream try again {tryagain}: {r}/{read_size}");
+#endif
+        tryagain++;
+        r += networkStream.Read(buffer, r, read_size - r);
+      }
+      return r;
+    }
+
+
     //push byte[] to packet
+    readonly byte[] header_buff = new byte[HEADER_SIZE];
+    readonly byte[] content_buff;
     bool stream_recv_packet(AVPacket* packet)
     {
-      byte[] header = new byte[HEADER_SIZE];
-      NetworkStream networkStream = client.GetStream();
-      int r = networkStream.Read(header, 0, header.Length);
+      int r = ReadStream(header_buff, header_buff.Length);
       if (r < HEADER_SIZE)
+      {
+        Console.Error.WriteLine($"HEADER_SIZE {r} < {HEADER_SIZE}");
         return false;
+      }
 
-      ulong pts = BitConverter.ToUInt64(header.Take(8).Reverse().ToArray(), 0);//buffer_read64be
-      uint len = BitConverter.ToUInt32(header.Skip(8).Take(4).Reverse().ToArray(), 0);//buffer_read32be
+      ulong pts = BitConverter.ToUInt64(header_buff.Take(8).Reverse().ToArray(), 0);//buffer_read64be
+      uint len = BitConverter.ToUInt32(header_buff.Skip(8).Take(4).Reverse().ToArray(), 0);//buffer_read32be
 
       if ((pts == NO_PTS || (pts & 0x8000000000000000) == 0) && len > 0)
       {
         if (av_new_packet(packet, (int)len) != 0)
         {
-#if DEBUG
-          Console.WriteLine("Could not allocate packet");
-#endif
+          Console.Error.WriteLine("stream_in.stream_recv_packet Could not allocate packet");
           return false;
         }
 
-        byte[] buffer_data = new byte[len];
-        r = networkStream.Read(buffer_data, 0, buffer_data.Length);
+        r = ReadStream(content_buff, (int)len);
         if (r < 0 || (uint)r < len)
         {
+          Console.Error.WriteLine($"CONTENT_SIZE {r} < {len}");
           av_packet_unref(packet);
           return false;
         }
-        Marshal.Copy(buffer_data, 0, new IntPtr(packet->data), r);
+        Marshal.Copy(content_buff, 0, new IntPtr(packet->data), r);
 
         packet->pts = pts != NO_PTS ? (long)pts : AV_NOPTS_VALUE;
         return true;

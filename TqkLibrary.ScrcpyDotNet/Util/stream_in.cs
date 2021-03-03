@@ -228,16 +228,17 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       AVFrame* decode_frame = decoder.decoder_push(packet);
       if (decode_frame == null)
       {
-        Console.WriteLine("Decoder h264 failed");
+        Console.Error.WriteLine("Decoder h264 failed");
         return;
       }
 
       AVPacket* image = encoder.encoder_push(decode_frame);
       if (image == null)
       {
-        Console.WriteLine("encoder mjpeg failed");
+        Console.Error.WriteLine("encoder mjpeg failed");
         return;
       }
+
 #if TestVideo
       lock (lock_stream)
       {

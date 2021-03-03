@@ -33,7 +33,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       int ret = avcodec_send_packet(codec_ctx, packet);
       if (ret != 0)
       {
-        Console.WriteLine("decoder avcodec_send_packet: code " + ret);
+        Console.Error.WriteLine("decoder avcodec_send_packet: code " + ret);
         return null;
       }
 
@@ -46,7 +46,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       }
       else
       {
-        Console.WriteLine("decoder avcodec_receive_frame: code " + ret);
+        Console.Error.WriteLine("decoder avcodec_receive_frame: code " + ret);
         return null;
       }
     }

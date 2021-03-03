@@ -6,14 +6,31 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 {
   internal unsafe class encoder : IDisposable
   {
+    AVCodec* codec;
     AVPacket* rendering_packet;
     AVCodecContext* codec_ctx;
     public encoder(AVCodec* codec, int width, int height)
     {
+      if (codec == null) throw new ArgumentNullException(nameof(codec));
+
+      this.codec = codec;
       rendering_packet = av_packet_alloc();
+      InitCodecContext(width, height);
+    }
+
+    public void Dispose()
+    {
+      avcodec_close(codec_ctx);
+      fixed (AVCodecContext** f = &codec_ctx) avcodec_free_context(f);
+      fixed (AVPacket** f = &rendering_packet) av_packet_free(f);
+    }
+
+    void InitCodecContext(int width, int height)
+    {
       codec_ctx = avcodec_alloc_context3(codec);
       if (codec_ctx == null)
-        throw new Exception();
+        throw new ScrcpyException(0, "encoder.init avcodec_alloc_context3");
+
       codec_ctx->time_base.num = 1;
       codec_ctx->time_base.den = 30;
       codec_ctx->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUVJ420P;
@@ -26,24 +43,24 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       //codec_ctx->time_base = streamInputCodec->time_base;
       codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
-      int error = avcodec_open2(codec_ctx, codec, null);
-      if (error < 0)
-        throw new Exception();
+      avcodec_open2(codec_ctx, codec, null).CheckError("encoder.init avcodec_open2");
     }
 
-    public void Dispose()
-    {
-      avcodec_close(codec_ctx);
-      fixed (AVCodecContext** f = &codec_ctx) avcodec_free_context(f);
-      fixed (AVPacket** f = &rendering_packet) av_packet_free(f);
-    }
 
     public AVPacket* encoder_push(AVFrame* frame)
     {
+      if(codec_ctx->width != frame->width || codec_ctx->height != frame->height)
+      {
+        avcodec_close(codec_ctx);
+        fixed (AVCodecContext** f = &codec_ctx) avcodec_free_context(f);
+
+        InitCodecContext(frame->width, frame->height);
+      }
+     
       int ret = avcodec_send_frame(codec_ctx, frame);
       if (ret != 0)
       {
-        Console.WriteLine("encoder avcodec_send_frame: code " + ret);
+        Console.Error.WriteLine("encoder avcodec_send_frame: code " + ret);
         return null;
       }
 
@@ -56,7 +73,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       }
       else
       {
-        Console.WriteLine("encoder avcodec_receive_packet: code " + ret);
+        Console.Error.WriteLine("encoder avcodec_receive_packet: code " + ret);
         return null;
       }
     }

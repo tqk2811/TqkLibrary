@@ -55,7 +55,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     AutoResetEvent AutoResetEvent_Connect = new AutoResetEvent(false);
     AutoResetEvent AutoResetEvent_FirstFrame = new AutoResetEvent(false);
-    stream_in scrcpyStream;
+    MediaStreamIn scrcpyStream;
     int ImageBufferLength = 1024 * 1024;
     public Scrcpy(string deviceId = null, string adbPath = null)
     {
@@ -149,7 +149,7 @@ namespace TqkLibrary.ScrcpyDotNet
         Control._controlStream = control_client.GetStream();
 
         AutoResetEvent_Connect.Set();
-        using (scrcpyStream = new stream_in(video_client, Width, Height, ImageBufferLength))
+        using (scrcpyStream = new MediaStreamIn(video_client, Width, Height, ImageBufferLength))
         {
           scrcpyStream.stopCallback += ScrcpyStream_stopCallback;
           scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();

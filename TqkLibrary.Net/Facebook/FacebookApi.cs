@@ -12,7 +12,6 @@ namespace TqkLibrary.Net.Facebook
   {
     private const string ApiEndPoint = "https://graph.facebook.com";
     private readonly string Api;
-    private readonly HttpClient httpClient = new HttpClient();
 
     public FacebookApi(string version = "v8.0")
     {
@@ -25,7 +24,7 @@ namespace TqkLibrary.Net.Facebook
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get,
         Api + $"/oauth/access_token?client_id={AppId}&redirect_uri={redirect_uri}&client_secret={AppSecret}&code={code}"))
       {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return new FacebookToken(JsonConvert.DeserializeObject<FacebookToken_>(await httpResponseMessage.Content.ReadAsStringAsync()));
         }
@@ -36,7 +35,7 @@ namespace TqkLibrary.Net.Facebook
     {
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, Api + $"/me?access_token={access_token}"))
       {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return JsonConvert.DeserializeObject<FacebookUser>(await httpResponseMessage.Content.ReadAsStringAsync());
         }
@@ -47,7 +46,7 @@ namespace TqkLibrary.Net.Facebook
     {
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, Api + $"/me/accounts?access_token={access_token}"))
       {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return JsonConvert.DeserializeObject<DataPages>(await httpResponseMessage.Content.ReadAsStringAsync());
         }
@@ -69,7 +68,7 @@ namespace TqkLibrary.Net.Facebook
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, Api + $"/me/feed"))
       {
         httpRequestMessage.Content = new FormUrlEncodedContent(dict);
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return await httpResponseMessage.Content.ReadAsStringAsync();
         }
@@ -86,7 +85,7 @@ namespace TqkLibrary.Net.Facebook
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, Api + $"/me/photos"))
       {
         httpRequestMessage.Content = new FormUrlEncodedContent(dict);
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return await httpResponseMessage.Content.ReadAsStringAsync();
         }
@@ -104,7 +103,7 @@ namespace TqkLibrary.Net.Facebook
         form.Add(new ByteArrayContent(image), "image", "image.jpg");
 
         httpRequestMessage.Content = form;
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return await httpResponseMessage.Content.ReadAsStringAsync();
         }
@@ -129,7 +128,7 @@ namespace TqkLibrary.Net.Facebook
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, Api + $"/me/feed"))
       {
         httpRequestMessage.Content = new FormUrlEncodedContent(dict);
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return await httpResponseMessage.Content.ReadAsStringAsync();
         }
@@ -141,7 +140,7 @@ namespace TqkLibrary.Net.Facebook
       string url = Api + $"/{(string.IsNullOrEmpty(userId) ? "me" : userId)}/picture?access_token={access_token}&width={width}&{height}=9999";//&type=large square, small, normal, large
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url))
       {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return await httpResponseMessage.Content.ReadAsByteArrayAsync();
         }
@@ -162,7 +161,7 @@ namespace TqkLibrary.Net.Facebook
       string url = Api + $"/{(string.IsNullOrEmpty(userId) ? "me" : userId)}?access_token={access_token}&fields={fields}";
       using (HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, url))
       {
-        using (HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
+        using (HttpResponseMessage httpResponseMessage = await NetExtensions.httpClient.SendAsync(httpRequestMessage, HttpCompletionOption.ResponseContentRead))
         {
           return await httpResponseMessage.Content.ReadAsStringAsync();
         }

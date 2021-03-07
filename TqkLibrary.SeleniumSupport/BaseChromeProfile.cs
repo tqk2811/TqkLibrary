@@ -49,7 +49,8 @@ namespace TqkLibrary.SeleniumSupport
 
     /// <summary>
     /// <strong>AddArguments:</strong>
-    /// <para>--disable-notifications<br/>
+    /// <para>--no-sandbox<br/>
+    /// --disable-notifications<br/>
     /// --disable-web-security<br/>
     /// --disable-blink-features<br/>
     /// --disable-blink-features=AutomationControlled<br/>
@@ -73,6 +74,7 @@ namespace TqkLibrary.SeleniumSupport
     {
       ChromeOptions options = new ChromeOptions();
       if (!string.IsNullOrWhiteSpace(BinaryLocation)) options.BinaryLocation = BinaryLocation;
+      options.AddArguments("--no-sandbox");
       options.AddArgument("--disable-notifications");
       options.AddArgument("--disable-web-security");
       options.AddArgument("--disable-blink-features");

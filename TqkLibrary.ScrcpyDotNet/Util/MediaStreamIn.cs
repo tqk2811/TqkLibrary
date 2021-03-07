@@ -221,9 +221,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         else
         {
           bool ok = stream_parse(packet);
-#if TestVideo
-          streamOut?.SendRawH264Packet(packet);
-#endif
+
           if (has_pending)
           {
             has_pending = false;
@@ -339,7 +337,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     {
       lock(lock_stream)
       {
-        if (streamOut == null) streamOut = new MediaStreamOut(this, Width, Height, 40000, content_buff.Length);
+        if (streamOut == null) streamOut = new MediaStreamOut(this, Width, Height, content_buff.Length);
         return streamOut.StreamUri;
       }
     }
@@ -353,19 +351,17 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       }
     }
 
-
-
-
-
-    //public void InitStream(NetworkStream stream)
-    //{
-
-    //}
-
-    //public void UnInitStream()
-    //{
-
-    //}
+    internal bool GetImageMjpegPacket(AVPacket* packet)
+    {
+      av_packet_unref(packet);
+      if (length_Result == 0) return false;
+      lock (lock_)
+      {
+        av_new_packet(packet, length_Result);
+        Marshal.Copy(buffer_result, 0, new IntPtr(packet->data), length_Result);
+      }
+      return true;
+    }
 #endif
   }
 }

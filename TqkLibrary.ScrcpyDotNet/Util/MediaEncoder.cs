@@ -41,7 +41,10 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       codec_ctx->time_base.den = fps;
       codec_ctx->width = width;
       codec_ctx->height = height;
+      codec_ctx->bit_rate = 4000000;
 
+      codec_ctx->gop_size = 12;
+      codec_ctx->max_b_frames = 0;
       //codec_ctx->extradata = streamInputCodec->extradata;
       //codec_ctx->extradata_size = streamInputCodec->extradata_size;
       //codec_ctx->time_base = streamInputCodec->time_base;
@@ -60,8 +63,10 @@ namespace TqkLibrary.ScrcpyDotNet.Util
             case AVCodecID.AV_CODEC_ID_H264:
               codec_ctx->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
               codec_ctx->codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO;
-              codec_ctx->skip_frame = AVDiscard.AVDISCARD_NONINTRA;//AVDISCARD_NONREF;//AVDISCARD_NONINTRA;
-              codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+              //codec_ctx->skip_frame = AVDiscard.AVDISCARD_NONINTRA;//AVDISCARD_NONREF;//AVDISCARD_NONINTRA;
+              //codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+              av_opt_set(codec_ctx->priv_data, "preset", "slow", 0);
+              av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
               break;
 
             default: throw new NotSupportedException(codec->id.ToString());
@@ -71,7 +76,6 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         default: throw new NotSupportedException(codec->type.ToString());
       }
       
-
       avcodec_open2(codec_ctx, codec, null).CheckError("MediaEncoder.init avcodec_open2");
     }
 
@@ -93,8 +97,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         return null;
       }
 
+      av_packet_unref(rendering_packet);
       ret = avcodec_receive_packet(codec_ctx, rendering_packet);
-
+      
       if (ret == 0)
       {
         rendering_packet->pts = frame->pts;
@@ -102,7 +107,11 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       }
       else
       {
-        Console.Error.WriteLine("MediaEncoder avcodec_receive_packet: code " + ret);
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+        {
+          Console.Error.WriteLine("MediaEncoder avcodec_receive_packet  AVERROR(EAGAIN)");
+        }
+        else Console.Error.WriteLine("MediaEncoder avcodec_receive_packet: code " + ret);
         return null;
       }
     }

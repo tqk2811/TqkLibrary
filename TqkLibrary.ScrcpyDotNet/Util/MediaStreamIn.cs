@@ -333,11 +333,11 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 #if TestVideo
     readonly object lock_stream = new object();
     MediaStreamOut streamOut;
-    internal string InitVideoH264Stream()
+    internal string InitVideoH264Stream(int fps = 24)
     {
       lock(lock_stream)
       {
-        if (streamOut == null) streamOut = new MediaStreamOut(this, Width, Height, content_buff.Length);
+        if (streamOut == null) streamOut = new MediaStreamOut(this, Width, Height, fps, content_buff.Length);
         return streamOut.StreamUri;
       }
     }

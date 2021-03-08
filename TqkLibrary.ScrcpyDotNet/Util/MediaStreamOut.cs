@@ -14,15 +14,16 @@ namespace TqkLibrary.ScrcpyDotNet.Util
   //https://stackoverflow.com/a/23883598/5034139
   unsafe class MediaStreamOut : IDisposable
   {
-    const int fps = 30;
+    readonly int fps = 24;
     int port = 0;
     public string StreamUri { get; private set; }
     readonly MediaStreamIn mediaStreamIn;
     readonly MediaDecoder mediaDecoder;
     readonly MediaEncoder mediaEncoder;
 
-    internal MediaStreamOut(MediaStreamIn mediaStreamIn, int width, int height, int buffer_size = 1024*1024)
+    internal MediaStreamOut(MediaStreamIn mediaStreamIn, int width, int height,int fps = 24, int buffer_size = 1024*1024)
     {
+      this.fps = fps;
       this.mediaStreamIn = mediaStreamIn;
       mediaDecoder = new MediaDecoder(AVCodecID.AV_CODEC_ID_MJPEG);
       mediaEncoder = new MediaEncoder(AVCodecID.AV_CODEC_ID_H264, width, height, fps);
@@ -58,7 +59,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
       Task.Factory.StartNew(WriteFrame, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
-
+    int pts = 0;
     AVIOContext* server;
     void WriteFrame()
     {
@@ -68,7 +69,8 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         Thread.Sleep(1000 / fps);
         if(mediaStreamIn.GetImageMjpegPacket(&pkt))
         {
-          pkt.pts += fps;
+          pkt.pts = pts;
+          pts += fps;
 
           AVFrame* frame_raw = mediaDecoder.decoder_push(&pkt);
           if(frame_raw == null)
@@ -86,7 +88,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
           avio_write(server, h264_packet->data, h264_packet->size);
           avio_flush(server);
-          Console.WriteLine("avio_write:" + h264_packet->size);
+          Console.WriteLine("avio_write:" + h264_packet->size + ", pts:" + pkt.pts);
         }
         else
         {

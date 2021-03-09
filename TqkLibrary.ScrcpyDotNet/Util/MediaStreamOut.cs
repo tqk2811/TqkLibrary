@@ -18,16 +18,12 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     int port = 0;
     public string StreamUri { get; private set; }
     readonly MediaStreamIn mediaStreamIn;
-    readonly MediaDecoder mediaDecoder;
-    readonly MediaEncoder mediaEncoder;
 
     internal MediaStreamOut(MediaStreamIn mediaStreamIn, int width, int height,int fps = 24, int buffer_size = 1024*1024)
     {
       this.fps = fps;
       this.mediaStreamIn = mediaStreamIn;
-      mediaDecoder = new MediaDecoder(AVCodecID.AV_CODEC_ID_MJPEG);
-      mediaEncoder = new MediaEncoder(AVCodecID.AV_CODEC_ID_H264, width, height, fps);
-
+      
       #region FindOpenPort
       TcpListener tcpListener = null;
       while (true)
@@ -51,48 +47,45 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
       AVDictionary* options = null;
       //av_dict_set(&options, "pkt_size", "32768", 0).CheckError("av_dict_set pkt_size");
-      av_dict_set(&options, "buffer_size", buffer_size.ToString(), 0).CheckError("av_dict_set buffer_size");
+      //av_dict_set(&options, "buffer_size", buffer_size.ToString(), 0).CheckError("av_dict_set buffer_size");
       AVIOContext* server;
       avio_open2(&server, StreamUri, AVIO_FLAG_WRITE, null, &options).CheckError("avio_open2");
 
       this.server = server;
-
-      Task.Factory.StartNew(WriteFrame, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+      ready = true;
+      //Task.Factory.StartNew(WriteFrame, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
+    bool ready = false;
     int pts = 0;
     AVIOContext* server;
     void WriteFrame()
     {
-      AVPacket pkt;
       while (mediaStreamIn.IsRunning)
       {
         Thread.Sleep(1000 / fps);
-        if(mediaStreamIn.GetImageMjpegPacket(&pkt))
+        AVPacket* h264_pkt = mediaStreamIn.GetH264Packet();
+        if (h264_pkt != null)
         {
-          pkt.pts = pts;
-          pts += fps;
-
-          AVFrame* frame_raw = mediaDecoder.decoder_push(&pkt);
-          if(frame_raw == null)
-          {
-            Console.Error.WriteLine("mediaDecoder.decoder_push failed");
-            continue;
-          }
-
-          AVPacket* h264_packet = mediaEncoder.encoder_push(frame_raw);
-          if (h264_packet == null)
-          {
-            Console.Error.WriteLine(" mediaEncoder.encoder_push failed");
-            continue;
-          }
-
-          avio_write(server, h264_packet->data, h264_packet->size);
+          avio_write(server, h264_pkt->data, h264_pkt->size);
           avio_flush(server);
-          Console.WriteLine("avio_write:" + h264_packet->size + ", pts:" + pkt.pts);
+          Console.WriteLine("avio_write:" + h264_pkt->size + ", pts:" + h264_pkt->pts);
         }
         else
         {
-          Console.Error.WriteLine("mediaStreamIn.GetImageMjpegPacket failed");
+          Console.Error.WriteLine("mediaStreamIn.GetH264Packet failed");
+        }
+      }
+    }
+
+    internal void WritePacket(AVPacket* h264_pkt)
+    {
+      if(ready)
+      {
+        if (h264_pkt != null)
+        {
+          avio_write(server, h264_pkt->data, h264_pkt->size);
+          avio_flush(server);
+          Console.WriteLine("avio_write:" + h264_pkt->size + ", pts:" + h264_pkt->pts);
         }
       }
     }

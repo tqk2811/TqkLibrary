@@ -14,7 +14,7 @@ namespace TqkLibrary.Queues.TaskQueues
     bool ReQueue { get; }
 
     /// <summary>
-    /// Dont use async
+    /// Dont use async void inside
     /// </summary>
     /// <returns></returns>
     Task DoWork();
@@ -30,8 +30,8 @@ namespace TqkLibrary.Queues.TaskQueues
 
   public class TaskQueue<T> where T : IQueue
   {
-    private readonly List<T> Queues = new List<T>();
-    private readonly List<T> Runnings = new List<T>();
+    private readonly List<T> _Queues = new List<T>();
+    private readonly List<T> _Runnings = new List<T>();
 
     [Browsable(false), DefaultValue((string)null)]
     public Dispatcher Dispatcher { get; set; }
@@ -49,20 +49,23 @@ namespace TqkLibrary.Queues.TaskQueues
       {
         bool flag = value > _MaxRun;
         _MaxRun = value;
-        if (flag && Queues.Count != 0) RunNewQueue();
+        if (flag && _Queues.Count != 0) RunNewQueue();
       }
     }
 
     public bool IsRunning { get { return RunningCount != 0 || QueueCount != 0; } }
 
+    public List<T> Queues { get { return _Queues.ToList(); } }
+    public List<T> Runnings { get { return _Runnings.ToList(); } }
+
     public int RunningCount
     {
-      get { return Runnings.Count; }
+      get { return _Runnings.Count; }
     }
 
     public int QueueCount
     {
-      get { return Queues.Count; }
+      get { return _Queues.Count; }
     }
 
     public bool RunRandom { get; set; } = false;
@@ -72,20 +75,20 @@ namespace TqkLibrary.Queues.TaskQueues
     {
       if (null != queue)
       {
-        Queues.Remove(queue);
-        lock (Runnings) Runnings.Add(queue);
+        _Queues.Remove(queue);
+        lock (_Runnings) _Runnings.Add(queue);
         queue.DoWork().ContinueWith(ContinueTaskResult, queue);
       }
     }
 
     private void RunNewQueue()
     {
-      lock (Queues)//Prioritize
+      lock (_Queues)//Prioritize
       {
-        foreach (var q in Queues.Where(x => x.IsPrioritize)) StartQueue(q);
+        foreach (var q in _Queues.Where(x => x.IsPrioritize)) StartQueue(q);
       }
 
-      if (Queues.Count == 0 && Runnings.Count == 0 && OnRunComplete != null)
+      if (_Queues.Count == 0 && _Runnings.Count == 0 && OnRunComplete != null)
       {
         if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnRunComplete);
         else OnRunComplete.Invoke();//on completed
@@ -93,17 +96,17 @@ namespace TqkLibrary.Queues.TaskQueues
         return;
       }
 
-      if (Runnings.Count >= MaxRun) return;//other
+      if (_Runnings.Count >= MaxRun) return;//other
       else
       {
-        lock (Queues)
+        lock (_Queues)
         {
           T queue;
-          if (RunRandom) queue = Queues.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-          else queue = Queues.FirstOrDefault();
+          if (RunRandom) queue = _Queues.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+          else queue = _Queues.FirstOrDefault();
           StartQueue(queue);
         }
-        if (Queues.Count > 0 && Runnings.Count < MaxRun) RunNewQueue();
+        if (_Queues.Count > 0 && _Runnings.Count < MaxRun) RunNewQueue();
       }
     }
 
@@ -111,21 +114,19 @@ namespace TqkLibrary.Queues.TaskQueues
 
     private void QueueCompleted(Task result, T queue)
     {
-      lock (Runnings) Runnings.Remove(queue);
-      if (queue.ReQueue) lock (Queues) Queues.Add(queue);
-      if (OnQueueComplete != null)
+      try
       {
-        if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, new object[] { result, queue });
-        else OnQueueComplete.Invoke(result, queue);
-      }
-
-      if (!queue.ReQueue)
-      {
-        try
+        if (queue.ReQueue) lock (_Queues) _Queues.Add(queue);
+        if (OnQueueComplete != null)
         {
-          queue.Dispose();
+          if (Dispatcher != null && !Dispatcher.CheckAccess()) Dispatcher.Invoke(OnQueueComplete, new object[] { result, queue });
+          else OnQueueComplete.Invoke(result, queue);
         }
-        catch (Exception) { }
+        if (!queue.ReQueue) queue.Dispose();
+      }
+      finally
+      {
+        lock (_Runnings) _Runnings.Remove(queue);
       }
 
       RunNewQueue();
@@ -134,37 +135,37 @@ namespace TqkLibrary.Queues.TaskQueues
     public void Add(T queue)
     {
       if (null == queue) throw new ArgumentNullException(nameof(queue));
-      lock (Queues) Queues.Add(queue);
+      lock (_Queues) _Queues.Add(queue);
       RunNewQueue();
     }
 
     public void AddRange(IEnumerable<T> queues)
     {
       if (null == queues) throw new ArgumentNullException(nameof(queues));
-      lock (Queues) foreach (var queue in queues) Queues.Add(queue);
+      lock (_Queues) foreach (var queue in queues) _Queues.Add(queue);
       RunNewQueue();
     }
 
     public void Cancel(T queue)
     {
       if (null == queue) throw new ArgumentNullException(nameof(queue));
-      lock (Queues) Queues.RemoveAll(o => o.CheckEquals(queue));
-      lock (Runnings) Runnings.ForEach(o => { if (o.CheckEquals(queue)) o.Cancel(); });
+      lock (_Queues) _Queues.RemoveAll(o => o.CheckEquals(queue));
+      lock (_Runnings) _Runnings.ForEach(o => { if (o.CheckEquals(queue)) o.Cancel(); });
     }
 
     public void Cancel(Func<T, bool> func)
     {
       if (null == func) throw new ArgumentNullException(nameof(func));
-      lock (Queues)
+      lock (_Queues)
       {
-        Queues.Where(func).ToList().ForEach(x => Queues.RemoveAll(o => o.CheckEquals(x)));
+        _Queues.Where(func).ToList().ForEach(x => _Queues.RemoveAll(o => o.CheckEquals(x)));
       }
-      lock (Runnings)
+      lock (_Runnings)
       {
-        Runnings.Where(func).ToList().ForEach(x =>
+        _Runnings.Where(func).ToList().ForEach(x =>
         {
           x.Cancel();
-          Runnings.RemoveAll(o => o.CheckEquals(x));
+          _Runnings.RemoveAll(o => o.CheckEquals(x));
         });
       }
     }
@@ -179,12 +180,12 @@ namespace TqkLibrary.Queues.TaskQueues
     public void ShutDown()
     {
       MaxRun = 0;
-      lock (Queues)
+      lock (_Queues)
       {
-        Queues.ForEach(o => o.Dispose());
-        Queues.Clear();
+        _Queues.ForEach(o => o.Dispose());
+        _Queues.Clear();
       }
-      lock (Runnings) Runnings.ForEach(o => o.Cancel());
+      lock (_Runnings) _Runnings.ForEach(o => o.Cancel());
     }
 
     private readonly AutoResetEvent autoResetEvent = new AutoResetEvent(false);

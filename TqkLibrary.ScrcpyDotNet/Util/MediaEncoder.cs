@@ -65,7 +65,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
               codec_ctx->codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO;
               //codec_ctx->skip_frame = AVDiscard.AVDISCARD_NONINTRA;//AVDISCARD_NONREF;//AVDISCARD_NONINTRA;
               //codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-              av_opt_set(codec_ctx->priv_data, "preset", "slow", 0);
+              av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
               av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
               break;
 

@@ -60,6 +60,8 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         throw new ScrcpyException(0, "parser AV_CODEC_ID_H264 not found");
       h264_parser->flags |= PARSER_FLAG_COMPLETE_FRAMES;
 
+      temp_raw_frame = av_frame_alloc();
+
       encoder = new MediaEncoder(AVCodecID.AV_CODEC_ID_MJPEG, width, height);
       decoder = new MediaDecoder(h264_codec);
     }
@@ -68,6 +70,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     {
       av_parser_close(h264_parser);
       fixed (AVCodecContext** f = &h264_codec_ctx) avcodec_free_context(f);
+      fixed (AVFrame** f = &temp_raw_frame) av_frame_free(f);
       decoder?.Dispose();
       encoder?.Dispose();
     }
@@ -279,47 +282,79 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         return;
       }
 
-      AVPacket* image = encoder.encoder_push(decode_frame);//encode raw frame to MJPEG
-
-      if (image == null)
+      lock (lock_temp_raw_frame)
       {
-        Console.Error.WriteLine("Encoder mjpeg failed");
-        return;
+        av_frame_unref(temp_raw_frame);
+        int ret = av_frame_ref(temp_raw_frame, decode_frame);
+        if (ret < 0)
+        {
+          Console.Error.WriteLine("MediaStreamIn.process_frame av_frame_ref failed " + ret);
+          return;
+        }
+        ret = av_frame_copy(temp_raw_frame, decode_frame);
+        if (ret < 0)
+        {
+          Console.Error.WriteLine("MediaStreamIn.process_frame av_frame_copy failed " + ret);
+          return;
+        }
+        ret = av_frame_copy_props(temp_raw_frame, decode_frame);
+        if (ret < 0)
+        {
+          Console.Error.WriteLine("MediaStreamIn.process_frame av_frame_copy_props failed " + ret);
+          return;
+        }
       }
-
-      lock (lock_)
+#if TestVideo
+      if(mediaEncoder_liveStream != null && streamOut != null)
       {
-        if (image->size > buffer_result.Length) return;
-        length_Result = image->size;
-        Marshal.Copy(new IntPtr(image->data), buffer_result, 0, image->size);
+        //decode_frame->p
+        AVPacket* h264_pkt = mediaEncoder_liveStream.encoder_push(decode_frame);
+        streamOut?.WritePacket(h264_pkt);
       }
+#endif
 
       firstFrameTrigger?.Invoke();
     }
 
 
-
-    readonly object lock_ = new object();
+    AVFrame* temp_raw_frame;
+    readonly object lock_temp_raw_frame = new object();
     int length_Result = 0;
     readonly byte[] buffer_result;
+
+    void DecodeRawFrameToMjpeg()//lock (lock_temp_raw_frame)
+    {
+      AVPacket* image = encoder.encoder_push(temp_raw_frame);
+      if (image == null) length_Result = 0;
+      else
+      {
+        Marshal.Copy(new IntPtr(image->data), buffer_result, 0, image->size);
+        length_Result = image->size;
+      }
+    }
+
+
     internal Bitmap GetScreenShot()
     {
-      lock (lock_)
+      lock (lock_temp_raw_frame)
       {
+        DecodeRawFrameToMjpeg();
         if (length_Result > 0)
         {
           MemoryStream memoryStream = new MemoryStream();
           memoryStream.Write(buffer_result, 0, length_Result);
           return (Bitmap)Bitmap.FromStream(memoryStream);
         }
-        return null;
       }
+      return null;
     }
 
     internal byte[] GetScreenShotByteArray()
     {
-      lock (lock_)
+      lock (lock_temp_raw_frame)
       {
+        DecodeRawFrameToMjpeg();
+
         if (length_Result > 0)
         {
           byte[] tempbuff = new byte[length_Result];
@@ -333,11 +368,16 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 #if TestVideo
     readonly object lock_stream = new object();
     MediaStreamOut streamOut;
+    MediaEncoder mediaEncoder_liveStream;
     internal string InitVideoH264Stream(int fps = 24)
     {
       lock(lock_stream)
       {
-        if (streamOut == null) streamOut = new MediaStreamOut(this, Width, Height, fps, content_buff.Length);
+        if (streamOut == null)
+        {
+          mediaEncoder_liveStream = new MediaEncoder(AVCodecID.AV_CODEC_ID_H264, Width, Height, fps);
+          streamOut = new MediaStreamOut(this, Width, Height, fps, content_buff.Length);
+        }
         return streamOut.StreamUri;
       }
     }
@@ -346,21 +386,19 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     {
       lock (lock_stream)
       {
-        streamOut.Dispose();
+        streamOut?.Dispose();
         streamOut = null;
+        mediaEncoder_liveStream?.Dispose();
+        mediaEncoder_liveStream = null;
       }
     }
 
-    internal bool GetImageMjpegPacket(AVPacket* packet)
+    internal AVPacket* GetH264Packet()
     {
-      av_packet_unref(packet);
-      if (length_Result == 0) return false;
-      lock (lock_)
+      lock (lock_temp_raw_frame)
       {
-        av_new_packet(packet, length_Result);
-        Marshal.Copy(buffer_result, 0, new IntPtr(packet->data), length_Result);
+        return mediaEncoder_liveStream.encoder_push(temp_raw_frame);
       }
-      return true;
     }
 #endif
   }

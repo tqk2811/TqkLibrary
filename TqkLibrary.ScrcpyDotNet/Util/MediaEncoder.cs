@@ -51,22 +51,29 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       switch (codec->type)
       {
         case AVMediaType.AVMEDIA_TYPE_VIDEO:
+          codec_ctx->codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO;
           switch (codec->id)
           {
             case AVCodecID.AV_CODEC_ID_MJPEG:
               codec_ctx->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUVJ420P;
-              codec_ctx->codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO;
               codec_ctx->skip_frame = AVDiscard.AVDISCARD_NONINTRA;//AVDISCARD_NONREF;//AVDISCARD_NONINTRA;
               codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
               break;
 
             case AVCodecID.AV_CODEC_ID_H264:
               codec_ctx->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
-              codec_ctx->codec_type = AVMediaType.AVMEDIA_TYPE_VIDEO;
+             
               //codec_ctx->skip_frame = AVDiscard.AVDISCARD_NONINTRA;//AVDISCARD_NONREF;//AVDISCARD_NONINTRA;
               //codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
               av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
               av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
+              break;
+
+            case AVCodecID.AV_CODEC_ID_MPEG4:
+              codec_ctx->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
+              av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
+              av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
+
               break;
 
             default: throw new NotSupportedException(codec->id.ToString());

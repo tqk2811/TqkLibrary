@@ -127,9 +127,8 @@ namespace TqkLibrary.Queues.TaskQueues
       finally
       {
         lock (_Runnings) _Runnings.Remove(queue);
+        RunNewQueue();
       }
-
-      RunNewQueue();
     }
 
     public void Add(T queue)

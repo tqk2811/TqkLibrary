@@ -23,6 +23,13 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public bool ShowTouches { get; set; } = true;
     public bool StayAwake { get; set; } = true;
+    public Orientation Orientation { get; set; } = Orientation.Auto;
+    public bool IsControl { get; set; } = true;
+    /// <summary>
+    /// 0 is unlimit
+    /// </summary>
+    public int MaxFps { get; set; } = 0;
+
 
     public string DeviceName { get; private set; }
     public int Width { get; private set; } = -1;
@@ -95,8 +102,8 @@ namespace TqkLibrary.ScrcpyDotNet
 
 #if TestVideo
 
-    public string InitVideoH264Stream(int fps = 24) => scrcpyStream?.InitVideoH264Stream(fps);
-
+    public string InitVideoH264Stream(int fps = 24) => scrcpyStream?.InitVideoStream(FFmpeg.AutoGen.AVCodecID.AV_CODEC_ID_H264, fps);
+    public string InitVideoMpeg4Stream(int fps = 24) => scrcpyStream?.InitVideoStream(FFmpeg.AutoGen.AVCodecID.AV_CODEC_ID_MPEG4, fps);
     public void StopStream() => scrcpyStream?.StopStream();
 
 #endif
@@ -126,12 +133,12 @@ namespace TqkLibrary.ScrcpyDotNet
         byte[] sizebuff = new byte[2];
 
         Task.Factory.StartNew(DeployServer, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
-        using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(60000))
+        using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(20000))
         {
           using (cancellationTokenSource.Token.Register(() => server.Stop()))
           {
             video_client = server.AcceptTcpClient();
-            control_client = server.AcceptTcpClient();
+            if(IsControl) control_client = server.AcceptTcpClient();
           }
           cancellationTokenSource.Token.ThrowIfCancellationRequested();
         }
@@ -146,7 +153,7 @@ namespace TqkLibrary.ScrcpyDotNet
         stream.Read(sizebuff, 0, sizebuff.Length);
         Height = BitConverter.ToInt16(sizebuff.Reverse().ToArray(), 0);
 
-        Control._controlStream = control_client.GetStream();
+        if(IsControl) Control._controlStream = control_client.GetStream();
 
         AutoResetEvent_Connect.Set();
         using (scrcpyStream = new MediaStreamIn(video_client, Width, Height, ImageBufferLength))
@@ -193,17 +200,15 @@ namespace TqkLibrary.ScrcpyDotNet
       string loglevel = "info";
       int max_size_string = 0;
       int bit_rate_string = 8000000;
-      int max_fps_string = 0;
-      int lock_video_orientation_string = -1;
       bool tunnel_forward = false;
       string crop = "-";
       bool frame_meta = true;//required
-      bool control = true;
       int display_id_string = 0;
       string codec_options = "-";
       string encoder_name = "-";
 
-      AdbCommand($"shell CLASSPATH=/data/local/tmp/scrcpy_server_tqk.jar app_process / com.genymobile.scrcpy.Server {version} {loglevel} {max_size_string} {bit_rate_string} {max_fps_string} {lock_video_orientation_string} {tunnel_forward} {crop} {frame_meta} {control} {display_id_string} {ShowTouches} {StayAwake} {codec_options} {encoder_name}");
+      AdbCommand("shell CLASSPATH=/data/local/tmp/scrcpy_server_tqk.jar app_process / com.genymobile.scrcpy.Server " + 
+        $"{version} {loglevel} {max_size_string} {bit_rate_string} {MaxFps} {(int)Orientation} {tunnel_forward} {crop} {frame_meta} {IsControl} {display_id_string} {ShowTouches} {StayAwake} {codec_options} {encoder_name}");
     }
 
     string AdbCommand(string command)

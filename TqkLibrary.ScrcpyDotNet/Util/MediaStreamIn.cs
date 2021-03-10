@@ -43,6 +43,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       this.Width = width;
       this.Height = height;
       this.networkStream = client.GetStream();
+
       content_buff = new byte[bufferLength];
       buffer_result = new byte[bufferLength];
 
@@ -304,14 +305,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
           return;
         }
       }
-#if TestVideo
-      if(mediaEncoder_liveStream != null && streamOut != null)
-      {
-        //decode_frame->p
-        AVPacket* h264_pkt = mediaEncoder_liveStream.encoder_push(decode_frame);
-        streamOut?.WritePacket(h264_pkt);
-      }
-#endif
+//#if TestVideo
+//      if(mediaEncoder_liveStream != null && streamOut != null)
+//      {
+//        //decode_frame->p
+//        AVPacket* h264_pkt = mediaEncoder_liveStream.encoder_push(decode_frame);
+//        streamOut?.WritePacket(h264_pkt);
+//      }
+//#endif
 
       firstFrameTrigger?.Invoke();
     }
@@ -369,13 +370,15 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     readonly object lock_stream = new object();
     MediaStreamOut streamOut;
     MediaEncoder mediaEncoder_liveStream;
-    internal string InitVideoH264Stream(int fps = 24)
+    long pts = 0;
+    internal string InitVideoStream(AVCodecID streamCodec, int fps = 24)
     {
       lock(lock_stream)
       {
         if (streamOut == null)
         {
-          mediaEncoder_liveStream = new MediaEncoder(AVCodecID.AV_CODEC_ID_H264, Width, Height, fps);
+          pts = 0;
+          mediaEncoder_liveStream = new MediaEncoder(streamCodec, Width, Height, fps);
           streamOut = new MediaStreamOut(this, Width, Height, fps, content_buff.Length);
         }
         return streamOut.StreamUri;
@@ -393,10 +396,11 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       }
     }
 
-    internal AVPacket* GetH264Packet()
+    internal AVPacket* GetVideoStreamPacket()
     {
       lock (lock_temp_raw_frame)
       {
+        temp_raw_frame->pts = pts++;
         return mediaEncoder_liveStream.encoder_push(temp_raw_frame);
       }
     }

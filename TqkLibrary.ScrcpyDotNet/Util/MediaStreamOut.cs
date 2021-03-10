@@ -50,25 +50,22 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       //av_dict_set(&options, "buffer_size", buffer_size.ToString(), 0).CheckError("av_dict_set buffer_size");
       AVIOContext* server;
       avio_open2(&server, StreamUri, AVIO_FLAG_WRITE, null, &options).CheckError("avio_open2");
-
+      
       this.server = server;
-      ready = true;
-      //Task.Factory.StartNew(WriteFrame, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+      Task.Factory.StartNew(WriteFrame, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
-    bool ready = false;
-    int pts = 0;
     AVIOContext* server;
     void WriteFrame()
     {
       while (mediaStreamIn.IsRunning)
       {
         Thread.Sleep(1000 / fps);
-        AVPacket* h264_pkt = mediaStreamIn.GetH264Packet();
-        if (h264_pkt != null)
+        AVPacket* pkt = mediaStreamIn.GetVideoStreamPacket();
+        if (pkt != null)
         {
-          avio_write(server, h264_pkt->data, h264_pkt->size);
+          avio_write(server, pkt->data, pkt->size);
           avio_flush(server);
-          Console.WriteLine("avio_write:" + h264_pkt->size + ", pts:" + h264_pkt->pts);
+          Console.WriteLine("avio_write:" + pkt->size + ", pts:" + pkt->pts);
         }
         else
         {
@@ -77,18 +74,18 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       }
     }
 
-    internal void WritePacket(AVPacket* h264_pkt)
-    {
-      if(ready)
-      {
-        if (h264_pkt != null)
-        {
-          avio_write(server, h264_pkt->data, h264_pkt->size);
-          avio_flush(server);
-          Console.WriteLine("avio_write:" + h264_pkt->size + ", pts:" + h264_pkt->pts);
-        }
-      }
-    }
+    //internal void WritePacket(AVPacket* h264_pkt)
+    //{
+    //  if(ready)
+    //  {
+    //    if (h264_pkt != null)
+    //    {
+    //      avio_write(server, h264_pkt->data, h264_pkt->size);
+    //      avio_flush(server);
+    //      Console.WriteLine("avio_write:" + h264_pkt->size + ", pts:" + h264_pkt->pts);
+    //    }
+    //  }
+    //}
 
     public void Dispose()
     {

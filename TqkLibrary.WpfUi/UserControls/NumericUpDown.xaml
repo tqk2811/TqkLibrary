@@ -8,17 +8,18 @@
              mc:Ignorable="d"
              Loaded="root_Loaded"
              Unloaded="root_Unloaded"
-             MinHeight="16" Height="22" Width="60" MaxHeight="22"
-             x:Name="root" GotKeyboardFocus="root_GotKeyboardFocus"
-             d:DesignHeight="22" d:DesignWidth="60">
+             MinHeight="16" Height="20" MaxHeight="22"
+             MinWidth="50" Width="Auto" 
+             d:DesignHeight="20" d:DesignWidth="50"
+             x:Name="root" GotKeyboardFocus="root_GotKeyboardFocus">
     <Grid Background="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="20" />
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="txtNum" x:FieldModifier="private" Text="{Binding NumValue,RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="12"
+        <TextBox x:Name="txtNum" x:FieldModifier="private" Text="{Binding NumValue,ElementName=root}" FontSize="12"
                  Padding="1,1,1,1" BorderBrush="Black" BorderThickness="1,1,1,1" PreviewKeyDown="txtNum_PreviewKeyDown"  PreviewKeyUp="txtNum_PreviewKeyUp"
-                 FocusableChanged="txtNum_FocusableChanged" TextChanged="TxtNum_TextChanged" />
+                 FocusableChanged="txtNum_FocusableChanged" TextChanged="TxtNum_TextChanged" TextAlignment="Center"/>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*" />

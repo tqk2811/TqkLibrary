@@ -6,34 +6,16 @@
              xmlns:local="clr-namespace:TqkLibrary.WpfUi.UserControls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
-             Loaded="root_Loaded"
-             Unloaded="root_Unloaded"
-             MinHeight="16" Height="20" Width="133.189" MaxHeight="20"
-             x:Name="root" GotKeyboardFocus="root_GotKeyboardFocus"
-             d:DesignHeight="22">
+             MinHeight="16" Height="20" MaxHeight="20"
+             MinWidth="60" Width="Auto" 
+             d:DesignHeight="22" d:DesignWidth="100"
+             x:Name="root">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
-            <ColumnDefinition Width="{Binding InputWidth,RelativeSource={RelativeSource AncestorType=UserControl}}" />
-            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="{Binding InputWidth,RelativeSource={RelativeSource AncestorType=UserControl}}"/>
         </Grid.ColumnDefinitions>
         <TextBlock Text="{Binding Text,RelativeSource={RelativeSource AncestorType=UserControl}}" VerticalAlignment="Center" />
-        <TextBox x:Name="txtNum" x:FieldModifier="private" Text="{Binding NumValue,RelativeSource={RelativeSource AncestorType=UserControl}}" FontSize="12"
-                 Padding="1,1,1,1" BorderBrush="Black" BorderThickness="1,1,1,1" PreviewKeyDown="txtNum_PreviewKeyDown"  PreviewKeyUp="txtNum_PreviewKeyUp"
-                 FocusableChanged="txtNum_FocusableChanged" TextChanged="TxtNum_TextChanged" Grid.Column="1" />
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="1*" />
-            </Grid.RowDefinitions>
-            <Grid x:Name="up" Background="#FF673AB7" MouseLeave="EventMouseLeave"
-                  MouseLeftButtonDown="EventMouseLeftButtonDown" MouseLeftButtonUp="EventMouseLeftButtonUp">
-                <materialDesign:PackIcon Kind="ChevronUp" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" Height="8"  Width="10" />
-            </Grid>
-            <Grid x:Name="down" Grid.Row="1" Background="#FF673AB7" MouseLeave="EventMouseLeave"
-                  MouseLeftButtonDown="EventMouseLeftButtonDown" MouseLeftButtonUp="EventMouseLeftButtonUp">
-                <materialDesign:PackIcon Kind="ChevronDown" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" Height="8" Width="10" />
-            </Grid>
-        </Grid>
+        <local:NumericUpDown VerticalAlignment="Top" Grid.Column="1" NumValue="{Binding NumValue,ElementName=root}" Step="{Binding Step,ElementName=root}" Min="{Binding Min,ElementName=root}" Max="{Binding Max,ElementName=root}" AllowNull="{Binding AllowNull,ElementName=root}"/>
     </Grid>
 </UserControl>

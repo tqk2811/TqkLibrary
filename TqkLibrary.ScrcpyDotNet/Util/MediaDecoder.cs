@@ -36,6 +36,8 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     internal AVFrame* decoder_push(AVPacket* packet)
     {
+      if (packet == null) return null;
+
       int ret = avcodec_send_packet(codec_ctx, packet);
       if (ret != 0)
       {

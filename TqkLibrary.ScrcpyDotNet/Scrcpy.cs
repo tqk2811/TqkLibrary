@@ -100,7 +100,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public byte[] GetScreenShotByteArray() => scrcpyStream?.GetScreenShotByteArray();
 
-#if TestVideo
+#if LiveStream
 
     public string InitVideoH264Stream(int fps = 24) => scrcpyStream?.InitVideoStream(FFmpeg.AutoGen.AVCodecID.AV_CODEC_ID_H264, fps);
     public string InitVideoMpeg4Stream(int fps = 24) => scrcpyStream?.InitVideoStream(FFmpeg.AutoGen.AVCodecID.AV_CODEC_ID_MPEG4, fps);

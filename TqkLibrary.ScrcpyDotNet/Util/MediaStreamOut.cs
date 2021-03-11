@@ -1,19 +1,16 @@
-﻿#if TestVideo
+﻿#if LiveStream
 using FFmpeg.AutoGen;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static FFmpeg.AutoGen.ffmpeg;
-using System.Reflection;
 namespace TqkLibrary.ScrcpyDotNet.Util
 {
-  //https://stackoverflow.com/a/23883598/5034139
   unsafe class MediaStreamOut : IDisposable
   {
+    bool IsDispose = false;
     readonly int fps = 24;
     int port = 0;
     public string StreamUri { get; private set; }
@@ -57,7 +54,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     AVIOContext* server;
     void WriteFrame()
     {
-      while (mediaStreamIn.IsRunning)
+      while (mediaStreamIn.IsRunning && !IsDispose)
       {
         Thread.Sleep(1000 / fps);
         AVPacket* pkt = mediaStreamIn.GetVideoStreamPacket();
@@ -72,24 +69,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
           Console.Error.WriteLine("mediaStreamIn.GetH264Packet failed");
         }
       }
+      avio_feof(server);
+      avio_flush(server);
+      avio_close(server);
     }
-
-    //internal void WritePacket(AVPacket* h264_pkt)
-    //{
-    //  if(ready)
-    //  {
-    //    if (h264_pkt != null)
-    //    {
-    //      avio_write(server, h264_pkt->data, h264_pkt->size);
-    //      avio_flush(server);
-    //      Console.WriteLine("avio_write:" + h264_pkt->size + ", pts:" + h264_pkt->pts);
-    //    }
-    //  }
-    //}
 
     public void Dispose()
     {
-
+      IsDispose = true;
     }
   }
 }

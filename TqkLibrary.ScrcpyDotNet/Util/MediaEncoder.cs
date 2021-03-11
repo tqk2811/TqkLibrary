@@ -89,6 +89,8 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     internal AVPacket* encoder_push(AVFrame* frame)
     {
+      if (frame == null || frame->width == 0 || frame->height == 0) return null;
+
       if(codec_ctx->width != frame->width || codec_ctx->height != frame->height)
       {
         avcodec_close(codec_ctx);

@@ -36,9 +36,6 @@ namespace TqkLibrary.ScrcpyDotNet
     public int Height { get; private set; } = -1;
     public ScrcpyControl Control { get; }
 
-    int reversePort = 34676;
-    public readonly string deviceId;
-
     bool _isRunning = false;
     public bool IsRunning
     {
@@ -60,10 +57,17 @@ namespace TqkLibrary.ScrcpyDotNet
       }
     }
 
-    AutoResetEvent AutoResetEvent_Connect = new AutoResetEvent(false);
+    public readonly string deviceId;
+
+    int reversePort = 34676;
     AutoResetEvent AutoResetEvent_FirstFrame = new AutoResetEvent(false);
+
     MediaStreamIn scrcpyStream;
     int ImageBufferLength = 1024 * 1024;
+    TcpListener server = null;
+    TcpClient video_client = null;
+    TcpClient control_client = null;
+
     public Scrcpy(string deviceId = null, string adbPath = null)
     {
       this.deviceId = deviceId;
@@ -75,19 +79,17 @@ namespace TqkLibrary.ScrcpyDotNet
       Control = new ScrcpyControl(this);
     }
 
-    public void Start(int ImageBufferLength = 1024 * 1024)
+    public Task Start(int ImageBufferLength = 1024 * 1024)
     {
       if (!IsRunning)
       {
         this.ImageBufferLength = ImageBufferLength;
-        AutoResetEvent_Connect.Reset();
-        AutoResetEvent_FirstFrame.Reset();
-        Task.Factory.StartNew(InitServerConnection, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
+        AutoResetEvent_FirstFrame.Reset(); 
         IsRunning = true;
+        return Task.Factory.StartNew(InitServerConnection, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)/*.ContinueWith(TaskContinue)*/;
       }
+      else return Task.FromResult(0);
     }
-
-    public bool WaitForConnect(int timeout = 10000) => AutoResetEvent_Connect.WaitOne(timeout);
 
     public bool WaitForFirstFrame(int timeout = 10000) => AutoResetEvent_FirstFrame.WaitOne(timeout);
 
@@ -110,9 +112,6 @@ namespace TqkLibrary.ScrcpyDotNet
 
     void InitServerConnection()
     {
-      TcpListener server = null;
-      TcpClient video_client = null;
-      TcpClient control_client = null;
       try
       {
         while (true)
@@ -126,24 +125,28 @@ namespace TqkLibrary.ScrcpyDotNet
           }
           catch (Exception)
           {
-
           }
         }
         byte[] buffer = new byte[64];
         byte[] sizebuff = new byte[2];
 
-        Task.Factory.StartNew(DeployServer, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
-        using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(20000))
+        Task task_DeployServer = Task.Factory.StartNew(DeployServer, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(10000))
         {
           using (cancellationTokenSource.Token.Register(() => server.Stop()))
           {
             video_client = server.AcceptTcpClient();
             if(IsControl) control_client = server.AcceptTcpClient();
           }
-          cancellationTokenSource.Token.ThrowIfCancellationRequested();
+          if (cancellationTokenSource.IsCancellationRequested)
+          {
+            task_DeployServer.Wait();//throw exception if crash
+            throw new ScrcpyException(0, "No connection from scrcpy server");
+          }
         }
 
         NetworkStream stream = video_client.GetStream();
+
         stream.Read(buffer, 0, 64);
         DeviceName = Encoding.ASCII.GetString(buffer, 0, 64);
 
@@ -153,38 +156,53 @@ namespace TqkLibrary.ScrcpyDotNet
         stream.Read(sizebuff, 0, sizebuff.Length);
         Height = BitConverter.ToInt16(sizebuff.Reverse().ToArray(), 0);
 
-        if(IsControl) Control._controlStream = control_client.GetStream();
+        if (IsControl) Control._controlStream = control_client.GetStream();
 
-        AutoResetEvent_Connect.Set();
-        using (scrcpyStream = new MediaStreamIn(video_client, Width, Height, ImageBufferLength))
-        {
-          scrcpyStream.stopCallback += ScrcpyStream_stopCallback;
-          scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();
-          scrcpyStream.IsRunning = IsRunning;
-          scrcpyStream.RunStream();
-        }
+        scrcpyStream = new MediaStreamIn(video_client, Width, Height, ImageBufferLength);
+        scrcpyStream.stopCallback += ScrcpyStream_stopCallback;
+        scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();
+        scrcpyStream.resolutionChange += ScrcpyStream_resolutionChange;
+        scrcpyStream.IsRunning = IsRunning;
+
+        Task.Factory.StartNew(scrcpyStream.RunStream, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
       }
-      finally
+      catch(Exception)
       {
-        try
-        {
-          scrcpyStream = null;
-          Control._controlStream = null;
-          control_client?.Dispose();
-          video_client?.Dispose();
-          server?.Stop();
-          AdbCommand("reverse --remove localabstract:scrcpy");
-        }
-        finally
-        {
-          _isRunning = false;
-        }
+        ScrcpyStream_stopCallback(false);
+        throw;
       }
+    }
+
+    private void ScrcpyStream_resolutionChange(int width, int height)
+    {
+      this.Width = width;
+      this.Height = height;
     }
 
     private void ScrcpyStream_stopCallback(bool byUser)
     {
-      //_isRunning = false;
+      try
+      {
+        scrcpyStream?.Dispose();
+        scrcpyStream = null;
+
+        Control._controlStream = null;
+
+        control_client?.Dispose();
+        control_client = null;
+
+        video_client?.Dispose();
+        video_client = null;
+
+        server?.Stop();
+        server = null;
+
+        try { AdbCommand("reverse --remove localabstract:scrcpy"); } catch (Exception) { }
+      }
+      finally
+      {
+        _isRunning = false;
+      }
     }
 
     void DeployServer()
@@ -239,8 +257,11 @@ namespace TqkLibrary.ScrcpyDotNet
 
     void TaskContinue(Task task)
     {
-      IsRunning = false;
-      if (task.IsFaulted) OnException?.Invoke(task.Exception);
+      ScrcpyStream_stopCallback(false);
+      if (task.IsFaulted)
+      {
+        OnException?.Invoke(task.Exception);
+      }
     }
   }
 }

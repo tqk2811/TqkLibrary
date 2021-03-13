@@ -8,7 +8,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
   {
     AVFrame* decoding_frame;
     AVCodecContext* codec_ctx;
-
+    AVCodec* codec;
     internal MediaDecoder(AVCodecID aVCodecID) : this(avcodec_find_decoder(aVCodecID))
     {
 
@@ -17,14 +17,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     internal MediaDecoder(AVCodec* codec)
     {
       if (codec == null) throw new ArgumentNullException(nameof(codec));
-
+      this.codec = codec;
       decoding_frame = av_frame_alloc();
       //rendering_frame = av_frame_alloc();
       codec_ctx = avcodec_alloc_context3(codec);
       if (codec_ctx == null)
-        throw new ScrcpyException(0, "MediaDecoder avcodec_alloc_context3 failed");
+        throw new ScrcpyException(0, $"MediaDecoder({codec->id}) avcodec_alloc_context3 failed");
 
-      avcodec_open2(codec_ctx, codec, null).CheckError("MediaDecoder avcodec_alloc_context3 failed");
+      avcodec_open2(codec_ctx, codec, null).CheckError($"MediaDecoder({codec->id}) avcodec_alloc_context3 failed");
     }
 
     public void Dispose()
@@ -41,7 +41,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       int ret = avcodec_send_packet(codec_ctx, packet);
       if (ret != 0)
       {
-        Console.Error.WriteLine("MediaDecoder avcodec_send_packet: code " + ret);
+        Console.Error.WriteLine($"MediaDecoder({codec->id}).decoder_push avcodec_send_packet: code " + ret);
         return null;
       }
 
@@ -54,7 +54,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       }
       else
       {
-        Console.Error.WriteLine("MediaDecoder avcodec_receive_frame: code " + ret);
+        Console.Error.WriteLine($"MediaDecoder({codec->id}).decoder_push avcodec_receive_frame: code " + ret);
         return null;
       }
     }

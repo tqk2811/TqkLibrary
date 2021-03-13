@@ -7,15 +7,16 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              MinHeight="16" Height="20" MaxHeight="20"
-             MinWidth="60" Width="Auto" 
-             d:DesignHeight="22" d:DesignWidth="100"
+             Width="Auto" 
+             d:DesignHeight="22"
              x:Name="root">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="{Binding InputWidth,RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+            <ColumnDefinition Width="1*" MinWidth="20"/>
+            <ColumnDefinition Width="1"/>
+            <ColumnDefinition Width="{Binding InputWidth,RelativeSource={RelativeSource AncestorType=UserControl}}" MinWidth="50"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Text="{Binding Text,RelativeSource={RelativeSource AncestorType=UserControl}}" VerticalAlignment="Center" />
-        <local:NumericUpDown VerticalAlignment="Top" Grid.Column="1" NumValue="{Binding NumValue,ElementName=root}" Step="{Binding Step,ElementName=root}" Min="{Binding Min,ElementName=root}" Max="{Binding Max,ElementName=root}" AllowNull="{Binding AllowNull,ElementName=root}"/>
+        <TextBlock Text="{Binding Text,RelativeSource={RelativeSource AncestorType=UserControl}}" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,2" />
+        <local:NumericUpDown VerticalAlignment="Top" Grid.Column="2" NumValue="{Binding NumValue,ElementName=root}" Step="{Binding Step,ElementName=root}" Min="{Binding Min,ElementName=root}" Max="{Binding Max,ElementName=root}" AllowNull="{Binding AllowNull,ElementName=root}"/>
     </Grid>
 </UserControl>

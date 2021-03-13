@@ -14,7 +14,7 @@
              x:Name="root" GotKeyboardFocus="root_GotKeyboardFocus">
     <Grid Background="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" MinWidth="30"/>
             <ColumnDefinition Width="20" />
         </Grid.ColumnDefinitions>
         <TextBox x:Name="txtNum" x:FieldModifier="private" Text="{Binding NumValue,ElementName=root}" FontSize="12"

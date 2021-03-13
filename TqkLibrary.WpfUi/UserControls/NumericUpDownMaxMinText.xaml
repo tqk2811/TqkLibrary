@@ -7,12 +7,12 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              MinHeight="16" Height="20" MaxHeight="22"
-             MinWidth="140" Width="163.196" 
+             MinWidth="140" Width="Auto" 
              x:Name="root"
              d:DesignHeight="20">
-    <Grid Background="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
+    <Grid Background="Transparent">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" MinWidth="40"/>
+            <ColumnDefinition Width="1*" MinWidth="30"/>
             <ColumnDefinition Width="{Binding InputWidth,ElementName=root}" MinWidth="50"/>
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="{Binding InputWidth,ElementName=root}" MinWidth="50"/>
@@ -21,7 +21,8 @@
         <TextBlock Margin="0" TextWrapping="Wrap" Text="{Binding Text,ElementName=root}" VerticalAlignment="Center"/>
 
         <local:NumericUpDown x:Name="nud_Min" Width="Auto" Height="Auto" Grid.Column="1" NumValue="{Binding Path=NumValueMin,ElementName=root}" Step="{Binding Path=Step,ElementName=root}" Min="{Binding Path=Min,ElementName=root}" Max="{Binding Path=NumValue,ElementName=nud_Max}"/>
-        <TextBlock Grid.Column="2" TextWrapping="Wrap" Text=" - " TextAlignment="Center"/>
+        <!--<TextBlock Grid.Column="2" TextWrapping="Wrap" Text=" - " TextAlignment="Center" Margin="0,1,0,-1"/>-->
+        <materialDesign:PackIcon Grid.Column="2" Kind="Minus" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="Black" Height="8" Width="10" />
         <local:NumericUpDown x:Name="nud_Max" Width="Auto" Grid.Column="3" Height="Auto" NumValue="{Binding Path=NumValueMax,ElementName=root}" Step="{Binding Path=Step,ElementName=root}" Min="{Binding Path=NumValue,ElementName=nud_Min}" Max="{Binding Path=Max,ElementName=root}"/>
     </Grid>
 </UserControl>

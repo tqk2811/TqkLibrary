@@ -49,9 +49,12 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       avio_open2(&server, StreamUri, AVIO_FLAG_WRITE, null, &options).CheckError("avio_open2");
       
       this.server = server;
+#if LiveStream1
       Task.Factory.StartNew(WriteFrame, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+#endif
     }
     AVIOContext* server;
+#if LiveStream1
     void WriteFrame()
     {
       while (mediaStreamIn.IsRunning && !IsDispose)
@@ -73,10 +76,31 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       avio_flush(server);
       avio_close(server);
     }
+#elif LiveStream2
+    internal void WritePacket(AVPacket* pkt)
+    {
+      if(pkt != null)
+      {
+        avio_write(server, pkt->data, pkt->size);
+        avio_flush(server);
+      }
+      else
+      {
+        avio_feof(server);
+        avio_flush(server);
+        avio_close(server);
+      }
+    }
+#endif
+
 
     public void Dispose()
     {
+#if LiveStream1
       IsDispose = true;
+#elif LiveStream2
+      avio_close(server);
+#endif
     }
   }
 }

@@ -4,8 +4,10 @@ using static FFmpeg.AutoGen.ffmpeg;
 
 namespace TqkLibrary.ScrcpyDotNet.Util
 {
+  internal delegate void ResolutionChange(int width, int height);
   internal unsafe class MediaEncoder : IDisposable
   {
+    internal event ResolutionChange resolutionChange;
     readonly int fps;
     AVCodec* codec;
     AVPacket* rendering_packet;
@@ -35,7 +37,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     {
       codec_ctx = avcodec_alloc_context3(codec);
       if (codec_ctx == null)
-        throw new ScrcpyException(0, "MediaEncoder.init avcodec_alloc_context3");
+        throw new ScrcpyException(0, $"MediaEncoder({codec->id}).init avcodec_alloc_context3");
 
       codec_ctx->time_base.num = 1;
       codec_ctx->time_base.den = fps;
@@ -83,7 +85,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
         default: throw new NotSupportedException(codec->type.ToString());
       }
       
-      avcodec_open2(codec_ctx, codec, null).CheckError("MediaEncoder.init avcodec_open2");
+      avcodec_open2(codec_ctx, codec, null).CheckError($"MediaEncoder({codec->id}).init avcodec_open2");
     }
 
 
@@ -91,8 +93,10 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     {
       if (frame == null || frame->width == 0 || frame->height == 0) return null;
 
-      if(codec_ctx->width != frame->width || codec_ctx->height != frame->height)
+      if(codec_ctx->width != frame->width || codec_ctx->height != frame->height)//change resolution by rotate alway key frame (i think)
       {
+        resolutionChange?.Invoke(frame->width, frame->height);
+
         avcodec_close(codec_ctx);
         fixed (AVCodecContext** f = &codec_ctx) avcodec_free_context(f);
 
@@ -102,7 +106,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       int ret = avcodec_send_frame(codec_ctx, frame);
       if (ret != 0)
       {
-        Console.Error.WriteLine("MediaEncoder avcodec_send_frame: code " + ret);
+        Console.Error.WriteLine($"MediaEncoder({codec->id}).encoder_push avcodec_send_frame: code " + ret);
         return null;
       }
 
@@ -118,9 +122,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       {
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
         {
-          Console.Error.WriteLine("MediaEncoder avcodec_receive_packet  AVERROR(EAGAIN)");
+          Console.Error.WriteLine($"MediaEncoder({codec->id}).encoder_push avcodec_receive_packet  AVERROR(EAGAIN)");
         }
-        else Console.Error.WriteLine("MediaEncoder avcodec_receive_packet: code " + ret);
+        else Console.Error.WriteLine($"MediaEncoder({codec->id}).encoder_push avcodec_receive_packet: code " + ret);
         return null;
       }
     }

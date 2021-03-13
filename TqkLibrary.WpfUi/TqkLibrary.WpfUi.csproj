@@ -11,6 +11,7 @@
     <None Remove="UserControls\NumericUpDownMaxMinText.xaml" />
     <None Remove="UserControls\NumericUpDownText.xaml" />
     <None Remove="UserControls\TextBlockEdit.xaml" />
+    <None Remove="UserControls\TimePicker.xaml" />
     <None Remove="Windows\OauthWindow.xaml" />
   </ItemGroup>
 
@@ -21,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Include="UserControls\TimePicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\NumericUpDownMaxMinText.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

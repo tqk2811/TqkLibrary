@@ -13,6 +13,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
   internal delegate void FirstFrameTrigger();
   internal unsafe class MediaStreamIn : IDisposable
   {
+    internal event ResolutionChange resolutionChange;
     public event FirstFrameTrigger firstFrameTrigger;
     public event StopCallback stopCallback;
     public bool IsRunning { get; set; } = false;
@@ -43,6 +44,8 @@ namespace TqkLibrary.ScrcpyDotNet.Util
     int length_buffer_image = 0;
     readonly byte[] buffer_image;
     readonly object lock_buffer_image = new object();
+
+    bool isResolutionChange = false;
 
 #if LiveStream
     AVFrame* temp_raw_frame;
@@ -82,6 +85,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 #endif
 
       encoder_mjpeg = new MediaEncoder(AVCodecID.AV_CODEC_ID_MJPEG, width, height);
+      encoder_mjpeg.resolutionChange += (w, h) => isResolutionChange = true;
       decoder_h264 = new MediaDecoder(h264_codec);
     }
 
@@ -297,6 +301,7 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       if (raw_frame == null)
       {
         Console.Error.WriteLine("Decoder h264 failed");
+        lock (lock_buffer_image) length_buffer_image = 0;
         return;
       }
 
@@ -304,10 +309,17 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       if(image_mjpeg == null)
       {
         Console.Error.WriteLine("Encoder mjpeg failed");
+        lock (lock_buffer_image) length_buffer_image = 0;
         return;
       }
 
-      lock(lock_buffer_image)
+      if (isResolutionChange)
+      {
+        isResolutionChange = false;
+        resolutionChange?.Invoke(raw_frame->width, raw_frame->height);
+      }
+
+      lock (lock_buffer_image)
       {
         Marshal.Copy(new IntPtr(image_mjpeg->data), buffer_image, 0, image_mjpeg->size);
         length_buffer_image = image_mjpeg->size;
@@ -316,7 +328,8 @@ namespace TqkLibrary.ScrcpyDotNet.Util
       firstFrameTrigger?.Invoke();
 
 #if LiveStream
-      if(mediaEncoder_liveStream != null)
+#if LiveStream1
+      if (mediaEncoder_liveStream != null)
       {
         lock (lock_temp_raw_frame)
         {
@@ -341,12 +354,16 @@ namespace TqkLibrary.ScrcpyDotNet.Util
           }
         }
       }
+#elif LiveStream2
+      if (streamOut != null)
+      {
+        streamOut.WritePacket(packet);
+      }
+#endif
 #endif
     }
 
 
-
-    
 
     internal Bitmap GetScreenShot()
     {

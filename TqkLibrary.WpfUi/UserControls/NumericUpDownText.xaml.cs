@@ -12,7 +12,7 @@ namespace TqkLibrary.WpfUi.UserControls
       nameof(InputWidth),
       typeof(int),
       typeof(NumericUpDownText),
-      new FrameworkPropertyMetadata(45, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+      new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
     public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
       nameof(Text),
@@ -28,8 +28,8 @@ namespace TqkLibrary.WpfUi.UserControls
 
     public int InputWidth
     {
-      get { return (int)GetValue(InputWidthProperty) + 20; }
-      set { SetValue(InputWidthProperty, value - 20); }
+      get { return (int)GetValue(InputWidthProperty) + 50; }
+      set { SetValue(InputWidthProperty, value - 50); }
     }
 
     #region NUD

@@ -22,7 +22,7 @@ namespace TqkLibrary.ScrcpyDotNet
     public event OnException OnException;
 
     public uint ReadPacketTryAgainTimes { get; set; } = 3;
-    public bool ShowTouches { get; set; } = true;
+    public bool ShowTouches { get; set; } = false;
     public bool StayAwake { get; set; } = true;
     public Orientation Orientation { get; set; } = Orientation.Auto;
     public bool IsControl { get; set; } = true;
@@ -84,6 +84,10 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public byte[] GetScreenShotByteArray() => scrcpyStream?.GetScreenShotByteArray();
 
+    /// <summary>
+    /// livestream with mjpeg codec
+    /// </summary>
+    /// <returns></returns>
     public string InitVideoStream() => scrcpyStream?.InitVideoStream();
     public void StopStream() => scrcpyStream?.StopStream();
 
@@ -143,7 +147,7 @@ namespace TqkLibrary.ScrcpyDotNet
       }
       catch(Exception)
       {
-        StopByError(false);
+        StopAll();
         throw;
       }
     }
@@ -154,7 +158,7 @@ namespace TqkLibrary.ScrcpyDotNet
       this.Height = height;
     }
 
-    private void StopByError(bool byUser)
+    private void StopAll()
     {
       try
       {
@@ -232,7 +236,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     void TaskContinue(Task task)
     {
-      StopByError(false);
+      StopAll();
       if (task.IsFaulted)
       {
         OnException?.Invoke(task.Exception);

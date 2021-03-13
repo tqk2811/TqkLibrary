@@ -79,10 +79,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
     public void Dispose()
     {
+      StopStream();
       av_parser_close(h264_parser);
       fixed (AVCodecContext** f = &h264_codec_ctx) avcodec_free_context(f);
-
-      StopStream();
       decoder_h264?.Dispose();
       encoder_mjpeg?.Dispose();
     }

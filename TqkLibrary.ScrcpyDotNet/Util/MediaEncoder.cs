@@ -47,6 +47,9 @@ namespace TqkLibrary.ScrcpyDotNet.Util
 
       codec_ctx->gop_size = 12;
       codec_ctx->max_b_frames = 0;
+
+      av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
+      av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
       //codec_ctx->extradata = streamInputCodec->extradata;
       //codec_ctx->extradata_size = streamInputCodec->extradata_size;
       //codec_ctx->time_base = streamInputCodec->time_base;
@@ -67,14 +70,14 @@ namespace TqkLibrary.ScrcpyDotNet.Util
              
               //codec_ctx->skip_frame = AVDiscard.AVDISCARD_NONINTRA;//AVDISCARD_NONREF;//AVDISCARD_NONINTRA;
               //codec_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
-              av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
-              av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
+              //av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
+              //av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
               break;
 
             case AVCodecID.AV_CODEC_ID_MPEG4:
               codec_ctx->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
-              av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
-              av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
+              //av_opt_set(codec_ctx->priv_data, "preset", "ultrafast", 0);
+              //av_opt_set(codec_ctx->priv_data, "tune", "zerolatency", 0);
 
               break;
 

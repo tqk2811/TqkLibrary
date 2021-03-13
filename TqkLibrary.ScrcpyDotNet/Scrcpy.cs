@@ -21,6 +21,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public event OnException OnException;
 
+    public uint ReadPacketTryAgainTimes { get; set; } = 3;
     public bool ShowTouches { get; set; } = true;
     public bool StayAwake { get; set; } = true;
     public Orientation Orientation { get; set; } = Orientation.Auto;
@@ -36,26 +37,7 @@ namespace TqkLibrary.ScrcpyDotNet
     public int Height { get; private set; } = -1;
     public ScrcpyControl Control { get; }
 
-    bool _isRunning = false;
-    public bool IsRunning
-    {
-      get { return _isRunning; }
-      private set
-      {
-        if (value)
-        {
-          _isRunning = value;
-        }
-        else
-        {
-          if (scrcpyStream != null)
-          {
-            scrcpyStream.IsRunning = value;
-            _isRunning = value;
-          }
-        }
-      }
-    }
+    public bool IsRunning { get; internal set; }
 
     public readonly string deviceId;
 
@@ -102,13 +84,8 @@ namespace TqkLibrary.ScrcpyDotNet
 
     public byte[] GetScreenShotByteArray() => scrcpyStream?.GetScreenShotByteArray();
 
-#if LiveStream
-
-    public string InitVideoH264Stream(int fps = 24) => scrcpyStream?.InitVideoStream(FFmpeg.AutoGen.AVCodecID.AV_CODEC_ID_H264, fps);
-    public string InitVideoMpeg4Stream(int fps = 24) => scrcpyStream?.InitVideoStream(FFmpeg.AutoGen.AVCodecID.AV_CODEC_ID_MPEG4, fps);
+    public string InitVideoStream() => scrcpyStream?.InitVideoStream();
     public void StopStream() => scrcpyStream?.StopStream();
-
-#endif
 
     void InitServerConnection()
     {
@@ -158,17 +135,15 @@ namespace TqkLibrary.ScrcpyDotNet
 
         if (IsControl) Control._controlStream = control_client.GetStream();
 
-        scrcpyStream = new MediaStreamIn(video_client, Width, Height, ImageBufferLength);
-        scrcpyStream.stopCallback += ScrcpyStream_stopCallback;
+        scrcpyStream = new MediaStreamIn(this, video_client, Width, Height, ImageBufferLength);
         scrcpyStream.firstFrameTrigger += () => AutoResetEvent_FirstFrame.Set();
         scrcpyStream.resolutionChange += ScrcpyStream_resolutionChange;
-        scrcpyStream.IsRunning = IsRunning;
 
         Task.Factory.StartNew(scrcpyStream.RunStream, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).ContinueWith(TaskContinue);
       }
       catch(Exception)
       {
-        ScrcpyStream_stopCallback(false);
+        StopByError(false);
         throw;
       }
     }
@@ -179,7 +154,7 @@ namespace TqkLibrary.ScrcpyDotNet
       this.Height = height;
     }
 
-    private void ScrcpyStream_stopCallback(bool byUser)
+    private void StopByError(bool byUser)
     {
       try
       {
@@ -201,7 +176,7 @@ namespace TqkLibrary.ScrcpyDotNet
       }
       finally
       {
-        _isRunning = false;
+        IsRunning = false;
       }
     }
 
@@ -257,7 +232,7 @@ namespace TqkLibrary.ScrcpyDotNet
 
     void TaskContinue(Task task)
     {
-      ScrcpyStream_stopCallback(false);
+      StopByError(false);
       if (task.IsFaulted)
       {
         OnException?.Invoke(task.Exception);

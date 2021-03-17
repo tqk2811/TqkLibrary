@@ -23,7 +23,7 @@ namespace TqkLibrary.SeleniumSupport
 
     public bool IsOpenChrome
     {
-      get { return chromeDriver != null || process != null; }
+      get { return chromeDriver != null || (process != null && !process.HasExited); }
     }
 
     public CancellationToken Token { get { return tokenSource.Token; } }
@@ -124,7 +124,7 @@ namespace TqkLibrary.SeleniumSupport
       return false;
     }
 
-    public virtual bool OpenChromeWithoutSelenium(string Arguments, string ChromePath = null)
+    public virtual Process OpenChromeWithoutSelenium(string Arguments, string ChromePath = null)
     {
       if (!IsOpenChrome)
       {
@@ -134,9 +134,9 @@ namespace TqkLibrary.SeleniumSupport
         process.StartInfo.Arguments = Arguments;
         process.Start();
         StateChange?.Invoke(IsOpenChrome);
-        return true;
+        return process;
       }
-      return false;
+      return null;
     }
 
     public virtual bool CloseChrome()

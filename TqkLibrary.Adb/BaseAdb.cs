@@ -80,9 +80,12 @@ namespace TqkLibrary.Adb
     public static IEnumerable<string> GetDevicesOnline() => GetDevices().Where(x => !x.EndsWith("\toffline"));
 
     public static string ExecuteCommand(string command, int timeout = 30000, string adbPath = null)
-      => ExecuteCommand(command, CancellationToken.None, timeout, adbPath);
+    {
+      using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+        return ExecuteCommand(command, cancellationTokenSource.Token, adbPath);
+    }
 
-    public static string ExecuteCommand(string command, CancellationToken cancellationToken, int timeout = 30000, string adbPath = null)
+    public static string ExecuteCommand(string command, CancellationToken cancellationToken, string adbPath = null)
     {
       using (Process process = new Process())
       {
@@ -95,22 +98,15 @@ namespace TqkLibrary.Adb
         process.StartInfo.RedirectStandardError = true;
         process.StartInfo.RedirectStandardInput = true;
         process.Start();
-        using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout);
-        using (cancellationTokenSource.Token.Register(() => process.Kill()))
-        {
-          using (cancellationToken.Register(() => process.Kill()))
-          {
-            process.WaitForExit();
-          }
-        }
+
+        using (cancellationToken.Register(() => process.Kill())) process.WaitForExit();
         cancellationToken.ThrowIfCancellationRequested();
-        if (cancellationTokenSource.IsCancellationRequested) throw new AdbTimeoutException();
 
         string result = process.StandardOutput.ReadToEnd();
         string err = process.StandardError.ReadToEnd();
         if (!string.IsNullOrEmpty(err))
         {
-          if (err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
+          if (!err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
           else
           {
             Console.WriteLine($"AdbCommand:" + command);
@@ -122,9 +118,12 @@ namespace TqkLibrary.Adb
     }
 
     public static string ExecuteCommandCmd(string command, int timeout = 30000, string adbPath = null)
-      => ExecuteCommandCmd(command, CancellationToken.None, timeout, adbPath);
+    {
+      using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+        return ExecuteCommandCmd(command, cancellationTokenSource.Token, adbPath);
+    }
 
-    public static string ExecuteCommandCmd(string command, CancellationToken cancellationToken, int timeout = 30000, string adbPath = null)
+    public static string ExecuteCommandCmd(string command, CancellationToken cancellationToken, string adbPath = null)
     {
       using (Process process = new Process())
       {
@@ -141,12 +140,15 @@ namespace TqkLibrary.Adb
         process.StandardInput.Flush();
         process.StandardInput.Close();
 
-        process.WaitForExit();
+
+        using (cancellationToken.Register(() => process.Kill())) process.WaitForExit();
+
+
         string result = process.StandardOutput.ReadToEnd();
         string err = process.StandardError.ReadToEnd();
         if (!string.IsNullOrEmpty(err))
         {
-          if (err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
+          if (!err.Trim().StartsWith("Warning:")) throw new AdbException(err, result);
           else
           {
             Console.WriteLine($"AdbCommand:" + command);
@@ -174,7 +176,13 @@ namespace TqkLibrary.Adb
       string adbLocation = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
       string commands = string.IsNullOrEmpty(DeviceId) ? command : $"-s {DeviceId} {command}";
       LogCommand?.Invoke(commands);
-      return ExecuteCommand(commands, CancellationToken, timeout, adbLocation);
+      using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+      {
+        using(CancellationToken.Register(() => cancellationTokenSource.Cancel()))
+        {
+          return ExecuteCommand(commands, cancellationTokenSource.Token, adbLocation);
+        }
+      }
     }
 
     public string AdbCommandCmd(string command)
@@ -186,7 +194,14 @@ namespace TqkLibrary.Adb
       string adbLocation = string.IsNullOrEmpty(adbPath) ? AdbPath : adbPath;
       string commands = string.IsNullOrEmpty(DeviceId) ? command : $"-s {DeviceId} {command}";
       LogCommand?.Invoke(commands);
-      return ExecuteCommandCmd(commands, CancellationToken, timeout, adbLocation);
+      using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+      {
+        using (CancellationToken.Register(() => cancellationTokenSource.Cancel()))
+        {
+          return ExecuteCommandCmd(commands, cancellationTokenSource.Token, adbLocation);
+        }
+      }
+      
     }
 
     //public void WaitForDevice() => AdbCommand("wait-for-device");
@@ -224,14 +239,21 @@ namespace TqkLibrary.Adb
 
     public void UpdateApk(string pcPath, int timeout = 30000) => AdbCommand($"install -r \"{pcPath}\"", timeout);
 
+    /// am [start|instrument]<br/>
+    /// am start[-a <action>] [-d <data_uri>][-t <mime_type>] [-c <category> [-c <category>] ...][-e <extra_key> <extra_value>[-e <extra_key> <extra_value> ...][-n <component>][-D][<uri>]
+    /// am instrument[-e <arg_name> <arg_value>] [-p <prof_file>] [-w] <component>
+    //https://developer.android.com/studio/command-line/adb#IntentSpec
     /// <summary>
     /// Example: com.google.android.gms/.accountsettings.mg.ui.main.MainActivity<br/>
-    /// OpenApk("com.google.android.gms",".accountsettings.mg.ui.main.MainActivity");
+    /// OpenApk("com.google.android.gms/.accountsettings.mg.ui.main.MainActivity");<br/>
     /// </summary>
     /// <param name="packageName"></param>
     /// <param name="activityName"></param>
-    //https://developer.android.com/studio/command-line/adb#IntentSpec
-    public void OpenApk(string packageName, string activityName) => AdbCommand($"shell am start -n {packageName}/{activityName}");
+    public void OpenApk(string n) => AdbCommand($"shell am start -n {n}");
+
+    public void OpenApk(string n, string d) => AdbCommand($"shell am start -d {d} -n {n}");
+
+    public void OpenApk(string n, string d, string a) => AdbCommand($"shell am start -d {d} -n {n} -a {a}");
 
     public void DisableApk(string packageName) => AdbCommand($"shell pm disable {packageName}");
 

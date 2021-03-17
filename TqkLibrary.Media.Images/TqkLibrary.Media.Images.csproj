@@ -24,6 +24,12 @@
     <None Include="..\..\..\..\..\lib\emgu.cv.runtime.windows.4.5.1.4349\runtimes\win-x86\native\opencv_videoio_ffmpeg451.dll" Link="x86\opencv_videoio_ffmpeg451.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\..\..\..\lib\opencv_ffmpeg341.dll" Link="x64\opencv_ffmpeg341.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\..\..\lib\opencv_ffmpeg343.dll" Link="x64\opencv_ffmpeg343.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

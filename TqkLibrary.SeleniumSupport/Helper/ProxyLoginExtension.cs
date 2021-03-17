@@ -13,10 +13,7 @@ namespace TqkLibrary.SeleniumSupport
     public static void GenerateExtension(string filepath, string host, string port, string username, string password)
     {
       string background_ = background_js.Replace("{host}", host).Replace("{port}", port.ToString()).Replace("{username}", username).Replace("{password}", password);
-      if (File.Exists(filepath))
-      {
-        try { File.Delete(filepath); } catch (Exception) { }
-      }
+      if (File.Exists(filepath)) try { File.Delete(filepath); } catch (Exception) { }
       ZipFile zipFile = ZipFile.Create(filepath);
       zipFile.BeginUpdate();
       using CustomStaticDataSource manifest = new CustomStaticDataSource(manifest_json);
@@ -28,19 +25,5 @@ namespace TqkLibrary.SeleniumSupport
     }
 
     public static void GenerateExtension(string filepath, string host, int port, string username, string password) => GenerateExtension(filepath, host, port.ToString(), username, password);
-  }
-
-  internal class CustomStaticDataSource : IStaticDataSource, IDisposable
-  {
-    private readonly MemoryStream memoryStream;
-
-    public CustomStaticDataSource(string content)
-    {
-      this.memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-    }
-
-    public void Dispose() => memoryStream.Dispose();
-
-    public Stream GetSource() => memoryStream;
   }
 }
